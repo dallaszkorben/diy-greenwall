@@ -1,0 +1,17 @@
+{
+    "central-ap":{
+        "essid": "Central-Station-006",
+        "password": "viragfal"
+    },
+    "level-sta":{
+        "pin-trigger": 5,
+        "pin-echo": 4,
+        "pin-led-red": 0,
+        "pin-led-green": 2,
+        "report-interval": 10 
+    },
+    "webserver":{
+        "ip": "192.168.4.1",
+        "path-level-report": "levelreport"
+    }
+}
