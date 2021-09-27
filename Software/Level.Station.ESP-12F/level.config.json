@@ -4,11 +4,11 @@
         "password": "viragfal"
     },
     "level-sta":{
-        "pin-trigger": 5,
-        "pin-echo": 4,
-        "pin-led-red": 0,
-        "pin-led-green": 2,
-        "report-interval": 10 
+        "trigger-pin": 5,
+        "echo-pin": 4,
+        "led-status-pin": 2,
+        "led-status-inverse": true,
+        "report-interval-sec": 10 
     },
     "webserver":{
         "ip": "192.168.4.1",

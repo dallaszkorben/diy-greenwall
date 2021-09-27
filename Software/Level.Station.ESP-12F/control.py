@@ -1,41 +1,47 @@
 import config
 from machine import Pin, PWM
 
-
 class LedControl():
 
-    STATUS_NONE = -1
-    STATUS_IS_AP = 0
-    STATUS_IS_WEB = 1
-    STATUS_NO_AP = 2
-    STATUS_NO_WEB = 3
+    MAX_DUTY = 1023
+
+    INVERSE = config.getValue('level-sta', 'led-status-inverse')
+
+    STATUS_BEFORE_SEND_POST = {
+        "freq": 1000,
+        "duty": (MAX_DUTY-1023) if INVERSE else 1023
+    }
+    STATUS_FAILED_SEND_POST = {
+        "freq": 10,
+        "duty": (MAX_DUTY-500) if INVERSE else 500
+    }
+    STATUS_PASSED_SEND_POST = {
+        "freq": 1,
+        "duty": (MAX_DUTY-30) if INVERSE else 30
+    }
+    STATUS_FAILED_CONNECTION = {
+        "freq": 1000,
+        "duty": (MAX_DUTY-20) if INVERSE else 20
+    }
+    STATUS_BEFORE_CONNECTION = {
+        "freq": 1,
+        "duty": (MAX_DUTY-500) if INVERSE else 500
+    }
 
     def __init__(self):
-        self.status=LedControl.STATUS_NONE
-        self.pinLedRed=config.getValue('level-sta', 'pin-led-red')
-        self.pinLedGreen=config.getValue('level-sta', 'pin-led-green')
+        self.pinLedStatus=config.getValue('level-sta', 'led-status-pin')
 
-    def isWeb(self):
-        if not self.status == LedControl.STATUS_IS_WEB:
-            ledRed = PWM(Pin(self.pinLedRed), freq=1, duty=0)
-            ledGreen = PWM(Pin(self.pinLedGreen), freq=1, duty=50)
-            self.status = LedControl.STATUS_IS_WEB
+    def setBeforeSendPost(self):
+        led = PWM(Pin(self.pinLedStatus), freq=LedControl.STATUS_BEFORE_SEND_POST['freq'], duty=LedControl.STATUS_BEFORE_SEND_POST['duty'])
 
-    def isAp(self):
-        if not self.status == LedControl.STATUS_IS_AP:
-            ledRed = PWM(Pin(self.pinLedRed), freq=1, duty=0)
-            ledGreen = PWM(Pin(self.pinLedGreen), freq=1, duty=0)
-            self.status = LedControl.STATUS_IS_AP
+    def setPassedSendPost(self):
+        led = PWM(Pin(self.pinLedStatus), freq=LedControl.STATUS_PASSED_SEND_POST['freq'], duty=LedControl.STATUS_PASSED_SEND_POST['duty'])
 
-    def noAp(self):
-        if not self.status == LedControl.STATUS_NO_AP:
-            ledRed = PWM(Pin(self.pinLedRed), freq=1000, duty=1000)
-            ledGreen = PWM(Pin(self.pinLedGreen), freq=1, duty=0)
-            self.status = LedControl.STATUS_NO_AP
+    def setFailedSendPost(self):
+        led = PWM(Pin(self.pinLedStatus), freq=LedControl.STATUS_FAILED_SEND_POST['freq'], duty=LedControl.STATUS_FAILED_SEND_POST['duty'])
 
-    def noWeb(self):
-        if not self.status == LedControl.STATUS_NO_WEB:
-            ledRed = PWM(Pin(self.pinLedRed), freq=1, duty=500)
-            ledGreen = PWM(Pin(self.pinLedGreen), freq=1, duty=0)
-            self.status = LedControl.STATUS_NO_WEB
+    def setFailedConnection(self):
+        led = PWM(Pin(self.pinLedStatus), freq=LedControl.STATUS_FAILED_CONNECTION['freq'], duty=LedControl.STATUS_FAILED_CONNECTION['duty'])
 
+    def setBeforeConnection(self):
+        led = PWM(Pin(self.pinLedStatus), freq=LedControl.STATUS_BEFORE_CONNECTION['freq'], duty=LedControl.STATUS_BEFORE_CONNECTION['duty'])

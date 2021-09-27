@@ -1,0 +1,48 @@
+Level Station
+_____________
+
+Hardware:
+1. ESP-12F DOITING microprocessor
+2. HC-SR04 ultrasonic sensore
+3. 3D printed frame storing the HW
+
+Tools:
+1. Many variables are defined in the level.config.json file in JSON format
+   Only 2 levels of hierarchy allowed: section and the key
+2. To read from this config file, use the getValue(section, key) method in the config.py file
+3. UltrasonicSensor object in the ultrasonic_sensor.py file represents a HC-SR04 ultrasonic sensor
+   From the object you can gain 2 distances:
+   -distance in millimeter with 1 measurement using the getDistanceInMm() method
+    in the response you get a Tuple. 1st value is the distance in mm, the 2nd value is the measured pule
+   -mean value of the distance in millimeter out of 100 measurements
+    in the response you get a Tuple. 1st value is the int value of the mean distance in mm, the 2nd value is the variance
+4. The wifi_level.py provides the WifiLevel class which provides the connection to the Access Point and to be able to send message to the webserver, which will handle the sent values
+
+Process:
+1. In the boot.py file there is an "import level" which will import the level.py.
+2. The main frame is defined in the level.py
+3. Creates WifiLevel object
+4. Creates UltrasnicSensor object
+5. Establishes the connection to the Access Point
+6. In an infinite loop, it reads the distance, and sends this distance value to the webserver
+7. It sleeps some time before it continous the loop
+
+Signaling:
+For signaling the built in LED is used by default (GPIO02), but of course it is parameterized in the level.config.json file
+
+
+                                                                                                 1Hz/30
+                                                                                        -------------------
+                                                                                      / Pass                \
+                                                            1kH/1023                 /                       \
+                                                        ------------ sendPost -----<                          >---
+                                                      / True                         \                       /    \  
+   1Hz/50                                            /                                \          10Hz/500   /      \ 
+---------------- connectToAP ------- isConnected() <                                    -------------------/        |
+                                ^                    \                                  Fail              /         |
+                                |                     \     1kH/20                                       /          |
+                                |                       ------------------------------------------------            |
+                             Waiting                    False                                                       |
+                                |                                                                                  /
+                                 \                                                                                /
+                                  -------------------------------------------------------------------------------

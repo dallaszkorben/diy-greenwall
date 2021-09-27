@@ -9,9 +9,9 @@ gc.enable()
 
 ip=config.getValue('webserver', 'ip')
 path=config.getValue('webserver', 'path-level-report')
-pinTrigger=config.getValue('level-sta', 'pin-trigger')
-pinEcho=config.getValue('level-sta', 'pin-echo')
-reportIntervalSec=config.getValue('level-sta', 'report-interval')
+pinTrigger=config.getValue('level-sta', 'trigger-pin')
+pinEcho=config.getValue('level-sta', 'echo-pin')
+reportIntervalSec=config.getValue('level-sta', 'report-interval-sec')
 
 wl=WifiLevel()
 wl.connectToAp()
@@ -21,8 +21,6 @@ gc.collect()
 
 while True:
     dist = us.getDistanceMeanInMm()
-#    print(dist)
-#    dist = (123,456)
 
     gc.collect()
 

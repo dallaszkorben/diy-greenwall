@@ -28,33 +28,32 @@ class WifiLevel():
 
     def connectToAp(self):
 
-        gc.collect()
-
-        if self.wlan.isconnected():
-            print("disconnecting from network...")
-            self.wlan.disconnect()
-
-        self.wlan.active(True)
+        self.ledControl.setBeforeConnection()
 
         gc.collect()
 
-#        if not self.wlan.isconnected():
-        print("connecting to network...")
-#        wlan.ifconfig(('192.168.4.20', '255.255.255.0', '192.168.4.1', '192.168.4.1'))
-        self.wlan.connect(self.apEssid, self.apPassword)
+        if not self.wlan.isconnected():
 
-        self.ledControl.noAp()
+            self.wlan.active(True)
+
+            gc.collect()
+
+            print("connecting to network...")
+            self.wlan.connect(self.apEssid, self.apPassword)
 
         while not self.wlan.isconnected():
             print("Waiting for isconnected()")
             time.sleep(10)
-        self.ledControl.isAp()
+
         print("connected")
         print("network config:", self.wlan.ifconfig())
 
         gc.collect()
 
 #        return self.wlan
+
+    def isConnected(self):
+        return self.wlan.isconnected()
 
     def getIfconfig(self):
         return self.wlan.ifconfig()
@@ -68,41 +67,42 @@ class WifiLevel():
         gc.collect()
 
         url = "http://" + address + "/" + path
-        print(url)
+        print("Send POST to: ", url)
 
         headers = {
             'Content-Type': 'application/json',
             'Accept': 'application/json'
         }
 
-
-#        gc.collect()
-
-#        if not self.wlan.isconnected():
-#            self.connectToAp()
-
         gc.collect()
 
-        try:
-            self.ledControl.isAp()
+        if self.wlan.isconnected():
 
-            r = requests.post(url, data=str(data), headers=headers)
+            try:
 
-            self.ledControl.isWeb()
+                # Indicate on the LED, sending POST
+                self.ledControl.setBeforeSendPost()
+                time.sleep(1)
 
-            print(r.status_code, r.text)
+                # Send the POST request
+                r = requests.post(url, data=str(data), headers=headers)
 
-        except Exception as e:
-            self.ledControl.noWeb()
+                # Indicate on the LED, sending was SUSSESSFUL
+                self.ledControl.setPassedSendPost()
 
-            print("!!! Network issue !!!", str(e))
+                print(r.status_code, r.text)
 
-            self.connectToAp()
-#    r = requests.get(url, headers=headers)
+            except Exception as e:
+
+                # Indicate on the LED, sending FAILED
+                self.ledControl.setFailedSendPost()
+
+                print("!!! Network issue !!!", str(e))
+
+        else:
+
+            # Indicate on the LED, NO CONNECTION to Access Point
+            self.ledControl.setFailedConnection()
+            print("!!! No Connection issue !!!")
 
         gc.collect()
-
-#    results = r.json()
-#    print(results)
-
-
