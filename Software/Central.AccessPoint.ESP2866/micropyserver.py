@@ -30,8 +30,8 @@ class MicroPyServer(object):
 
                 request = self.get_request()
 
-                #print("Request arrived from: ", address)
-                #print("Request: ", request)
+                #print(count, "Request arrived from: ", address)
+                #print(count, "Request: ", request)
 
                 if len(request) == 0:
                     self._connect.close()
