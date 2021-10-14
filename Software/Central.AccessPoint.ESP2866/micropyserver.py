@@ -30,7 +30,7 @@ class MicroPyServer(object):
 
                 request = self.get_request()
 
-                #print(count, "Request arrived from: ", address)
+                #print("Request arrived from: ", address)
                 #print(count, "Request: ", request)
 
                 if len(request) == 0:
@@ -42,6 +42,7 @@ class MicroPyServer(object):
                 route = self.find_route(request)
                 data = self.find_data(request)
 
+                data['id'] = address[0]
                 if route:
                     route["handler"](request=request, data=data)
                 else:
@@ -50,6 +51,7 @@ class MicroPyServer(object):
                 self._internal_error(e)
             finally:
                 self._connect.close()
+                pass
 
     def add_route(self, path, handler, method="GET"):
         """ Add new route  """

@@ -38,68 +38,46 @@ class WifiLevel():
 
             gc.collect()
 
-            print("connecting to network...")
+            print("connecting to network ", end="")
             self.wlan.connect(self.apEssid, self.apPassword)
-
             gc.collect()
 
-        while not self.wlan.isconnected():
-            print("Waiting for isconnected()")
-            time.sleep(10)
+            counter = 0
+            while not self.wlan.isconnected():
+                phase = counter % 4
+                print("connecting to network ", end="")
+                print("-\r" if phase == 0 else "\\\r" if phase == 1 else "|\r" if phase == 2 else "/\r", end="")
+#                print(".", end="") #$Waiting for isconnected()")
+                counter = counter + 1
+                time.sleep(10)
 
-        print("connected")
-        print("network config:", self.wlan.ifconfig())
+#            print(" ", end="")
 
-        gc.collect()
+        else:
+            print("connected. ", end="")
 
-
-    def tryToConnectToAp(self):
-
-        self.ledControl.setBeforeConnection()
-
-        gc.collect()
-
-        self.wlan.active(True)
-
-        gc.collect()
-
-        print("connecting to network...")
-
-        self.wlan.connect(self.apEssid, self.apPassword)
+        #print("connected")
+        print("ip: ", self.wlan.ifconfig()[0], end="")
 
         gc.collect()
 
-#    def isConnectedToAp(self):
-#        self.tryToConnectToAp()
-#
-#        counter = 1
-#        threshold = 10
-#        while not self.wlan.isconnected() and threshold > counter:
-#
-#            print("Waiting for isconnected() (", counter, ")")
-#
-#            counter = counter + 1
-#
-#            time.sleep(5)
-#
-#        # connection was successful
-#        if counter <= threshold:
-#
-#            print("connected")
-#            print("network config:", self.wlan.ifconfig())
-#            return True
-#
-#        else:
-#
-#            # Indicate on the LED, NO CONNECTION to Access Point
-#            self.ledControl.setFailedConnection()
-#            print("!!! No Connection issue !!!")
-#
-#            return False
 
 
-#    def isConnected(self):
-#        return self.wlan.isconnected()
+#    def tryToConnectToAp(self):
+#
+#        self.ledControl.setBeforeConnection()
+#
+#        gc.collect()
+#
+#        self.wlan.active(True)
+#
+#        gc.collect()
+#
+#        print("connecting to network...")
+#
+#        self.wlan.connect(self.apEssid, self.apPassword)
+#
+#        gc.collect()
 
     def getIfconfig(self):
         return self.wlan.ifconfig()
@@ -113,7 +91,7 @@ class WifiLevel():
         gc.collect()
 
         url = "http://" + address + "/" + path
-        print("Send POST to: ", url)
+#        print("Send POST to: ", url)
 
         gc.collect()
 
@@ -124,7 +102,11 @@ class WifiLevel():
 
         gc.collect()
 
-        if self.wlan.isconnected():
+        self.connectToAp()
+
+        if True:
+
+#        if self.wlan.isconnected():
 
             try:
 
@@ -132,25 +114,40 @@ class WifiLevel():
                 self.ledControl.setBeforeSendPost()
                 time.sleep(1)
 
+                gc.collect()
+
                 # Send the POST request
+
+                print(" - POST ", end="")
+
                 r = requests.post(url, data=str(data), headers=headers)
+
+                print(url, end="")
+#                print(".")
+
+                gc.collect()
 
                 # Indicate on the LED, sending was SUSSESSFUL
                 self.ledControl.setPassedSendPost()
 
-                print(r.status_code, r.text)
+                gc.collect()
+
+#                print(r.status_code, r.text)
 
             except Exception as e:
 
                 # Indicate on the LED, sending FAILED
                 self.ledControl.setFailedSendPost()
 
-                print("!!! Network issue !!!", str(e))
+                print("!!! Network issue. Can not send request !!!", str(e))
 
-        else:
+                return False
+#        else:
 
-            # Indicate on the LED, NO CONNECTION to Access Point
-            self.ledControl.setFailedConnection()
-            print("!!! No Connection issue !!!")
+#            # Indicate on the LED, NO CONNECTION to Access Point
+#            self.ledControl.setFailedConnection()
+#            print("!!! No Connection issue !!!")
 
         gc.collect()
+
+        return True

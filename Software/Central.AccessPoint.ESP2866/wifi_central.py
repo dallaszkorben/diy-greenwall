@@ -11,9 +11,10 @@ class WifiCentral():
     HIDDEN=False
 
     def __init__(self):
-        self.server = None
 
-        gc.collect()
+        gc.enable()
+
+        self.server = None
 
         print()
         print("***************************")
@@ -24,6 +25,7 @@ class WifiCentral():
         if not self.sta.isconnected():
             self.sta.active(True)
             gc.collect()
+
             self.sta.connect(homeWifiEssid, homeWifiPassword)
             gc.collect()
         while not self.sta.isconnected():
@@ -51,13 +53,11 @@ class WifiCentral():
         print("***************************")
         print()
 
-        print("***************************")
-        print("Waiting for request...")
-        print("***************************")
-
         settime()
 
         self.count = 0
+
+        gc.collect()
 
     def return_json(self, request, data):
         ''' request handler '''
@@ -66,20 +66,34 @@ class WifiCentral():
         utf=time.localtime()
         timeStamp = "{}.{:02d}.{:02d}T{:02d}:{:02d}:{:02d}".format(utf[0], utf[1], utf[2], utf[3], utf[4], utf[5])
 
-        print(self.count, timeStamp, data)
         self.count = self.count  + 1
 
+        if data['variance'] <= 0.156:
+#            print(data['variance'])
+            print(self.count, timeStamp, data)
+        else:
+            print(".", end="")
+
+        # return message
         json_str = json.dumps({"status": "ok"})
         self.server.send("HTTP/1.0 200 OK\r\n")
         self.server.send("Content-Type: application/json\r\n\r\n")
         self.server.send(json_str)
 
+#        print("   ", gc.mem_free())
+        gc.collect()
+
     def start(self):
         self.server = MicroPyServer()
 
-        self.server.add_route("/levelreport", self.return_json, method="POST")
+        self.server.add_route(path="/levelreport", handler=self.return_json, method="POST")
+
+        print("***************************")
+        print("Waiting for request...")
+        print("***************************")
 
         try:
             self.server.start()
         finally:
             self.server.close()
+
