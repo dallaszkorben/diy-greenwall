@@ -3,16 +3,15 @@ from machine import Pin
 import math
 class UltrasonicSensor():
 
-    SAMPLE_NUMBER = 40			#Number of samples for mean value
     MAX_DISTANCE_IN_M = 1.0		# 1 m max distance
-    CONVERTER_TO_DISTANCE = 0.173563
 
-    def __init__(self, triggerGpio, echoGpio, zeroLevel, m, b):
+    def __init__(self, triggerGpio, echoGpio, zeroLevel, m, b, sampleNumber):
 
         self.trigger = Pin(triggerGpio, mode=Pin.OUT, pull=None)
         self.echo = Pin(echoGpio, mode=Pin.IN, pull=None)
         self.echo_timeout_us=int(1000000*UltrasonicSensor.MAX_DISTANCE_IN_M/347.125) # calculate time for 1m max distance
         self.zeroLevel = zeroLevel
+        self.sampleNumber = sampleNumber
 
         self.m = m
         self.b = b
@@ -37,11 +36,10 @@ class UltrasonicSensor():
         time.sleep_us(2000)
         pulse = self.getPulse()
         return (int(self.m * pulse + self.b), pulse)
-#        return (int(UltrasonicSensor.CONVERTER_TO_DISTANCE * pulse), pulse)
 
     def getDistanceMeanInMm(self):
 
-        distanceList = [self.getDistanceInMm()[0] for x in range(UltrasonicSensor.SAMPLE_NUMBER)]
+        distanceList = [self.getDistanceInMm()[0] for x in range(self.sampleNumber)]
 
         # Number of observations
         n = len(distanceList)

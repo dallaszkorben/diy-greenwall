@@ -4,6 +4,9 @@ import urequests as requests
 import config
 import time
 from control import LedControl
+
+from ntptime import settime
+
 try:
     import usocket as socket
 except:
@@ -17,9 +20,11 @@ class WifiLevel():
         self.apEssid=config.getValue('central-ap', 'essid')
         self.apPassword=config.getValue('central-ap', 'password')
 
+        # NO Access Point
         ap_if = network.WLAN(network.AP_IF)
         ap_if.active(False)
 
+        # Station
         self.wlan = network.WLAN(network.STA_IF)
 
         self.ledControl = LedControl()
@@ -29,55 +34,25 @@ class WifiLevel():
     def connectToAp(self):
 
         self.ledControl.setBeforeConnection()
-
         gc.collect()
 
-        if not self.wlan.isconnected():
+        counter = 0
+        while not self.wlan.isconnected():
+
+            phase = counter % 4
+
+            print("connecting to network", "-\r" if phase == 0 else "\\\r" if phase == 1 else "|\r" if phase == 2 else "/\r",  end="")
+            counter = counter + 1
+            time.sleep(10)
 
             self.wlan.active(True)
-
-            gc.collect()
-
-            print("connecting to network ", end="")
             self.wlan.connect(self.apEssid, self.apPassword)
             gc.collect()
 
-            counter = 0
-            while not self.wlan.isconnected():
-                phase = counter % 4
-                print("connecting to network ", end="")
-                print("-\r" if phase == 0 else "\\\r" if phase == 1 else "|\r" if phase == 2 else "/\r", end="")
-#                print(".", end="") #$Waiting for isconnected()")
-                counter = counter + 1
-                time.sleep(10)
-
-#            print(" ", end="")
-
-        else:
-            print("connected. ", end="")
-
-        #print("connected")
+        print("                       \r", end="")
         print("ip: ", self.wlan.ifconfig()[0], end="")
 
         gc.collect()
-
-
-
-#    def tryToConnectToAp(self):
-#
-#        self.ledControl.setBeforeConnection()
-#
-#        gc.collect()
-#
-#        self.wlan.active(True)
-#
-#        gc.collect()
-#
-#        print("connecting to network...")
-#
-#        self.wlan.connect(self.apEssid, self.apPassword)
-#
-#        gc.collect()
 
     def getIfconfig(self):
         return self.wlan.ifconfig()
@@ -91,62 +66,59 @@ class WifiLevel():
         gc.collect()
 
         url = "http://" + address + "/" + path
-#        print("Send POST to: ", url)
-
         gc.collect()
 
         headers = {
             'Content-Type': 'application/json',
             'Accept': 'application/json'
         }
-
         gc.collect()
 
         self.connectToAp()
+        gc.collect()
 
-        if True:
+        try:
 
-#        if self.wlan.isconnected():
+            # Indicate on the LED, sending POST
+            self.ledControl.setBeforeSendPost()
+            time.sleep(1)
+            gc.collect()
 
-            try:
+            # Send the POST request
 
-                # Indicate on the LED, sending POST
-                self.ledControl.setBeforeSendPost()
-                time.sleep(1)
+            print(" - POST ", end="")
 
-                gc.collect()
+                # Sync and convert time
+#                settime()
+#                utf=time.localtime()
+#                timeStamp = "{}.{:02d}.{:02d}T{:02d}:{:02d}:{:02d}Z".format(utf[0], utf[1], utf[2], utf[3], utf[4], utf[5])
+#                data['date'] = timeStamp
 
-                # Send the POST request
+            gc.collect()
 
-                print(" - POST ", end="")
+            r = requests.post(url, data=str(data), headers=headers)
 
-                r = requests.post(url, data=str(data), headers=headers)
+            print(url, end="")
+            print(":", r.status_code)
 
-                print(url, end="")
-#                print(".")
+            gc.collect()
 
-                gc.collect()
+            # Indicate on the LED, sending was SUSSESSFUL
+            self.ledControl.setPassedSendPost()
 
-                # Indicate on the LED, sending was SUSSESSFUL
-                self.ledControl.setPassedSendPost()
+            gc.collect()
 
-                gc.collect()
+#               print(r.status_code, r.text)
 
-#                print(r.status_code, r.text)
+        except Exception as e:
 
-            except Exception as e:
+            # Indicate on the LED, sending FAILED
+            self.ledControl.setFailedSendPost()
 
-                # Indicate on the LED, sending FAILED
-                self.ledControl.setFailedSendPost()
+            print("!!! Network issue. Can not send request !!!", str(e))
 
-                print("!!! Network issue. Can not send request !!!", str(e))
+            return False
 
-                return False
-#        else:
-
-#            # Indicate on the LED, NO CONNECTION to Access Point
-#            self.ledControl.setFailedConnection()
-#            print("!!! No Connection issue !!!")
 
         gc.collect()
 
