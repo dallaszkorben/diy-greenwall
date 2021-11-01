@@ -5,23 +5,19 @@ from flask import jsonify
 from flask import session
 from flask_classful import FlaskView, route, request
 
-from wgadget.representations import output_json
+from webserver.representations import output_json
 
 from threading import Thread
 
-from egadget.eg_light import EGLight
-
 from exceptions.invalid_api_usage import InvalidAPIUsage
 
-from wgadget.endpoints.ep_info_light import EPInfoLight
-
-from wgadget.crossdomain import crossdomain
+from webserver.endpoints.ep_info_request import EPInfoRequest
 
 # -----------------------------------
 #
 # GET info
 #
-# curl  --header "Content-Type: application/json" --request GET http://localhost:5000/info/actuatorId/1
+# curl  --header "Content-Type: application/json" --request GET http://localhost:5000/info/request
 # -----------------------------------
 #
 # GET http://localhost:5000/info
@@ -33,29 +29,23 @@ class InfoView(FlaskView):
 
         self.web_gadget = web_gadget
 
-#        self.epInfoLight = EPInfoLight(web_gadget)
-
     #
     # GET http://localhost:5000/info/
     #
     def index(self):
         return {}
 
-# ===
-
     #
-    # Get the light level
+    # Get the info about possible requests
     #
-    # curl  --header "Content-Type: application/json" --request GET http://localhost:5000/info/actuatorId/1
+    # curl  --header "Content-Type: application/json" --request GET http://localhost:5000/info/request
     #
-    # GET http://localhost:5000/info/actuatorId/1
+    # GET http://localhost:5000/info/request
     #
-    #@route('/actuatorId/<actuatorId>', methods=['GET'])
-    @route(EPInfoLight.URL_ROUTE_PAR_URL, methods=[EPInfoLight.METHOD])
+    #@route('/request, methods=['GET'])
+    @route(EPInfoRequest.URL_ROUTE_PAR_URL, methods=[EPInfoRequest.METHOD])
     def getInfoLight(self, actuatorId):
 
         resp = self.epInfoLight.executeByParameters(actuatorId=actuatorId)
         result = json.dumps(resp) 
         return result
-
-

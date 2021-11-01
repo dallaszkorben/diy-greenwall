@@ -7,33 +7,29 @@ from flask import jsonify
 from flask import session
 from flask_classful import FlaskView, route, request
 
-from wgadget.representations import output_json
+from webserver.representations import output_json
 
 from threading import Thread
 
-from egadget.eg_light import EGLight
-
-from config.config_exchange import getConfigExchange
-from config.config_exchange import setConfigExchange
-from config.config_egadget import getConfigEGadget
+from config.permanent_data import getPermanentData
+from config.permanent_data import setPermanentData
+from config.config import getConfig
 
 from exceptions.invalid_api_usage import InvalidAPIUsage
 
-from wgadget.endpoints.ep_level_set import EPLevelSet
-
-#from wgadget.crossdomain import crossdomain
+from webserver.endpoints.ep_reportlevel_set import EPReportLevelSet
 
 # -----------------------------------
 #
 # POST Contorl the level of the light
 #
-# curl  --header "Content-Type: application/json" --request POST http://localhost:5000/level/set/levelId/5/value/23.4/variance/0.0
-# curl  --header "Content-Type: application/json" --request POST --data '{"levelId": 5, "value":23.4,"variance":0.0}' http://localhost:5000/level/set
+# curl  --header "Content-Type: application/json" --request POST http://localhost:5000/reportlevel/set/levelId/5/value/23.4/variance/0.0
+# curl  --header "Content-Type: application/json" --request POST --data '{"levelId": 5, "value":23.4,"variance":0.0}' http://localhost:5000/reportlevel/set
 #
 # -----------------------------------
 #
-# GET http://localhost:5000/level
-class LevelView(FlaskView):
+# POST http://localhost:5000/reportlevel
+class ReportlevelView(FlaskView):
     representations = {'application/json': output_json}
     inspect_args = False
 
@@ -41,11 +37,11 @@ class LevelView(FlaskView):
 
         self.web_gadget = web_gadget
 
-        self.epLevelSet = EPLevelSet(web_gadget)
+        self.epLevelSet = EPReportLevelSet(web_gadget)
 
 
     #
-    # GET http://localhost:5000/level/
+    # GET http://localhost:5000/reportlevel/
     #
     def index(self):
         return {}
@@ -53,11 +49,11 @@ class LevelView(FlaskView):
 # ===
 
     #
-    # Set the light value immediately with payload
+    # Set the level with payload
     #
-    # curl  --header "Content-Type: application/json" --request POST --data '{"levelId": 5, "value":23.4,"variance":0.0}' http://localhost:5000/level/set
+    # curl  --header "Content-Type: application/json" --request POST --data '{"levelId": 5, "value":23.4,"variance":0.0}' http://localhost:5000/reportlevel/set
     #
-    # POST http://localhost:5000/level/set
+    # POST http://localhost:5000/reportlevel/set
     #      body: {
     #            "levelId": 5,
     #            "value":23.4,
@@ -65,7 +61,7 @@ class LevelView(FlaskView):
     #           }
     #
     #@route('/set', methods=['POST'])
-    @route(EPLevelSet.URL_ROUTE_PAR_PAYLOAD, methods=[EPLevelSet.METHOD])
+    @route(EPReportLevelSet.URL_ROUTE_PAR_PAYLOAD, methods=[EPReportLevelSet.METHOD])
     def setWithPayload(self):
 
         # WEB
@@ -84,14 +80,14 @@ class LevelView(FlaskView):
         return result
 
     #
-    # Set the light value immediately
+    # Set the level
     #
-    # curl  --header "Content-Type: application/json" --request POST http://localhost:5000/level/set/levelId/5/value/23.4/variance/0.0
+    # curl  --header "Content-Type: application/json" --request POST http://localhost:5000/reportlevel/set/levelId/5/value/23.4/variance/0.0
     #
-    # POST http://localhost:5000/level/set/levelId/5/value/23.4/variance/0.0
+    # POST http://localhost:5000/reportlevel/set/levelId/5/value/23.4/variance/0.0
     #
     #@route('/set/levelId/<levelId>/value/<value>/variance/<variance>', methods=['POST'])
-    @route(EPLevelSet.URL_ROUTE_PAR_URL, methods=[EPLevelSet.METHOD])
+    @route(EPReportLevelSet.URL_ROUTE_PAR_URL, methods=[EPReportLevelSet.METHOD])
     def set(self, levelId, value, variance):
 
         resp = self.epLevelSet.executeByParameters(levelId=levelId, value=value, variance=variance)

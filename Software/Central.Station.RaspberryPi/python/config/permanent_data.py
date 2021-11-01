@@ -8,10 +8,10 @@ from threading import Lock
 #from builtins import UnicodeDecodeError
 
 from config.property import Property
-from config.config_location import ConfigLocation
+from config.ini_location import IniLocation
 
-class ConfigExchange( Property ):
-    INI_FILE_NAME="config_exchange.ini"
+class PermanentData( Property ):
+    INI_FILE_NAME="permanent_data.ini"
 
     # (section, key, default)
     DEFAULT_ACTUATOR_LIGHT_CURRENT_VALUE = ("actuator", "light-current-value", "0")
@@ -55,9 +55,9 @@ class ConfigExchange( Property ):
 # ---
 
 lock = Lock()
-def getConfigExchange():
+def getPermanentData():
     with lock:
-        ce = ConfigExchange.getInstance()
+        ce = PermanentData.getInstance()
         config = {}
 
         config['light-current-value'] = ce.getLightCurrentValue()
@@ -65,9 +65,9 @@ def getConfigExchange():
 
         return config
 
-def setConfigExchange(config):
+def setPermanentData(config):
     with lock:
-        ce = ConfigExchange.getInstance()
+        ce = PermanentData.getInstance()
 
         if "light-current-value" in config:
             ce.setLightCurrentValue(config["light-current-value"])
