@@ -2,6 +2,8 @@
     "central-ap":{
         "essid": "Central-Station-006",
         "password": "viragfal"
+        "webserver-ip": "192.168.50.3:5000",
+        "webserver-path-level-report": "reportlevel/set"
     },
     "level-sta":{
         "analog-pin": 0,
@@ -17,9 +19,5 @@
         "linear-b": -35,
         "sample-number": 100,
         "maximum-variance": 0.1
-    },
-    "webserver":{
-        "ip": "192.168.4.1",
-        "path-level-report": "levelreport"
     }
 }

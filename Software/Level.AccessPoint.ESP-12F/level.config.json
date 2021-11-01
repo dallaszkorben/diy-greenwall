@@ -1,0 +1,15 @@
+{
+    "level-ap": {
+        "essid": "Level-AccessPoint-001",
+        "password": "viragfal"
+    },
+
+    "water-level-sensor": {
+        "analog-pin": 0,
+        "linear-m": 0.11,
+        "linear-b": -35,
+        "sample-number": 100,
+        "maximum-variance": 0.1
+    }
+
+}

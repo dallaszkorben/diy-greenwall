@@ -1,0 +1,10 @@
+{
+    "central-ap": {
+        "essid": "Central-Station-006",
+        "password": "viragfal"
+    },
+    "home-ap":{
+        "essid": "blabla2.4"
+        "password": "Elmebetegek Almaiban"
+    }
+}

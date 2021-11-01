@@ -1,0 +1,10 @@
+{
+    "level-ap-1": {
+        "essid": "Level-AccessPoint-001",
+        "password": "viragfal"
+    },
+    "home-ap":{
+        "essid": "blabla2.4"
+        "password": "Elmebetegek Almaiban"
+    }
+}

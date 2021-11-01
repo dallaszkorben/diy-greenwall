@@ -1,0 +1,49 @@
+
+-----------------------------
+
+Needed sw:
+    pip3 install flask
+    pip3 install flask-classful
+
+----------------------------
+
+GET with json:
+    curl -i -H "Accept: application/json" -H "Content-Type: application/json" -X GET http://localhost:5000/config
+
+POST posting data
+    curl --data "id=1&value=78" http://localhost:5000/actuator/
+
+POST file upload
+    curl --form "fileupload=@filename.txt" http://localhost:5000/resource
+
+POST with json
+    call:
+        curl --header "Content-Type: application/json" --request POST --data '{"id":"1","value":"78"}' http://localhost:5000/actuator
+
+    reading:
+        @route("",  methods=['POST'] )
+        def post(self):
+            json_data = request.json
+            id = json_data.get("id")
+            value = json_data.get("value")
+            print("POST /actuator", "id=", id, "value=",value)
+            return "OK\n"
+
+POST with url parameters
+    call:
+        curl --header "Content-Type: application/json" --request POST http://localhost:5000/actuator/1/value/2
+
+    reading:
+        @route('/<id>/value/<value>', methods=['POST'])
+        def post(self, id, value):
+            print("POST /actuator", "id=", id, "value=",value)
+            return "OK"
+
+
+
+
+For logging into a site (auth):
+    curl -d "username=admin&password=admin&submit=Login" --dump-header headers http://localhost/Login
+    curl -L -b headers http://localhost/
+
+

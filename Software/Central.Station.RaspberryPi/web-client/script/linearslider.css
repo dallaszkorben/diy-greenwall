@@ -1,0 +1,96 @@
+input:focus{
+        outline: none;
+    }
+    .slider {
+        -webkit-appearance: none;
+        --range: calc(var(--max) - var(--min));
+        --ratio: calc((var(--val) - var(--min))/var(--range));
+        --sx: calc(.5*1.5em + var(--ratio)*(100% - 1.5em));
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 1.5em;
+        background: transparent;
+        font: 1em/1 arial, sans-serif;
+        border: none;
+    }
+    .slider, .slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+    }
+    .slider::-webkit-slider-runnable-track {
+        box-sizing: border-box;
+        border: none;
+        width: 12.5em;
+        height: 0.5em;
+        background: #ccc;
+    }
+    .js .slider::-webkit-slider-runnable-track {
+        background: linear-gradient(#7b1c1a, #7b1c1a) 0/var(--sx) 100% no-repeat #ccc;
+    }
+    .slider::-moz-range-track {
+        box-sizing: border-box;
+        border: none;
+        height: 0.5em;
+        background: #ccc;
+    }
+    .slider::-ms-track {
+        box-sizing: border-box;
+        border: none;
+        width: 12.5em;
+        height: 0.5em;
+        background: #ccc;
+    }
+    .slider::-moz-range-progress {
+        height: 0.5em;
+        background: #7b1c1a;
+    }
+    .slider::-ms-fill-lower {
+        height: 0.5em;
+        background: #7b1c1a;
+    }
+    .slider::-webkit-slider-thumb {
+        margin-top: -0.550em;
+        box-sizing: border-box;
+        border: none;
+        width: 1.5em;
+        height: 1.5em;
+        border-radius: 50%;
+        background: #7b1c1a;
+    }
+    .slider::-moz-range-thumb {
+        box-sizing: border-box;
+        border: none;
+        width: 1.5em;
+        height: 1.5em;
+        border-radius: 50%;
+        background: #7b1c1a;
+    }
+    .slider::-ms-thumb {
+        margin-top: 0;
+        box-sizing: border-box;
+        border: none;
+        width: 1.5em;
+        height: 1.5em;
+        border-radius: 50%;
+        background: #7b1c1a;
+    }
+    .slider::-ms-tooltip {
+        display: none;
+    }
+    #tickmarks {
+        display: flex;
+        justify-content: space-between;
+        padding: 0 10px;
+    }
+
+    #tickmarks p {
+        position: relative;
+        display: flex;
+        justify-content: center;
+        text-align: center;
+        width: 3px;
+        background: #D3D3D3;
+        height: 10px;
+        line-height: 40px;
+        margin: 0 0 20px 0;
+    }
