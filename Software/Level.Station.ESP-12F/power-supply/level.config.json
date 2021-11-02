@@ -3,7 +3,7 @@
         "essid": "Central-Station-006",
         "password": "viragfal"
         "webserver-ip": "192.168.50.3:5000",
-        "webserver-path-level-report": "reportlevel/set"
+        "webserver-path-level-report": "reportlevel/add"
     },
     "level-sta":{
         "analog-pin": 0,
