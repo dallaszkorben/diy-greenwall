@@ -11,7 +11,7 @@ from threading import Thread
 
 from exceptions.invalid_api_usage import InvalidAPIUsage
 
-from webserver.endpoints.ep_info_request import EPInfoRequest
+from webserver.endpoints.ep_info_functions import EPInfoFunctions
 
 # -----------------------------------
 #
@@ -29,6 +29,8 @@ class InfoView(FlaskView):
 
         self.web_gadget = web_gadget
 
+        self.epInfoFunctions = EPInfoFunctions(web_gadget)
+
     #
     # GET http://localhost:5000/info/
     #
@@ -38,14 +40,15 @@ class InfoView(FlaskView):
     #
     # Get the info about possible requests
     #
-    # curl  --header "Content-Type: application/json" --request GET http://localhost:5000/info/request
+    # curl  --header "Content-Type: application/json" --request GET http://localhost:5000/info/functions
     #
-    # GET http://localhost:5000/info/request
+    # GET http://localhost:5000/info/functions
     #
-    #@route('/request, methods=['GET'])
-    @route(EPInfoRequest.URL_ROUTE_PAR_URL, methods=[EPInfoRequest.METHOD])
-    def getInfoLight(self, actuatorId):
+    #@route('/functions, methods=['GET'])
+    @route(EPInfoFunctions.PATH_PAR_URL, methods=[EPInfoFunctions.METHOD])
+    def getInfoFunctions(self):
 
-        resp = self.epInfoLight.executeByParameters(actuatorId=actuatorId)
-        result = json.dumps(resp) 
+        resp = self.epInfoFunctions.executeByParameters()
+        result = resp 
+
         return result

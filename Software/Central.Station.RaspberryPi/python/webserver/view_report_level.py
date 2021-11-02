@@ -17,14 +17,14 @@ from config.config import getConfig
 
 from exceptions.invalid_api_usage import InvalidAPIUsage
 
-from webserver.endpoints.ep_reportlevel_set import EPReportLevelSet
+from webserver.endpoints.ep_reportlevel_add import EPReportLevelAdd
 
 # -----------------------------------
 #
 # POST Contorl the level of the light
 #
-# curl  --header "Content-Type: application/json" --request POST http://localhost:5000/reportlevel/set/levelId/5/value/23.4/variance/0.0
-# curl  --header "Content-Type: application/json" --request POST --data '{"levelId": 5, "value":23.4,"variance":0.0}' http://localhost:5000/reportlevel/set
+# curl  --header "Content-Type: application/json" --request POST http://localhost:5000/reportlevel/add/levelId/5/value/23.4/variance/0.0
+# curl  --header "Content-Type: application/json" --request POST --data '{"levelId": "5", "value":23.4,"variance":0.0}' http://localhost:5000/reportlevel/add
 #
 # -----------------------------------
 #
@@ -37,8 +37,7 @@ class ReportlevelView(FlaskView):
 
         self.web_gadget = web_gadget
 
-        self.epLevelSet = EPReportLevelSet(web_gadget)
-
+        self.epLevelAdd = EPReportLevelAdd(web_gadget)
 
     #
     # GET http://localhost:5000/reportlevel/
@@ -51,17 +50,17 @@ class ReportlevelView(FlaskView):
     #
     # Set the level with payload
     #
-    # curl  --header "Content-Type: application/json" --request POST --data '{"levelId": 5, "value":23.4,"variance":0.0}' http://localhost:5000/reportlevel/set
+    # curl  --header "Content-Type: application/json" --request POST --data '{"levelId": 5, "value":23.4,"variance":0.0}' http://localhost:5000/reportlevel/add
     #
-    # POST http://localhost:5000/reportlevel/set
+    # POST http://localhost:5000/reportlevel/add
     #      body: {
-    #            "levelId": 5,
+    #            "levelId": "5",
     #            "value":23.4,
     #            "variance":0.0
     #           }
     #
-    #@route('/set', methods=['POST'])
-    @route(EPReportLevelSet.URL_ROUTE_PAR_PAYLOAD, methods=[EPReportLevelSet.METHOD])
+    #@route('/add', methods=['POST'])
+    @route(EPReportLevelAdd.PATH_PAR_PAYLOAD, methods=[EPReportLevelAdd.METHOD])
     def setWithPayload(self):
 
         # WEB
@@ -75,22 +74,22 @@ class ReportlevelView(FlaskView):
         else:
             return "Not valid request", 400
 
-        resp = self.epLevelSet.executeByPayload(json_data)
-        result = json.dumps(resp) 
-        return result
+        resp = self.epLevelAdd.executeByPayload(json_data)
+#        result = json.dumps(resp) 
+        return resp
 
     #
     # Set the level
     #
-    # curl  --header "Content-Type: application/json" --request POST http://localhost:5000/reportlevel/set/levelId/5/value/23.4/variance/0.0
+    # curl  --header "Content-Type: application/json" --request POST http://localhost:5000/reportlevel/add/levelId/5/value/23.4/variance/0.0
     #
-    # POST http://localhost:5000/reportlevel/set/levelId/5/value/23.4/variance/0.0
+    # POST http://localhost:5000/reportlevel/add/levelId/5/value/23.4/variance/0.0
     #
-    #@route('/set/levelId/<levelId>/value/<value>/variance/<variance>', methods=['POST'])
-    @route(EPReportLevelSet.URL_ROUTE_PAR_URL, methods=[EPReportLevelSet.METHOD])
+    #@route('/add/levelId/<levelId>/value/<value>/variance/<variance>', methods=['POST'])
+    @route(EPReportLevelAdd.PATH_PAR_URL, methods=[EPReportLevelAdd.METHOD])
     def set(self, levelId, value, variance):
 
-        resp = self.epLevelSet.executeByParameters(levelId=levelId, value=value, variance=variance)
-        result = json.dumps(resp) 
-        return result
+        resp = self.epLevelAdd.executeByParameters(levelId=levelId, value=value, variance=variance)
+#        result = json.dumps(resp) 
+        return resp
 
