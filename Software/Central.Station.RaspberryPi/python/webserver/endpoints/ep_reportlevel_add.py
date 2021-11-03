@@ -1,6 +1,7 @@
 import logging
 from exceptions.invalid_api_usage import InvalidAPIUsage
 from webserver.endpoints.ep import EP
+import datetime
 
 class EPReportLevelAdd(EP):
 
@@ -67,6 +68,12 @@ class EPReportLevelAdd(EP):
                     EPReportLevelAdd.ATTR_VARIANCE, variance,
                     )
             )
+
+        date = datetime.datetime.now().astimezone().isoformat()
+        #self.web_gadget.appendLevelData(date, levelId, value, variance)
+
+        with open(self.web_gadget.reportPath, 'a') as fileObject:
+            fileObject.write(f'{date}\t{levelId}\t{value}\t{variance}\n')
 
         return {'result': 'OK'}
 

@@ -17,6 +17,8 @@ class Config( Property ):
     DEFAULT_LOG_FILE_NAME = ("log", "file-name", "greenwall.log")
     DEFAULT_LOG_FOLDER_NAME = ("log", "folder-name", "DEBUG")
 
+    DEFAULT_REPORT_FILE_NAME = ("report", "file-name", "report.log")
+
     DEFAULT_ACTUATOR_PUMP_ID = ("actuator-pump", "id", 1)
     DEFAULT_ACTUATOR_PUMP_PIN = ("actuator-pump", "pin", 18)
 
@@ -58,6 +60,8 @@ class Config( Property ):
     def getLogFolderName(self):
         return self.get(self.DEFAULT_LOG_FOLDER_NAME[0], self.DEFAULT_LOG_FOLDER_NAME[1], self.DEFAULT_LOG_FOLDER_NAME[2])
 
+    def getReportFileName(self):
+        return self.get(self.DEFAULT_REPORT_FILE_NAME[0], self.DEFAULT_REPORT_FILE_NAME[1], self.DEFAULT_REPORT_FILE_NAME[2])
 
     def getActuatorPumpId(self):
         return int(self.get(self.DEFAULT_ACTUATOR_PUMP_ID[0], self.DEFAULT_ACTUATOR_PUMP_ID[1], self.DEFAULT_ACTUATOR_PUMP_ID[2]))
@@ -91,6 +95,8 @@ class Config( Property ):
     def setLogFolderName(self, logFolderName):
         self.update(self.DEFAULT_LOG_FILE_NAME[0], self.DEFAULT_LOG_FILE_NAME[1], logFolderName)
 
+    def setReportFileName(self, reportFileName):
+        self.update(self.DEFAULT_REPORT_LEVEL[0], self.DEFAULT_REPORT_LEVEL[1], reportFileName)
 
     def setActuatorPumpId(self, actuatorId):
         self.update(self.DEFAULT_ACTUATOR_PUMP_ID[0], self.DEFAULT_ACTUATOR_PUMP_ID[1], actuatorId)
@@ -123,6 +129,8 @@ def getConfig():
     config["log-file-name"] = cb.getLogFileName()
     config["log-folder-name"] = cb.getLogFolderName()
 
+    config["report-file-name"] = cb.getReportFileName()
+
     config["actuator-pump-id"] = cb.getActuatorPumpId()
     config["actuator-pump-pin"] = cb.getActuatorPumpPin()
 
@@ -148,6 +156,9 @@ def setConfig(config):
 
     if "log-folder-name" in config:
         cb.setLogFolderName(config["log-folder-name"])
+
+    if "report-file-name" in config:
+        cb.setReportFileName(config["report-file-name"])
 
     if "actuator-pump-id" in config:
         cb.setActuatorPumpId(config["actuator-pump-id"])

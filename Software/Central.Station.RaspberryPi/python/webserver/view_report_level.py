@@ -75,7 +75,6 @@ class ReportlevelView(FlaskView):
             return "Not valid request", 400
 
         resp = self.epLevelAdd.executeByPayload(json_data)
-#        result = json.dumps(resp) 
         return resp
 
     #
@@ -90,6 +89,5 @@ class ReportlevelView(FlaskView):
     def set(self, levelId, value, variance):
 
         resp = self.epLevelAdd.executeByParameters(levelId=levelId, value=value, variance=variance)
-#        result = json.dumps(resp) 
         return resp
 
