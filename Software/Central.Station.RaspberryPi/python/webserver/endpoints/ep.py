@@ -3,6 +3,8 @@ from abc import abstractmethod
 
 class EP:
 
+    CODE_OK = 200
+
     def executeByParameters(*args):
         raise NotImplementedError(f"{inspect.currentframe().f_code.co_name}() is not implemented")
 

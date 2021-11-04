@@ -16,7 +16,7 @@ from flask_classful import FlaskView, route, request
 from flask_cors import CORS
 
 from webserver.view_info import InfoView
-from webserver.view_report_level import ReportlevelView
+from webserver.view_level import LevelView
 from webserver.gradual_thread_controller import GradualThreadController
 
 from threading import Thread
@@ -69,7 +69,7 @@ class WSGreenWall(Flask):
 
         # register the end-points
         InfoView.register(self.app, init_argument=self)
-        ReportlevelView.register(self.app, init_argument=self)
+        LevelView.register(self.app, init_argument=self)
 
     def getThreadControllerStatus(self):
         return self.gradualThreadController.getStatus()
