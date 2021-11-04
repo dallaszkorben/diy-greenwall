@@ -16,12 +16,11 @@ from flask_classful import FlaskView, route, request
 from flask_cors import CORS
 
 from webserver.view_info import InfoView
-from webserver.view_report_level import ReportlevelView
+from webserver.view_level import LevelView
 from webserver.gradual_thread_controller import GradualThreadController
 
 from threading import Thread
 
-#from config.permanent_data import getPermanentData
 from config.config import getConfig
 from config.ini_location import IniLocation
 
@@ -38,6 +37,9 @@ class WSGreenWall(Flask):
         self.name = cg["gadget-name"]
         logLevel = cg["log-level"]
         logFileName = cg["log-file-name"]
+
+        reportFileName = cg["report-file-name"]
+
         self.pumpId = cg["actuator-pump-id"]
         self.pumpPin = cg["actuator-pump-pin"]
         self.sensorTemperatureId = cg["sensor-temperature-id"]
@@ -53,21 +55,21 @@ class WSGreenWall(Flask):
             format='%(asctime)s %(levelname)8s - %(message)s' , 
             level = logging.ERROR if logLevel == 'ERROR' else logging.WARNING if logLevel == 'WARNING' else logging.INFO if logLevel == 'INFO' else logging.DEBUG if logLevel == 'DEBUG' else 'CRITICAL' )
 
+        # REPORT
+        reportFolder = IniLocation.get_path_to_config_folder()
+        self.reportPath = os.path.join(reportFolder, reportFileName)
+
         # TODO remove self.app and correnct the references
         super(WSGreenWall, self).__init__(import_name)
 
         self.app = self
-        #self.app = Flask(__name__)
-        #self.app.logger.setLevel(logging.ERROR)
 
         # This will enable CORS for all routes
         CORS(self.app)
 
         # register the end-points
         InfoView.register(self.app, init_argument=self)
-        ReportlevelView.register(self.app, init_argument=self)
-
-        #self.process = {"inProgress": False, "processId": None}
+        LevelView.register(self.app, init_argument=self)
 
     def getThreadControllerStatus(self):
         return self.gradualThreadController.getStatus()
@@ -82,7 +84,6 @@ class WSGreenWall(Flask):
 
 
     def __del__(self):
-#        logging.debug("__del__() method is called")
         self.unconfigure()
 
 # because of WSGI

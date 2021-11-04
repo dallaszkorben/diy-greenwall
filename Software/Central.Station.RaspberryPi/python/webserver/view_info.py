@@ -22,7 +22,7 @@ from webserver.endpoints.ep_info_functions import EPInfoFunctions
 #
 # GET http://localhost:5000/info
 class InfoView(FlaskView):
-    representations = {'application/json': output_json}
+    #representations = {'application/json': output_json}
     inspect_args = False
 
     def __init__(self, web_gadget):
@@ -48,7 +48,6 @@ class InfoView(FlaskView):
     @route(EPInfoFunctions.PATH_PAR_URL, methods=[EPInfoFunctions.METHOD])
     def getInfoFunctions(self):
 
-        resp = self.epInfoFunctions.executeByParameters()
-        result = resp 
+        out = self.epInfoFunctions.executeByParameters()
+        return out
 
-        return result
