@@ -299,7 +299,12 @@ I’ll show it later
        sleep 10 
        sudo systemctl restart dhcpcd
     ```
-
+  * unmask hostapd
+    ```sh
+       pi@raspberrypi:~$ sudo systemctl unmask hostapd
+       pi@raspberrypi:~$ sudo systemctl enable hostapd
+       pi@raspberrypi:~$ sudo systemctl start hostapd
+    ```
   * Run the script just after the reboot automatically  
 In the **crontab** file:
     ```sh
