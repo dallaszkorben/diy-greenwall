@@ -20,11 +20,11 @@ pinAnalog=config.getValue('level-sta', 'analog-pin')
 #pinEcho=config.getValue('level-sta', 'echo-pin')
 reportIntervalSec=config.getValue('level-sta', 'report-interval-sec')
 
-zeroLevel=config.getValue('ultrasonic-sensor', 'zero-level')
-m=config.getValue('ultrasonic-sensor', 'linear-m')
-b=config.getValue('ultrasonic-sensor', 'linear-b')
-sampleNumber=config.getValue('ultrasonic-sensor', 'sample-number')
-maximumVariance=config.getValue('ultrasonic-sensor', 'maximum-variance')
+zeroLevel=config.getValue('level-sensor', 'zero-level')
+m=config.getValue('level-sensor', 'linear-m')
+b=config.getValue('level-sensor', 'linear-b')
+sampleNumber=config.getValue('level-sensor', 'sample-number')
+maximumVariance=config.getValue('level-sensor', 'maximum-variance')
 # ###########################################################
 
 wl=WifiLevel()
