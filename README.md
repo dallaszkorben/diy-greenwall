@@ -159,6 +159,11 @@ and then restart again by [Ctrl]d
       └── ws_greenwall.py
   ```
 * Configure Access Point
+  * Update Respberry    
+    ```sh
+    $ sudo apt update
+    $ sudo apt full-upgrade
+    ```
   * Install necessary SWs on RP
     * dnsmasq - This program has extensive features, but for our purposes we are using it as a DHCP server for our WiFi AP.
     * hostapd - This program defines our AP’s physical operation based on driver configuration. 
