@@ -12,6 +12,7 @@ from threading import Thread
 from exceptions.invalid_api_usage import InvalidAPIUsage
 
 from webserver.endpoints.ep_info_functions import EPInfoFunctions
+#from webserver.endpoints.ep import EP
 
 # -----------------------------------
 #
@@ -22,7 +23,6 @@ from webserver.endpoints.ep_info_functions import EPInfoFunctions
 #
 # GET http://localhost:5000/info
 class InfoView(FlaskView):
-    #representations = {'application/json': output_json}
     inspect_args = False
 
     def __init__(self, web_gadget):

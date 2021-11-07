@@ -2,6 +2,8 @@ import logging
 from exceptions.invalid_api_usage import InvalidAPIUsage
 from webserver.endpoints.ep import EP
 from webserver.endpoints.ep_level_add import EPLevelAdd
+from webserver.endpoints.ep_level_read import EPLevelRead
+
 from webserver.representations import output_json
 
 class EPInfoFunctions(EP):
@@ -41,12 +43,14 @@ class EPInfoFunctions(EP):
             )
         )
 
-        a1 = EPLevelAdd.getRequestDescriptionWithPayloadParameters()
-        a2 = self.getRequestDescriptionWithPayloadParameters()
+        a1 = self.getRequestDescriptionWithPayloadParameters()
+        a2 = EPLevelAdd.getRequestDescriptionWithPayloadParameters()
+        a3 = EPLevelRead.getRequestDescriptionWithPayloadParameters()
 
         data = {}
         resultList = []
         resultList.append(a1)
         resultList.append(a2)
+        resultList.append(a3)
         data["functions"] = resultList
         return output_json(data, EP.CODE_OK)
