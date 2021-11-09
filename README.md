@@ -159,6 +159,11 @@ and then restart again by [Ctrl]d
       └── ws_greenwall.py
   ```
 * Configure Access Point
+  * Update Respberry    
+    ```sh
+    $ sudo apt update
+    $ sudo apt full-upgrade
+    ```
   * Install necessary SWs on RP
     * dnsmasq - This program has extensive features, but for our purposes we are using it as a DHCP server for our WiFi AP.
     * hostapd - This program defines our AP’s physical operation based on driver configuration. 
@@ -294,7 +299,12 @@ I’ll show it later
        sleep 10 
        sudo systemctl restart dhcpcd
     ```
-
+  * unmask hostapd
+    ```sh
+       pi@raspberrypi:~$ sudo systemctl unmask hostapd
+       pi@raspberrypi:~$ sudo systemctl enable hostapd
+       pi@raspberrypi:~$ sudo systemctl start hostapd
+    ```
   * Run the script just after the reboot automatically  
 In the **crontab** file:
     ```sh

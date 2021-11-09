@@ -18,6 +18,10 @@ from config.config import getConfig
 from exceptions.invalid_api_usage import InvalidAPIUsage
 
 from webserver.endpoints.ep_level_add import EPLevelAdd
+from webserver.endpoints.ep_level_read import EPLevelRead
+
+from webserver.endpoints.ep import EP
+
 
 # -----------------------------------
 #
@@ -28,7 +32,7 @@ from webserver.endpoints.ep_level_add import EPLevelAdd
 #
 # -----------------------------------
 #
-# POST http://localhost:5000/rlevel
+# POST http://localhost:5000/level
 class LevelView(FlaskView):
     representations = {'application/json': output_json}
     inspect_args = False
@@ -38,6 +42,7 @@ class LevelView(FlaskView):
         self.web_gadget = web_gadget
 
         self.epLevelAdd = EPLevelAdd(web_gadget)
+        self.epLevelRead = EPLevelRead(web_gadget)
 
     #
     # GET http://localhost:5000/level/
@@ -72,13 +77,13 @@ class LevelView(FlaskView):
             json_data = request.json
 
         else:
-            return "Not valid request", 400
+            return "Not valid request", EP.CODE_BAD_REQUEST
 
         out = self.epLevelAdd.executeByPayload(json_data)
         return out
 
     #
-    # Set the level
+    # Read the level - with parameters
     #
     # curl  --header "Content-Type: application/json" --request POST http://localhost:5000/level/add/levelId/5/value/23.4/variance/0.0
     #
@@ -86,8 +91,55 @@ class LevelView(FlaskView):
     #
     #@route('/add/levelId/<levelId>/value/<value>/variance/<variance>', methods=['POST'])
     @route(EPLevelAdd.PATH_PAR_URL, methods=[EPLevelAdd.METHOD])
-    def set(self, levelId, value, variance):
+    def setWithParameter(self, levelId, value, variance):
 
         out = self.epLevelAdd.executeByParameters(levelId=levelId, value=value, variance=variance)
         return out
+
+# ===
+
+    #
+    # Read the level - with payload
+    #
+    # curl  --header "Content-Type: application/json" --request GET --data '{"startDate":"2021.11.07T20:15:123+01:00"}' http://localhost:5000/level/read
+    #
+    # GET http://localhost:5000/level/read
+    #      body: {
+    #            "startDate":"2021.11.07T20:15:123+01:00"
+    #           }
+    #
+    #@route('/read', methods=['GET'])
+    @route(EPLevelRead.PATH_PAR_PAYLOAD, methods=[EPLevelRead.METHOD])
+    def readWithPayload(self):
+
+        # WEB
+        if request.form:
+            json_data = request.form
+
+        # CURL
+        elif request.json:
+            json_data = request.json
+
+        else:
+            return "Not valid request", EP.CODE_BAD_REQUEST
+
+        out = self.epLevelRead.executeByPayload(json_data)
+        return out
+
+    #
+    # Read the level - with parameters
+    #
+    # curl  --header "Content-Type: application/json" --request GET http://localhost:5000/level/read/startDate/2021.11.07T20:15:123+01:00
+    #
+    # READ http://localhost:5000/level/read/startDate/2021.11.07T20:15:123+01:00
+    #
+    #@route('/read/startDate/<startDate>', methods=['GET'])
+    @route(EPLevelRead.PATH_PAR_URL, methods=[EPLevelRead.METHOD])
+    def readWithParameter(self, startDate):
+
+        out = self.epLevelRead.executeByParameters(startDate=startDate)
+        return out
+
+
+# ===
 
