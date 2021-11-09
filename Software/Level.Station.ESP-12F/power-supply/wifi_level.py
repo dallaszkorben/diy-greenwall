@@ -21,38 +21,41 @@ class WifiLevel():
         self.apPassword=config.getValue('central-ap', 'password')
 
         # NO Access Point
-        ap_if = network.WLAN(network.AP_IF)
-        ap_if.active(False)
+        #ap_if = network.WLAN(network.AP_IF)
+        #ap_if.active(False)
 
         # Station
         self.wlan = network.WLAN(network.STA_IF)
+        self.wlan.active(True)
+        self.wlan.connect(self.apEssid, self.apPassword)
 
         self.ledControl = LedControl()
-
-        gc.collect()
+        #gc.collect()
 
     def connectToAp(self):
 
         self.ledControl.setBeforeConnection()
-        gc.collect()
+
+        self.wlan.active(True)
+        self.wlan.connect(self.apEssid, self.apPassword)
 
         counter = 0
-        while not self.wlan.isconnected():
+        while (not self.wlan.isconnected() or self.wlan.ifconfig()[0] == "0.0.0.0" ) and counter < 50:
+            time.sleep(1)
 
             phase = counter % 4
-
             print("connecting to network", "-\r" if phase == 0 else "\\\r" if phase == 1 else "|\r" if phase == 2 else "/\r",  end="")
             counter = counter + 1
-            time.sleep(10)
-
-            self.wlan.active(True)
-            self.wlan.connect(self.apEssid, self.apPassword)
-            gc.collect()
 
         print("                       \r", end="")
-        print("ip: ", self.wlan.ifconfig()[0], end="")
 
-        gc.collect()
+        if not self.wlan.isconnected():
+            print("!!! Connection interrupted !!!")
+            return False
+
+        else:
+            print("ip: ", self.wlan.ifconfig()[0], end="")
+            return True
 
     def getIfconfig(self):
         return self.wlan.ifconfig()
@@ -63,21 +66,21 @@ class WifiLevel():
 
     def sendPost(self, address="192.168.4.1", path="", data="{}"):
 
-        gc.collect()
+        #gc.collect()
 
         url = "http://" + address + "/" + path
-        gc.collect()
+        #gc.collect()
 
         headers = {
             'Content-Type': 'application/json',
             'Accept': 'application/json'
         }
-        gc.collect()
+        #gc.collect()
 
-        self.connectToAp()
-        gc.collect()
+        conn = self.connectToAp()
+        #gc.collect()
 
-        try:
+        if conn:
 
             # Indicate on the LED, sending POST
             self.ledControl.setBeforeSendPost()
@@ -85,41 +88,34 @@ class WifiLevel():
             gc.collect()
 
             # Send the POST request
-
             print(" - POST ", end="")
 
-                # Sync and convert time
-#                settime()
-#                utf=time.localtime()
-#                timeStamp = "{}.{:02d}.{:02d}T{:02d}:{:02d}:{:02d}Z".format(utf[0], utf[1], utf[2], utf[3], utf[4], utf[5])
-#                data['date'] = timeStamp
+            cycle = 0
+            while cycle < 10:
+                exception = ""
+                try:
 
-            gc.collect()
+                    r = requests.post(url, data=str(data), headers=headers)
 
-            r = requests.post(url, data=str(data), headers=headers)
+                    print(url, end="")
+                    print(":", r.status_code)
 
-            print(url, end="")
-            print(":", r.status_code)
+                    break
 
-            gc.collect()
+                    # Indicate on the LED, sending was SUSSESSFUL
+                    self.ledControl.setPassedSendPost()
 
-            # Indicate on the LED, sending was SUSSESSFUL
-            self.ledControl.setPassedSendPost()
+                except Exception as e:
 
-            gc.collect()
+                    exception = e
+                    print(".", end="")
+                    time.sleep(2)
 
-#               print(r.status_code, r.text)
+                cycle+=1
 
-        except Exception as e:
+            if cycle >= 10:
+                self.ledControl.setFailedSendPost()
+                print("!!! Network issue. Can not send request !!!", str(exception))
+                conn = False
 
-            # Indicate on the LED, sending FAILED
-            self.ledControl.setFailedSendPost()
-
-            print("!!! Network issue. Can not send request !!!", str(e))
-
-            return False
-
-
-        gc.collect()
-
-        return True
+        return conn

@@ -6,12 +6,14 @@
         "webserver-path-level-report": "level/add"
     },
     "level-sta":{
+        "level-id": "5",
         "analog-pin": 0,
         "trigger-pin": 5,
         "echo-pin": 4,
         "led-status-pin": 2,
         "led-status-inverse": true,
-        "report-interval-sec": 50
+        "report-interval-sec": 60
+        "reset-hours": 6
     },
     "level-sensor":{
         "zero-level": 59,

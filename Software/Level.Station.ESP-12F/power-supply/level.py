@@ -4,6 +4,10 @@ from wifi_level import WifiLevel
 import time
 import config
 import gc
+import machine
+from machine import Timer
+
+
 
 gc.enable()
 
@@ -15,10 +19,12 @@ gc.enable()
 ip=config.getValue('central-ap', 'webserver-ip')
 path=config.getValue('central-ap', 'webserver-path-level-report')
 
+levelId=config.getValue('level-sta', 'level-id')
 pinAnalog=config.getValue('level-sta', 'analog-pin')
 #pinTrigger=config.getValue('level-sta', 'trigger-pin')
 #pinEcho=config.getValue('level-sta', 'echo-pin')
 reportIntervalSec=config.getValue('level-sta', 'report-interval-sec')
+resetHours=config.getValue('level-sta', 'reset-hours')
 
 zeroLevel=config.getValue('level-sensor', 'zero-level')
 m=config.getValue('level-sensor', 'linear-m')
@@ -26,6 +32,7 @@ b=config.getValue('level-sensor', 'linear-b')
 sampleNumber=config.getValue('level-sensor', 'sample-number')
 maximumVariance=config.getValue('level-sensor', 'maximum-variance')
 # ###########################################################
+
 
 wl=WifiLevel()
 #wl.connectToAp()
@@ -40,16 +47,20 @@ print()
 
 gc.collect()
 
+# Have to reset the chip, because for some reson, the pythin got frozen after some hours
+resetMiliseconds = resetHours * 60 * 60 * 1000 # [ms]
+timer=Timer(-1)
+timer.init(period=resetMiliseconds, mode=Timer.ONE_SHOT, callback=lambda t:machine.reset())
+
 while True:
 
-#    print("Waiting for the next sample, ", end="")
     minLevel=(None, None)
     counter = 0
+
+    # Reading water level
     while True:
-#    dist = us.getDistanceMeanInMm()
 
         level = wls.getLevelMeanInMm()
-        gc.collect()
 
         phase = counter % 4
         print("-\r" if phase == 0 else "\\\r" if phase == 1 else "|\r" if phase == 2 else "/\r", end="")
@@ -66,14 +77,14 @@ while True:
             break
 
         counter = counter + 1
-        time.sleep_ms(10)
+        time.sleep_ms(1)
 
-    result = wl.sendPost(address=ip, path=path, data='{"levelId": 5, "value":' + str(int(minLevel[0])) + ', "variance": ' + '{:.3f}'.format(minLevel[1]) + '}')
+    result = wl.sendPost(address=ip, path=path, data='{"levelId": ' + levelId + ', "value":' + str(int(minLevel[0])) + ', "variance": ' + '{:.3f}'.format(minLevel[1]) + '}')
     gc.collect()
 
     # Unsuccessful send
     if not result:
-        time.sleep(10)
+        time.sleep(1)
         continue
 
     time.sleep(reportIntervalSec)
