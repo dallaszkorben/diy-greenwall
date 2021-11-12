@@ -1,5 +1,5 @@
-#from ultrasonic_sensor import UltrasonicSensor
-from water_level_sensor import WaterLevelSensor
+from ultrasonic_sensor import UltrasonicSensor
+#from water_level_sensor import WaterLevelSensor
 from wifi_level import WifiLevel
 import time
 import config
@@ -20,11 +20,12 @@ ip=config.getValue('central-ap', 'webserver-ip')
 path=config.getValue('central-ap', 'webserver-path-level-report')
 
 levelId=config.getValue('level-sta', 'level-id')
-pinAnalog=config.getValue('level-sta', 'analog-pin')
-#pinTrigger=config.getValue('level-sta', 'trigger-pin')
-#pinEcho=config.getValue('level-sta', 'echo-pin')
 reportIntervalSec=config.getValue('level-sta', 'report-interval-sec')
 resetHours=config.getValue('level-sta', 'reset-hours')
+
+#pinAnalog=config.getValue('level-sta', 'analog-pin')
+pinTrigger=config.getValue('level-sta', 'trigger-pin')
+pinEcho=config.getValue('level-sta', 'echo-pin')
 
 zeroLevel=config.getValue('level-sensor', 'zero-level')
 m=config.getValue('level-sensor', 'linear-m')
@@ -33,15 +34,14 @@ sampleNumber=config.getValue('level-sensor', 'sample-number')
 maximumVariance=config.getValue('level-sensor', 'maximum-variance')
 # ###########################################################
 
-
 wl=WifiLevel()
 #wl.connectToAp()
 
 #
 # Depending on what kind of sensor is used
 #
-#wls=UltrasonicSensor(pinTrigger, pinEcho, zeroLevel, m, b, sampleNumber)
-wls=WaterLevelSensor(pinAnalog, sampleNumber, m, b)
+wls=UltrasonicSensor(pinTrigger, pinEcho, zeroLevel, m, b, sampleNumber)
+#wls=WaterLevelSensor(pinAnalog, sampleNumber, m, b)
 
 print()
 

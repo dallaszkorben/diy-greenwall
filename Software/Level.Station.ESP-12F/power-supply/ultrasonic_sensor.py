@@ -1,6 +1,11 @@
 import machine, time
 from machine import Pin
 import math
+
+# "zero-level": 59,
+# "linear-m": 0.11,
+# "linear-b": -35,
+
 class UltrasonicSensor():
 
     MAX_DISTANCE_IN_M = 1.0		# 1 m max distance

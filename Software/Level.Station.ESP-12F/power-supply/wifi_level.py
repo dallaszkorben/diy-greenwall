@@ -55,6 +55,7 @@ class WifiLevel():
 
         else:
             print("ip: ", self.wlan.ifconfig()[0], end="")
+#            print("ip: ", "\U0001f44d" if counter == 0 else " ",self.wlan.ifconfig()[0], end="")
             return True
 
     def getIfconfig(self):
@@ -84,8 +85,8 @@ class WifiLevel():
 
             # Indicate on the LED, sending POST
             self.ledControl.setBeforeSendPost()
-            time.sleep(1)
-            gc.collect()
+#            time.sleep(1)
+#            gc.collect()
 
             # Send the POST request
             print(" - POST ", end="")
@@ -93,23 +94,25 @@ class WifiLevel():
             cycle = 0
             while cycle < 10:
                 exception = ""
+
+                time.sleep(4)
+
                 try:
 
                     r = requests.post(url, data=str(data), headers=headers)
 
                     print(url, end="")
-                    print(":", r.status_code)
-
-                    break
+                    print(" - response status:", r.status_code, "      ", gc.mem_free())
 
                     # Indicate on the LED, sending was SUSSESSFUL
                     self.ledControl.setPassedSendPost()
+
+                    break
 
                 except Exception as e:
 
                     exception = e
                     print(".", end="")
-                    time.sleep(2)
 
                 cycle+=1
 
