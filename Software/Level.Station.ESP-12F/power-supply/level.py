@@ -28,8 +28,12 @@ pinTrigger=config.getValue('level-sta', 'trigger-pin')
 pinEcho=config.getValue('level-sta', 'echo-pin')
 
 zeroLevel=config.getValue('level-sensor', 'zero-level')
-m=config.getValue('level-sensor', 'linear-m')
-b=config.getValue('level-sensor', 'linear-b')
+#m=config.getValue('level-sensor', 'linear-m')
+#b=config.getValue('level-sensor', 'linear-b')
+a=config.getValue('level-sensor', 'quadratic-a')
+b=config.getValue('level-sensor', 'quadratic-b')
+c=config.getValue('level-sensor', 'quadratic-c')
+
 sampleNumber=config.getValue('level-sensor', 'sample-number')
 maximumVariance=config.getValue('level-sensor', 'maximum-variance')
 # ###########################################################
@@ -40,7 +44,7 @@ wl=WifiLevel()
 #
 # Depending on what kind of sensor is used
 #
-wls=UltrasonicSensor(pinTrigger, pinEcho, zeroLevel, m, b, sampleNumber)
+wls=UltrasonicSensor(pinTrigger, pinEcho, sampleNumber, a=a, b=b, c=c, zeroLevel=zeroLevel)
 #wls=WaterLevelSensor(pinAnalog, sampleNumber, m, b)
 
 print()

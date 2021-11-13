@@ -2,15 +2,20 @@ import machine, time
 from machine import Pin
 import math
 
-# "zero-level": 59,
-# "linear-m": 0.11,
-# "linear-b": -35,
+# "zero-level": 76,
+# "quadratic-a": -2.7354525,
+# "quadratic-b": 0.262834668,
+# "quadratic-c": 0.000210552445
 
 class UltrasonicSensor():
 
     MAX_DISTANCE_IN_M = 1.0		# 1 m max distance
 
-    def __init__(self, triggerGpio, echoGpio, zeroLevel, m, b, sampleNumber):
+    REGRESSION_NONE = -1
+    REGRESSION_LINEAR = 0
+    REGRESSION_QUADRATIC = 1
+
+    def __init__(self, triggerGpio, echoGpio, sampleNumber, zeroLevel=None, a=None, b=None, c=None, m=None):
 
         self.trigger = Pin(triggerGpio, mode=Pin.OUT, pull=None)
         self.echo = Pin(echoGpio, mode=Pin.IN, pull=None)
@@ -19,7 +24,12 @@ class UltrasonicSensor():
         self.sampleNumber = sampleNumber
 
         self.m = m
+        self.a = a
         self.b = b
+        self.c = c
+        self.m = m
+
+        self.regression = UltrasonicSensor.REGRESSION_LINEAR if (m is not None and b is not None) else UltrasonicSensor.REGRESSION_QUADRATIC if (a is not None and b is not None and c is not None) else UltrasonicSensor.REGRESSION_NONE
 
     def getPulse(self):
        self.trigger.value(0) 
@@ -40,7 +50,11 @@ class UltrasonicSensor():
     def getDistanceInMm(self):
         time.sleep_us(2000)
         pulse = self.getPulse()
-        return (int(self.m * pulse + self.b), pulse)
+
+        if self.regression == UltrasonicSensor.REGRESSION_LINEAR:
+            return (int(self.m * pulse + self.b), pulse)
+        elif self.regression == UltrasonicSensor.REGRESSION_QUADRATIC:
+            return (int(self.a + self.b * pulse + self.c * pulse * pulse), pulse)
 
     def getDistanceMeanInMm(self):
 
