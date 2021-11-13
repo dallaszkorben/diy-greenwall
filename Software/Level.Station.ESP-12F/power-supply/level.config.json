@@ -6,19 +6,20 @@
         "webserver-path-level-report": "level/add"
     },
     "level-sta":{
-        "id": "5",
+        "level-id": "5",
         "analog-pin": 0,
         "trigger-pin": 5,
         "echo-pin": 4,
         "led-status-pin": 2,
         "led-status-inverse": true,
-        "report-interval-sec": 50
+        "report-interval-sec": 5
+        "reset-hours": 1
     },
     "level-sensor":{
-        "zero-level": 59,
-        "linear-m": 0.11,
-        "linear-b": -35,
+        "zero-level": 56,
+        "linear-m": 0.2,
+        "linear-b": -5.6,
         "sample-number": 100,
-        "maximum-variance": 0.1
+        "maximum-variance": 1.0
     }
 }

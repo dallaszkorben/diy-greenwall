@@ -1,9 +1,13 @@
-#from ultrasonic_sensor import UltrasonicSensor
-from water_level_sensor import WaterLevelSensor
+from ultrasonic_sensor import UltrasonicSensor
+#from water_level_sensor import WaterLevelSensor
 from wifi_level import WifiLevel
 import time
 import config
 import gc
+import machine
+from machine import Timer
+
+
 
 gc.enable()
 
@@ -15,11 +19,13 @@ gc.enable()
 ip=config.getValue('central-ap', 'webserver-ip')
 path=config.getValue('central-ap', 'webserver-path-level-report')
 
-stationId=config.getValue('level-sta', 'id')
-pinAnalog=config.getValue('level-sta', 'analog-pin')
-#pinTrigger=config.getValue('level-sta', 'trigger-pin')
-#pinEcho=config.getValue('level-sta', 'echo-pin')
+levelId=config.getValue('level-sta', 'level-id')
 reportIntervalSec=config.getValue('level-sta', 'report-interval-sec')
+resetHours=config.getValue('level-sta', 'reset-hours')
+
+#pinAnalog=config.getValue('level-sta', 'analog-pin')
+pinTrigger=config.getValue('level-sta', 'trigger-pin')
+pinEcho=config.getValue('level-sta', 'echo-pin')
 
 zeroLevel=config.getValue('level-sensor', 'zero-level')
 m=config.getValue('level-sensor', 'linear-m')
@@ -34,23 +40,27 @@ wl=WifiLevel()
 #
 # Depending on what kind of sensor is used
 #
-#wls=UltrasonicSensor(pinTrigger, pinEcho, zeroLevel, m, b, sampleNumber)
-wls=WaterLevelSensor(pinAnalog, sampleNumber, m, b)
+wls=UltrasonicSensor(pinTrigger, pinEcho, zeroLevel, m, b, sampleNumber)
+#wls=WaterLevelSensor(pinAnalog, sampleNumber, m, b)
 
 print()
 
 gc.collect()
 
+# Have to reset the chip, because for some reson, the pythin got frozen after some hours
+resetMiliseconds = resetHours * 60 * 60 * 1000 # [ms]
+timer=Timer(-1)
+timer.init(period=resetMiliseconds, mode=Timer.ONE_SHOT, callback=lambda t:machine.reset())
+
 while True:
 
-#    print("Waiting for the next sample, ", end="")
     minLevel=(None, None)
     counter = 0
+
+    # Reading water level
     while True:
-#    dist = us.getDistanceMeanInMm()
 
         level = wls.getLevelMeanInMm()
-        gc.collect()
 
         phase = counter % 4
         print("-\r" if phase == 0 else "\\\r" if phase == 1 else "|\r" if phase == 2 else "/\r", end="")
@@ -67,14 +77,14 @@ while True:
             break
 
         counter = counter + 1
-        time.sleep_ms(10)
+        time.sleep_ms(1)
 
-    result = wl.sendPost(address=ip, path=path, data='{"levelId": ' + stationId + ' , "value":' + str(int(minLevel[0])) + ', "variance": ' + '{:.3f}'.format(minLevel[1]) + '}')
+    result = wl.sendPost(address=ip, path=path, data='{"levelId": ' + levelId + ', "value":' + str(int(minLevel[0])) + ', "variance": ' + '{:.3f}'.format(minLevel[1]) + '}')
     gc.collect()
 
     # Unsuccessful send
     if not result:
-        time.sleep(10)
+        time.sleep(1)
         continue
 
     time.sleep(reportIntervalSec)

@@ -2,6 +2,10 @@ import machine, time
 #from machine import Pin
 from machine import Pin, ADC
 import math
+
+# "zero-level": 59,
+# "linear-m": 0.11,
+# "linear-b": -35,
 class WaterLevelSensor():
 
     def __init__(self, analogGpio, sampleNumber, m, b):
