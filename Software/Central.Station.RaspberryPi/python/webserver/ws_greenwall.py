@@ -2,7 +2,7 @@ import os
 import logging
 from logging.handlers import RotatingFileHandler
 
-from threading import Lock
+#from threading import Lock
 
 from datetime import datetime
 import tzlocal
@@ -30,7 +30,7 @@ class WSGreenWall(Flask):
 
         self.gradualThreadController = GradualThreadController.getInstance()
 
-        self.lock = Lock()
+#        self.lock = Lock()
 
         cg = getConfig()
 
@@ -78,9 +78,9 @@ class WSGreenWall(Flask):
         pass
 #        self.egLight.unconfigure()
 
-    # Because of WSGI
-    def run(self, host=None, port=None, debug=None, load_dotenv=True, **options):
-        super(WSGreenWall, self).run(host=host, port=port, debug=debug, load_dotenv=load_dotenv, **options)
+#    # Because of WSGI
+#    def run(self, host=None, port=None, debug=None, load_dotenv=True, **options):
+#        super(WSGreenWall, self).run(host=host, port=port, debug=debug, load_dotenv=load_dotenv, **options)
 
 
     def __del__(self):

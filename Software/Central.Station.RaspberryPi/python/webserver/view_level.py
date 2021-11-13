@@ -9,7 +9,7 @@ from flask_classful import FlaskView, route, request
 
 from webserver.representations import output_json
 
-from threading import Thread
+#from threading import Thread
 
 from config.permanent_data import getPermanentData
 from config.permanent_data import setPermanentData
@@ -18,7 +18,7 @@ from config.config import getConfig
 from exceptions.invalid_api_usage import InvalidAPIUsage
 
 from webserver.endpoints.ep_level_add import EPLevelAdd
-from webserver.endpoints.ep_level_read import EPLevelRead
+from webserver.endpoints.ep_info_level import EPInfoLevel
 
 from webserver.endpoints.ep import EP
 
@@ -42,7 +42,7 @@ class LevelView(FlaskView):
         self.web_gadget = web_gadget
 
         self.epLevelAdd = EPLevelAdd(web_gadget)
-        self.epLevelRead = EPLevelRead(web_gadget)
+        self.epInfoLevel = EPInfoLevel(web_gadget)
 
     #
     # GET http://localhost:5000/level/
@@ -109,7 +109,7 @@ class LevelView(FlaskView):
     #           }
     #
     #@route('/read', methods=['GET'])
-    @route(EPLevelRead.PATH_PAR_PAYLOAD, methods=[EPLevelRead.METHOD])
+    @route(EPInfoLevel.PATH_PAR_PAYLOAD, methods=[EPInfoLevel.METHOD])
     def readWithPayload(self):
 
         # WEB
@@ -123,7 +123,7 @@ class LevelView(FlaskView):
         else:
             return "Not valid request", EP.CODE_BAD_REQUEST
 
-        out = self.epLevelRead.executeByPayload(json_data)
+        out = self.epInfoLevel.executeByPayload(json_data)
         return out
 
     #
@@ -134,10 +134,10 @@ class LevelView(FlaskView):
     # READ http://localhost:5000/level/read/startDate/2021.11.07T20:15:123+01:00
     #
     #@route('/read/startDate/<startDate>', methods=['GET'])
-    @route(EPLevelRead.PATH_PAR_URL, methods=[EPLevelRead.METHOD])
+    @route(EPInfoLevel.PATH_PAR_URL, methods=[EPInfoLevel.METHOD])
     def readWithParameter(self, startDate):
 
-        out = self.epLevelRead.executeByParameters(startDate=startDate)
+        out = self.epInfoLevel.executeByParameters(startDate=startDate)
         return out
 
 
