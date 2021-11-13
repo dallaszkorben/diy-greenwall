@@ -15,6 +15,7 @@ gc.enable()
 ip=config.getValue('central-ap', 'webserver-ip')
 path=config.getValue('central-ap', 'webserver-path-level-report')
 
+stationId=config.getValue('level-sta', 'id')
 pinAnalog=config.getValue('level-sta', 'analog-pin')
 #pinTrigger=config.getValue('level-sta', 'trigger-pin')
 #pinEcho=config.getValue('level-sta', 'echo-pin')
@@ -68,7 +69,7 @@ while True:
         counter = counter + 1
         time.sleep_ms(10)
 
-    result = wl.sendPost(address=ip, path=path, data='{"levelId": 5, "value":' + str(int(minLevel[0])) + ', "variance": ' + '{:.3f}'.format(minLevel[1]) + '}')
+    result = wl.sendPost(address=ip, path=path, data='{"levelId": ' + stationId + ' , "value":' + str(int(minLevel[0])) + ', "variance": ' + '{:.3f}'.format(minLevel[1]) + '}')
     gc.collect()
 
     # Unsuccessful send

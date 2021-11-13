@@ -1,19 +1,20 @@
 import math
 
-class Converter:
+class LinReg1:
 
-    @staticmethod 
-    def getLinearValueToExponential(linearValue, maxLinearValue, maxDutyCycle):
-        POWER = 80
+    def getMeanAndVariance(listOfValues):
 
-        # 0 ,,, 1
-        normalizedValue = linearValue / maxLinearValue
+        # Number of observations
+        n = len(listOfValues)
 
-        # 1 ... POWER -> 0 ,,, (POWER-1)
-        expValue = math.pow(POWER, normalizedValue) - 1
+        # Mean of the data
+        mean = sum(listOfValues) / n
 
-        # 0 ... MAX_DUTY_CYCLE
-        fadeValue = (int)(maxDutyCycle * expValue / (POWER - 1))
+        # Square deviations
+        deviations = [(x - mean) ** 2 for x in listOfValues]
 
-        return fadeValue
+        # Variance
+        variance = math.sqrt( sum(deviations) / n )
+
+        return (mean, variance)
 

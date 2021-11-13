@@ -6,6 +6,7 @@
         "webserver-path-level-report": "level/add"
     },
     "level-sta":{
+        "id": "5",
         "analog-pin": 0,
         "trigger-pin": 5,
         "echo-pin": 4,

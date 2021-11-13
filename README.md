@@ -126,6 +126,15 @@ and then restart again by [Ctrl]d
 ## Raspberry Pi Zero W
 
 
+### Install Python packages in Raspberry Pi
+
+  ```sh
+  sudo apt-get install python3-sklearn python3-sklearn-lib
+  ```
+  ```sh
+  sudo apt install python3-pandas
+  ```
+
 
 ### Install SW on Raspberry Pi
 

@@ -6,13 +6,13 @@ from flask import request
 from webserver.representations import output_json
 from dateutil import parser
 
-class EPLevelRead(EP):
+class EPInfoLevel(EP):
 
-    ID = 'level_read'
-    URL = '/level/read'
+    ID = 'info_level'
+    URL = '/info/level'
 
-    PATH_PAR_PAYLOAD = '/read'
-    PATH_PAR_URL = '/read/startDate/<startDate>'
+    PATH_PAR_PAYLOAD = '/level'
+    PATH_PAR_URL = '/level/startDate/<startDate>'
 
     METHOD = 'GET'
 
@@ -25,14 +25,14 @@ class EPLevelRead(EP):
     def getRequestDescriptionWithPayloadParameters():
 
         ret = {}
-        ret['id'] = EPLevelRead.ID
-        ret['method'] = EPLevelRead.METHOD
-        ret['path-parameter-in-payload'] = EPLevelRead.PATH_PAR_PAYLOAD
-        ret['path-parameter-in-url'] = EPLevelRead.PATH_PAR_URL
+        ret['id'] = EPInfoLevel.ID
+        ret['method'] = EPInfoLevel.METHOD
+        ret['path-parameter-in-payload'] = EPInfoLevel.PATH_PAR_PAYLOAD
+        ret['path-parameter-in-url'] = EPInfoLevel.PATH_PAR_URL
 
         ret['parameters'] = [{}]
 
-        ret['parameters'][0]['attribute'] = EPLevelRead.ATTR_START_DATE
+        ret['parameters'][0]['attribute'] = EPInfoLevel.ATTR_START_DATE
         ret['parameters'][0]['type'] = 'string'
         ret['parameters'][0]['min'] = datetime.datetime(2000, 1,1).astimezone().isoformat()
         ret['parameters'][0]['max'] = datetime.datetime.now().astimezone().isoformat()
@@ -41,17 +41,17 @@ class EPLevelRead(EP):
 
     def executeByParameters(self, startDate) -> dict:
         payload = {}
-        payload[EPLevelRead.ATTR_START_DATE] = startDate
+        payload[EPInfoLevel.ATTR_START_DATE] = startDate
         return self.executeByPayload(payload)
 
     def executeByPayload(self, payload) -> dict:
-        parameterStartDateString = payload[EPLevelRead.ATTR_START_DATE]
+        parameterStartDateString = payload[EPInfoLevel.ATTR_START_DATE]
         startDateString = parser.parse(parameterStartDateString).astimezone().isoformat()
         startDate = parser.parse(startDateString)
 
         logging.debug( "WEB request: {0} {1} ('{2}': {3})".format(
-                    EPLevelRead.METHOD, EPLevelRead.URL,
-                    EPLevelRead.ATTR_START_DATE, startDateString
+                    EPInfoLevel.METHOD, EPInfoLevel.URL,
+                    EPInfoLevel.ATTR_START_DATE, startDateString
                     )
             )
 
