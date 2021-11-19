@@ -1,10 +1,52 @@
 import logging
 from exceptions.invalid_api_usage import InvalidAPIUsage
 from webserver.endpoints.ep import EP
-import datetime
 from flask import request
 from webserver.representations import output_json
+
 from dateutil import parser
+from datetime import datetime
+
+from scipy import stats
+
+#
+# Output:
+# {
+#     "result": "OK",
+#     "levels": {
+#      "5": {
+#             "ip":"192.168.0.112",
+#             "slope": 0.123,
+#             "intercept": 1234.456,
+#             "stdError": 0.345
+#             "record": [
+#                {
+#                    "timeStamp": 35779,
+#                    "date": "2021-11-12T21:12:22.12345+01:00",
+#                    "value": 31,
+#                    "variance": 0.0
+#                },
+#                {},
+#                {}
+#             ]
+#      },
+#      "9": {
+#             "ip":"192.168.0.117",
+#             "slope": 0.123,
+#             "intercept": 1234.456,
+#             "stdError": 0.345
+#             "record": [
+#                {
+#                    "timestamp": 35787,
+#                    "date": "2021-11-12T21:12:25.34512+01:00",
+#                    "value": 27,
+#                    "variance": 0.1
+#                },
+#                {}, 
+#                {}
+#             ]
+#      }
+# }
 
 class EPInfoLevel(EP):
 
@@ -47,7 +89,8 @@ class EPInfoLevel(EP):
     def executeByPayload(self, payload) -> dict:
         parameterStartDateString = payload[EPInfoLevel.ATTR_START_DATE]
         startDateString = parser.parse(parameterStartDateString).astimezone().isoformat()
-        startDate = parser.parse(startDateString)
+        startDateTime = parser.parse(startDateString)
+        startDateStamp = datetime.timestamp(startDateTime)
 
         logging.debug( "WEB request: {0} {1} ('{2}': {3})".format(
                     EPInfoLevel.METHOD, EPInfoLevel.URL,
@@ -55,21 +98,12 @@ class EPInfoLevel(EP):
                     )
             )
 
-        ret = {'result': 'OK', 'list': []}
-        with open(self.web_gadget.reportPath, 'r') as fileObject:
+        reportCopy = self.web_gadget.report.getRawReportCopy()
+        self.web_gadget.report.filterReportCopy(reportCopy, startDateStamp)
+        #self.smoothReportCopy(reportCopy, window=window)
+        #self.calculateTrendForReportCopy(reportCopy)
 
-            lines = fileObject.readlines()
-            for line in lines:
-                lineArray = line.split()
-
-                #{date}\t{levelId}\t{ip}\t{value}\t{variance}
-                dateString = lineArray[0]
-                date = parser.parse(dateString)
-                if date >= startDate:
-                    levelId = lineArray[1]
-                    ip = lineArray[2]
-                    value = int(lineArray[3])
-                    variance = float(lineArray[4])
-                    ret['list'].append({'date': dateString, 'levelId': levelId, 'ip': ip, 'value': value, 'variance': variance})
+        #levels=self.web_gadget.report.getFilteredLevelWithTrend(startDateStamp, endDateStamp=None, sensorId=None)
+        ret = {'result': 'OK', 'levels': reportCopy}
 
         return output_json( ret, EP.CODE_OK)

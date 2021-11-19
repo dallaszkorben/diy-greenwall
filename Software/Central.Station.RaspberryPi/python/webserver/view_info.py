@@ -13,7 +13,7 @@ from exceptions.invalid_api_usage import InvalidAPIUsage
 
 from webserver.endpoints.ep_info_functions import EPInfoFunctions
 from webserver.endpoints.ep_info_level import EPInfoLevel
-from webserver.endpoints.ep_info_trend import EPInfoTrend
+from webserver.endpoints.ep_info_graph import EPInfoGraph
 
 # -----------------------------------
 #
@@ -32,7 +32,7 @@ class InfoView(FlaskView):
 
         self.epInfoFunctions = EPInfoFunctions(web_gadget)
         self.epInfoLevel = EPInfoLevel(web_gadget)
-        self.epInfoTrend = EPInfoTrend(web_gadget)
+        self.epInfoGraph = EPInfoGraph(web_gadget)
 
     #
     # GET http://localhost:5000/info/
@@ -102,18 +102,18 @@ class InfoView(FlaskView):
 # ===
 
     #
-    # Read the trend - with payload
+    # Get graph - with payload
     #
-    # curl  --header "Content-Type: application/json" --request GET --data '{"startDate":"2021.11.07T20:15:123+01:00"}' http://localhost:5000/info/trend
+    # curl  --header "Content-Type: application/json" --request GET --data '{"startDate":"2021.11.07T20:15:123+01:00"}' http://localhost:5000/info/graph
     #
-    # GET http://localhost:5000/info/trend
+    # GET http://localhost:5000/info/graph
     #      body: {
     #            "startDate":"2021.11.07T20:15:123+01:00"
     #           }
     #
-    #@route('/trend', methods=['GET'])
-    @route(EPInfoTrend.PATH_PAR_PAYLOAD, methods=[EPInfoTrend.METHOD])
-    def infoTrendWithPayload(self):
+    #@route('/graph', methods=['GET'])
+    @route(EPInfoGraph.PATH_PAR_PAYLOAD, methods=[EPInfoGraph.METHOD])
+    def infoGraphWithPayload(self):
 
         # WEB
         if request.form:
@@ -126,20 +126,24 @@ class InfoView(FlaskView):
         else:
             return "Not valid request", EP.CODE_BAD_REQUEST
 
-        out = self.epInfoTrend.executeByPayload(json_data)
+        out = self.epInfoGraph.executeByPayload(json_data)
         return out
 
     #
-    # Read the trend - with parameters
+    # Get graph - with parameters
     #
-    # curl  --header "Content-Type: application/json" --request GET http://localhost:5000/info/trend/startDate/2021.11.07T20:15:123+01:00
+    # curl  --header "Content-Type: application/json" --request GET http://localhost:5000/info/graph/startDate/2021.11.07T20:15:123+01:00
     #
-    # READ http://localhost:5000/info/trend/startDate/2021.11.07T20:15:123+01:00
+    # READ http://localhost:5000/info/graph/startDate/2021.11.07T20:15:123+01:00
     #
-    #@route('/trend/startDate/<startDate>', methods=['GET'])
-    @route(EPInfoTrend.PATH_PAR_URL, methods=[EPInfoTrend.METHOD])
-    def infoTrendWithParameter(self, startDate):
+#    #@route('/graph/startDate/<startDate>/sensorId/<sensorId>', methods=['GET'])
+    #@route('/graph/startDate/<startDate>', methods=['GET'])
+    @route(EPInfoGraph.PATH_PAR_URL, methods=[EPInfoGraph.METHOD])
+#    def infoGraphWithParameter(self, startDate, sensorId):
+    def infoGraphWithParameter(self, startDate):
 
-        out = self.epInfoTrend.executeByParameters(startDate=startDate)
+        out = self.epInfoGraph.executeByParameters(startDate=startDate)
+#        out = self.epInfoGraph.executeByParameters(startDate=startDate, sensorId=sensorId)
         return out
+
 

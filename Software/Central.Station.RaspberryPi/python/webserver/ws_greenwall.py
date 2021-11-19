@@ -1,6 +1,7 @@
 import os
 import logging
 from logging.handlers import RotatingFileHandler
+from dateutil import parser
 
 #from threading import Lock
 
@@ -23,6 +24,8 @@ from threading import Thread
 
 from config.config import getConfig
 from config.ini_location import IniLocation
+
+from utilities.report import Report
 
 class WSGreenWall(Flask):
 
@@ -66,6 +69,8 @@ class WSGreenWall(Flask):
 
         # This will enable CORS for all routes
         CORS(self.app)
+
+        self.report = Report(self.reportPath)
 
         # register the end-points
         InfoView.register(self.app, init_argument=self)
