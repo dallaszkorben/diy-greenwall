@@ -87,30 +87,30 @@ class Report:
             timeStamp = dateTime.timestamp()
             if not levelId in self.reportDict:
 
-                logging.debug("")
-                logging.debug("")
-                logging.debug("type {0}".format(type(levelId)))
-                logging.debug("$$$ new dict key created: '{0}'".format(levelId))
-                logging.debug(self.reportDict)
-                logging.debug("")
-                logging.debug("")
+#                logging.debug("")
+#                logging.debug("")
+#                logging.debug("type {0}".format(type(levelId)))
+#                logging.debug("$$$ new dict key created: '{0}'".format(levelId))
+#                logging.debug(self.reportDict)
+#                logging.debug("")
+#                logging.debug("")
 
                 self.reportDict[levelId] = {'ip': ip, 'record': []}
 
 
-                logging.debug("")
-                logging.debug("--- new dict --- ")
-                logging.debug(self.reportDict)
-                logging.debug("")
-                logging.debug("")
-                logging.debug("")
-                logging.debug("")
+#                logging.debug("")
+#                logging.debug("--- new dict --- ")
+#                logging.debug(self.reportDict)
+#                logging.debug("")
+#                logging.debug("")
+#                logging.debug("")
+#                logging.debug("")
 
             self.reportDict[levelId]['record'].append({'timeStamp': timeStamp, 'value': value, 'variance': variance})
 
 
 #            logging.debug( "$$$ {0} added to the reportDict ({1})  - $$$}".format(timeStamp, value) )
-            logging.debug( "$$$ {0} added to the reportDict ({1}) $$$".format(timeStamp,value ))
+#            logging.debug( "$$$ {0} added to the reportDict ({1}) $$$".format(timeStamp,value ))
 
 
 
@@ -157,6 +157,8 @@ class Report:
             for r, v in zip( reportCopy[levelId]["record"], newValues):
                 r.update({'value': v})
 
+        reportCopy[levelId]['record'] = reportCopy[levelId]['record'][window:]
+
         return reportCopy
 
 
@@ -181,17 +183,40 @@ class Report:
                 value = float(record['value'])
                 variance = float(record['variance'])
 
+
+
+#                logging.debug( "recordValue: {0}, value: {1}".format(record['value'], value) )
+
+
+
                 dataCollection['x'].append(timeStamp)  # for trend
                 dataCollection['y'].append(value)      # for trend
 
-                # for trend
-                if len(dataCollection['x']) > 10:
-                    slope, intercept, r, p, std_err = stats.linregress(dataCollection['x'], dataCollection['y'])
 
-                else:
-                    slope = None
-                    intercept = None
-                    std_err = None
+
+#            logging.debug( "SIZE of dataCollection: {0}".format(len(dataCollection['x'])) )
+
+
+
+
+            # for trend
+#            if len(dataCollection['x']) > 10:
+            std_err = 0
+            if len(dataCollection['x']) > 1:
+
+                slope, intercept = self.getRegression(dataCollection['x'], dataCollection['y'])
+#                slope, intercept, r, p, std_err = stats.linregress(dataCollection['x'], dataCollection['y'])
+            else:
+                slope = None
+                intercept = None
+                std_err = None
+
+#            logging.debug( "TREND PAR - slope: {0}, intercept: {1}".format(slope, intercept) )
+
+
+#            logging.debug( "DATACOLLECTION[X]: {0}".format(dataCollection['x']) )
+#            logging.debug( "DATACOLLECTION[Y]: {0}".format(dataCollection['y']) )
+
 
             reportCopy[levelId]['slope'] = slope
             reportCopy[levelId]['intercept'] = intercept
@@ -209,15 +234,27 @@ class Report:
 
             #levelDict = reportCopy[levelId]
             #ip = levelDict['ip']
-#            slope = levelDict['slope']
-#            intercept = levelDict['intercept']
+            slope = reportCopy[actualLevelId]['slope']
+            intercept = reportCopy[actualLevelId]['intercept']
             #stdError = levelDict['stdError']
             recordList = reportCopy[actualLevelId]['record']
+
+#            logging.debug( "TREND PAR - slope: {0}, intercept: {1}".format(slope, intercept) )
+
 
             # Input
             measure_timestamps = [record['timeStamp'] for record in recordList]
             measure_dates = [datetime.fromtimestamp(ts) for ts in measure_timestamps]
             measure_values = [record['value'] for record in recordList]
+
+            if len(measure_dates) > 1:
+                trend_dates = [measure_dates[0], measure_dates[-1]]
+                trend_values = [measure_timestamps[0] * slope + intercept, measure_timestamps[-1] * slope + intercept]
+            else:
+                trend_dates = []
+                trend_values = []
+#            logging.debug( "TREND - {0}: {1}, {2}, {3}".format(trend_dates[0], trend_values[0], trend_dates[1], trend_values[1]) )
+
 
             # clean plt
             plt.clf()
@@ -246,7 +283,7 @@ class Report:
             ax.grid()
 
             plt.plot(measure_dates, measure_values, label="Measure", linewidth='1', color='green')
-            #plt.plot(trend_dates, trend_value, label="Trend", linewidth='3', color='red')
+            plt.plot(trend_dates, trend_values, label="Trend", linewidth='3', color='red')
 
             plt.legend()
 
@@ -506,3 +543,20 @@ class Report:
 
     def smooth(self, y, winsize=5):
         return np.array(pd.Series(y).rolling(winsize).mean())
+
+    def getVariance(self, arr, mean):
+        return np.sum((arr-mean)**2)
+
+    def getCovariance(self, arr_x, mean_x, arr_y, mean_y):
+        final_arr = (arr_x-mean_x)*(arr_y-mean_y)
+        return np.sum(final_arr)
+
+    def getRegression(self, x, y):
+
+        x_mean = np.mean(x)
+        y_mean = np.mean(y)
+
+        m = self.getCovariance(x, x_mean, y, y_mean)/self.getVariance(x, x_mean)
+        b = y_mean - x_mean*m
+
+        return m, b

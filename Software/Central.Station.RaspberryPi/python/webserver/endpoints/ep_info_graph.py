@@ -80,7 +80,7 @@ class EPInfoGraph(EP):
         )
 
         #graphs = self.web_gadget.report.getImageOfGrapWithTrend(startDateStamp, endDateStamp=None, sensorId=parameterSensorIdString)
-        graphs = self.web_gadget.report.getGraphs(startDateStamp, endDateStamp=None, window=15)
+        graphs = self.web_gadget.report.getGraphs(startDateStamp, endDateStamp=None, window=16)
 
         ret = {'result': 'OK', 'graphs': graphs}
         return output_json( ret, EP.CODE_OK)
