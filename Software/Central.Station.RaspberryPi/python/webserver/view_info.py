@@ -14,6 +14,7 @@ from exceptions.invalid_api_usage import InvalidAPIUsage
 from webserver.endpoints.ep_info_functions import EPInfoFunctions
 from webserver.endpoints.ep_info_level import EPInfoLevel
 from webserver.endpoints.ep_info_graph import EPInfoGraph
+from webserver.endpoints.ep_info_timestamp import EPInfoTimeStamp
 
 # -----------------------------------
 #
@@ -33,6 +34,7 @@ class InfoView(FlaskView):
         self.epInfoFunctions = EPInfoFunctions(web_gadget)
         self.epInfoLevel = EPInfoLevel(web_gadget)
         self.epInfoGraph = EPInfoGraph(web_gadget)
+        self.epInfoTimeStamp = EPInfoTimeStamp(web_gadget)
 
     #
     # GET http://localhost:5000/info/
@@ -146,4 +148,48 @@ class InfoView(FlaskView):
 #        out = self.epInfoGraph.executeByParameters(startDate=startDate, sensorId=sensorId)
         return out
 
+
+# ===
+
+    #
+    # Get actual timestamp by the epoc - with payload
+    #
+    # curl  --header "Content-Type: application/json" --request GET --data '{"epocDate":"2000.00.00T00:00:00"}' http://localhost:5000/info/timeStamp
+    #
+    # GET http://localhost:5000/info/timeStamp
+    #      body: {
+    #            "epocDate":"2000.00.00T00:00:00"
+    #           }
+    #
+    #@route('/timeStamp', methods=['GET'])
+    @route(EPInfoTimeStamp.PATH_PAR_PAYLOAD, methods=[EPInfoTimeStamp.METHOD])
+    def infoTimeStampWithPayload(self):
+
+        # WEB
+        if request.form:
+            json_data = request.form
+
+        # CURL
+        elif request.json:
+            json_data = request.json
+
+        else:
+            return "Not valid request", EP.CODE_BAD_REQUEST
+
+        out = self.epInfoTimeStamp.executeByPayload(json_data)
+        return out
+
+    #
+    # Get actual timestamp by the epoc - with parameters
+    #
+    # curl  --header "Content-Type: application/json" --request GET http://localhost:5000/info/timeStamp/epocDate/2000.00.00T00:00:00
+    #
+    # READ http://localhost:5000/info/timeStamp/epocDate/2000.00.00T00:00:00
+    #
+    #@route('/timeStamp/epocDate/<epocDate>', methods=['GET'])
+    @route(EPInfoTimeStamp.PATH_PAR_URL, methods=[EPInfoTimeStamp.METHOD])
+    def infoTimeStampWithParameter(self, epocDate):
+
+        out = self.epInfoTimeStamp.executeByParameters(epocDate)
+        return out
 
