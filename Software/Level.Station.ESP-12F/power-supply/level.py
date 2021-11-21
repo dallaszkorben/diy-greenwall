@@ -21,7 +21,7 @@ def setTime():
         result = wl.sendRest(type="GET", address=ip, path=path_info_timestamp + "/epocDate/" + epocDate) #, data=data)
         time.sleep(1)
 
-    print(result)
+#    print(result)
 
     timeStamp = result['data']['timeStamp']
     date = utime.localtime(timeStamp)
@@ -33,6 +33,10 @@ def setTime():
 #    print()
 #    print(result['data'])
 #    print()
+
+def getStringDate(date):
+    return "{0:04d}-{1:02d}-{2:02d}T{3:02d}:{4:02d}:{5:02d}".format(date[0], date[1], date[2], date[3], date[4], date[5] )
+
 
 gc.enable()
 
@@ -110,7 +114,7 @@ while True:
         counter = counter + 1
         time.sleep_ms(1)
 
-    data = ujson.dumps({'levelId': levelId, 'value': minLevel[0], 'variance': minLevel[1], 'timestamp': utime.time()})
+    data = ujson.dumps({'levelId': levelId, 'value': minLevel[0], 'variance': minLevel[1], 'dateString': getStringDate(utime.localtime())})
     result = wl.sendRest(type="POST", address=ip, path=path_level_add, data=data)
     gc.collect()
 
