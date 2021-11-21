@@ -28,6 +28,9 @@ from threading import Lock
 # from datetime import datetime
 # from dateutil import parser
 #
+# datetime now()
+#  datetime.datetime.now().astimezone()
+#
 # String now()
 #  datetime.datetime.now().astimezone().isoformat()
 #

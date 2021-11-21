@@ -4,7 +4,7 @@
         "password": "viragfal"
     },
     "level-sta":{
-        "trigger-pin": 5,
+        "trigger-pin": "6",
         "echo-pin": 4,
         "led-status-pin": 2,
         "adc-pin": 0,

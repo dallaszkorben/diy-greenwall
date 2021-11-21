@@ -52,9 +52,9 @@ class UltrasonicSensor():
         pulse = self.getPulse()
 
         if self.regression == UltrasonicSensor.REGRESSION_LINEAR:
-            return (int(self.m * pulse + self.b), pulse)
+            return (self.m * pulse + self.b, pulse)
         elif self.regression == UltrasonicSensor.REGRESSION_QUADRATIC:
-            return (int(self.a + self.b * pulse + self.c * pulse * pulse), pulse)
+            return (self.a + self.b * pulse + self.c * pulse * pulse, pulse)
 
     def getDistanceMeanInMm(self):
 
