@@ -4,8 +4,8 @@ import urequests as requests
 import config
 import time
 from control import LedControl
-
-from ntptime import settime
+from representations import output_json
+import json
 
 try:
     import usocket as socket
@@ -51,12 +51,12 @@ class WifiLevel():
 
         if not self.wlan.isconnected():
             print("!!! Connection interrupted !!!")
-            return False
+            return output_json(success=False)
 
         else:
             print("ip: ", self.wlan.ifconfig()[0], end="")
 #            print("ip: ", "\U0001f44d" if counter == 0 else " ",self.wlan.ifconfig()[0], end="")
-            return True
+            return output_json(success=True)
 
     def getIfconfig(self):
         return self.wlan.ifconfig()
@@ -65,8 +65,16 @@ class WifiLevel():
         if self.wlan.isconnected():
             self.wlan.disconnect()
 
-    def sendPost(self, address="192.168.4.1", path="", data="{}"):
-
+    def sendRest(self, type="POST", address="192.168.4.1", path="", data="{}"):
+        """
+            return: Object
+                            .status_code
+                            .text
+                                {
+                                    "result: 'OK',
+                                    "timeStamp: 5678910.1234
+                                }
+        """
         #gc.collect()
 
         url = "http://" + address + "/" + path
@@ -81,7 +89,7 @@ class WifiLevel():
         conn = self.connectToAp()
         #gc.collect()
 
-        if conn:
+        if conn['success']:
 
             # Indicate on the LED, sending POST
             self.ledControl.setBeforeSendPost()
@@ -89,7 +97,8 @@ class WifiLevel():
 #            gc.collect()
 
             # Send the POST request
-            print(" - POST ", end="")
+            print(" - POST " if type == "POST" else " - GET ", end="")
+            print(url, data, end=" ")
 
             cycle = 0
             while cycle < 10:
@@ -99,14 +108,19 @@ class WifiLevel():
 
                 try:
 
-                    r = requests.post(url, data=str(data), headers=headers)
+                    if type == "POST":
+                        r = requests.post(url, data=str(data), headers=headers)
+                    else:
+                        r = requests.get(url, data=str(data), headers=headers)
 
-                    print(url, end="")
-                    print(" - response status:", r.status_code, "      ", gc.mem_free())
+#                    print(url, end="")
+                    print(" - Response: {0}, {1}".format(r.status_code, r.text))
+#                    print(" - response status:", r.status_code, "      ", gc.mem_free())
 
                     # Indicate on the LED, sending was SUSSESSFUL
                     self.ledControl.setPassedSendPost()
 
+                    conn = output_json(success=True, data=json.loads(r.text))
                     break
 
                 except Exception as e:
@@ -119,6 +133,7 @@ class WifiLevel():
             if cycle >= 10:
                 self.ledControl.setFailedSendPost()
                 print("!!! Network issue. Can not send request !!!", str(exception))
-                conn = False
+
+                conn = output_json(success=False)
 
         return conn

@@ -3,7 +3,9 @@
         "essid": "Central-Station-006",
         "password": "viragfal"
         "webserver-ip": "192.168.50.3:5000",
-        "webserver-path-level-report": "level/add"
+        "webserver-path-level-add": "level/add",
+        "webserver-path-info-timestamp": "info/timeStamp"
+
     },
     "level-sta":{
         "level-id": "5",

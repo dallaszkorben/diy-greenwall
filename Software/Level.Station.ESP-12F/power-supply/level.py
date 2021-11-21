@@ -6,7 +6,36 @@ import config
 import gc
 import machine
 from machine import Timer
+import utime
 
+import ujson
+
+def setTime():
+
+    result = {'success': False}
+
+    while not result['success']:
+        #timeutime.localtime(0)
+        epocDate = "2000.01.01"
+        #data = ujson.dumps({'epocDate': epocDate})
+        result = wl.sendRest(type="GET", address=ip, path=path_info_timestamp + "/epocDate/" + epocDate) #, data=data)
+        time.sleep(1)
+
+#    print(result)
+
+    timeStamp = result['data']['timeStamp']
+    date = utime.localtime(timeStamp)
+    correctedDate = (date[0], date[1], date[2], 0, date[3], date[4], date[5], 0)
+    machine.RTC().datetime(correctedDate)
+
+#    timeStamp = result['timeStamp']
+#    print(timeStamp)
+#    print()
+#    print(result['data'])
+#    print()
+
+def getStringDate(date):
+    return "{0:04d}-{1:02d}-{2:02d}T{3:02d}:{4:02d}:{5:02d}".format(date[0], date[1], date[2], date[3], date[4], date[5] )
 
 
 gc.enable()
@@ -17,7 +46,8 @@ gc.enable()
 #
 # ###########################################################
 ip=config.getValue('central-ap', 'webserver-ip')
-path=config.getValue('central-ap', 'webserver-path-level-report')
+path_level_add=config.getValue('central-ap', 'webserver-path-level-add')
+path_info_timestamp=config.getValue('central-ap', 'webserver-path-info-timestamp')
 
 levelId=config.getValue('level-sta', 'level-id')
 reportIntervalSec=config.getValue('level-sta', 'report-interval-sec')
@@ -38,16 +68,17 @@ sampleNumber=config.getValue('level-sensor', 'sample-number')
 maximumVariance=config.getValue('level-sensor', 'maximum-variance')
 # ###########################################################
 
+print()
+
 wl=WifiLevel()
-#wl.connectToAp()
+wl.connectToAp()
+setTime()
 
 #
 # Depending on what kind of sensor is used
 #
 wls=UltrasonicSensor(pinTrigger, pinEcho, sampleNumber, a=a, b=b, c=c, zeroLevel=zeroLevel)
 #wls=WaterLevelSensor(pinAnalog, sampleNumber, m, b)
-
-print()
 
 gc.collect()
 
@@ -83,11 +114,12 @@ while True:
         counter = counter + 1
         time.sleep_ms(1)
 
-    result = wl.sendPost(address=ip, path=path, data='{"levelId": ' + levelId + ', "value":' + str(int(minLevel[0])) + ', "variance": ' + '{:.3f}'.format(minLevel[1]) + '}')
+    data = ujson.dumps({'levelId': levelId, 'value': minLevel[0], 'variance': minLevel[1], 'dateString': getStringDate(utime.localtime())})
+    result = wl.sendRest(type="POST", address=ip, path=path_level_add, data=data)
     gc.collect()
 
     # Unsuccessful send
-    if not result:
+    if result['success'] != 200:
         time.sleep(1)
         continue
 
