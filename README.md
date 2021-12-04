@@ -136,6 +136,38 @@ and then restart again by [Ctrl]d
   ```
 
 
+  ```sh
+  sudo apt install adafruit_DHT
+  ```
+
+  ```sh
+  wget -q -O - https://packages.grafana.com/gpg.key | sudo apt-key add -
+
+  sudo add-apt-repository "deb https://packages.grafana.com/oss/deb stable main"
+  sudo apt update
+  sudo apt install grafana
+  sudo systemctl start grafana-server
+  sudo systemctl status grafan-server
+  sudo systemctl enable grafana-server
+
+  #check which port grafan is running:
+  sudo lsof -i -P | grep -i grafana
+
+  #http://localhost:3000
+  ```
+
+#  ```sh
+#  pip3 install adafruit-blinka
+#  ```
+#  ```sh
+#  pip3 install adafruit-circuitpython-dht
+#  ```
+#
+#  ```sh
+#  sudo apt install libgpiod2
+#  ```
+
+
 ### Install SW on Raspberry Pi
 
 * Find the codes for Raspberry Pi: <b>Software/Central.RaspberryPi/python</b>  
@@ -315,7 +347,7 @@ I’ll show it later
        pi@raspberrypi:~$ sudo systemctl start hostapd
     ```
   * Run the script just after the reboot automatically  
-In the **crontab** file:
+    In the **crontab** file:
     ```sh
     pi@raspberrypi:~$ crontab -e
        @reboot /usr/local/bin/hostapdstart.sh

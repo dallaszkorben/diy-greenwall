@@ -7,7 +7,7 @@ from flask import jsonify
 from flask import session
 from flask_classful import FlaskView, route, request
 
-from webserver.representations import output_json
+from restserver.representations import output_json
 
 #from threading import Thread
 
@@ -17,10 +17,10 @@ from config.config import getConfig
 
 from exceptions.invalid_api_usage import InvalidAPIUsage
 
-from webserver.endpoints.ep_level_add import EPLevelAdd
-from webserver.endpoints.ep_info_level import EPInfoLevel
+from restserver.endpoints.ep_level_add import EPLevelAdd
+from restserver.endpoints.ep_info_level import EPInfoLevel
 
-from webserver.endpoints.ep import EP
+from restserver.endpoints.ep import EP
 
 
 # -----------------------------------
@@ -55,14 +55,17 @@ class LevelView(FlaskView):
     #
     # Set the level with payload
     #
-    # curl  --header "Content-Type: application/json" --request POST --data '{"levelId": 5, "value":23.4,"variance":0.0}' http://localhost:5000/level/add
+    # curl  --header "Content-Type: application/json" --request POST --data '{"stationId": "5", "dateString": "2021.12.03T11:34", "levelValue":23.4, "levelVariance":0.0 "temperatureValue": 12, "humidityValue": 20}' http://localhost:5000/level/add
     #
     # POST http://localhost:5000/level/add
     #      body: {
-    #            "levelId": "5",
-    #            "value":23.4,
-    #            "variance":0.0
-    #           }
+    #        "stationId": "5",
+    #        "dateString": "2021.12.03T11:34",
+    #        "levelValue":23.4,
+    #        "levelVariance":0.0
+    #        "temperatureValue": 12,
+    #        "humidityValue": 20
+    #      }
     #
     #@route('/add', methods=['POST'])
     @route(EPLevelAdd.PATH_PAR_PAYLOAD, methods=[EPLevelAdd.METHOD])
@@ -85,16 +88,23 @@ class LevelView(FlaskView):
     #
     # Read the level - with parameters
     #
-    # curl  --header "Content-Type: application/json" --request POST http://localhost:5000/level/add/levelId/5/value/23.4/variance/0.0
+    # curl  --header "Content-Type: application/json" --request POST http://localhost:5000/level/add/stationId/5/dateString/2021.12.03T11:34/levelValue/23.4/levelVariance/0.0/temperatureValue/12/humidityValue/2
     #
-    # POST http://localhost:5000/level/add/levelId/5/value/23.4/variance/0.0
+    # POST http://localhost:5000/level/add/stationId/5/dateString/2021.12.03T11:34/levelValue/23.4/levelVariance/0.0/teperatureValue/12/humidityValue/2
     #
-    #@route('/add/levelId/<levelId>/value/<value>/variance/<variance>', methods=['POST'])
+    #@route('/add/stationId/<stationId>/dateString/<dateString>/levelValue/<levelValue>/levelVariance/<levelVariance>/temperatureValue/<temperatureValue>/humidityValue/<humidityValue>, methods=['POST'])
     @route(EPLevelAdd.PATH_PAR_URL, methods=[EPLevelAdd.METHOD])
-    def setWithParameter(self, levelId, value, variance):
+    def setWithParameter(self, stationId, dateString, levelValue, levelVariance, temperatureValue, humidityValue):
 
-        out = self.epLevelAdd.executeByParameters(levelId=levelId, value=value, variance=variance)
+        out = self.epLevelAdd.executeByParameters(stationId=stationId, levelValue=levelValue, levelVariance=levelVariance, temperatureValue=temperatureValue, humidityValue=humidityValue)
         return out
+
+
+
+
+
+
+
 
 # ===
 

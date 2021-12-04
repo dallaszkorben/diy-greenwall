@@ -1,5 +1,8 @@
 import os
 import logging
+
+from threading import Thread
+
 from logging.handlers import RotatingFileHandler
 from dateutil import parser
 
@@ -16,9 +19,9 @@ from flask import session
 from flask_classful import FlaskView, route, request
 from flask_cors import CORS
 
-from webserver.view_info import InfoView
-from webserver.view_level import LevelView
-from webserver.gradual_thread_controller import GradualThreadController
+from restserver.view_info import InfoView
+from restserver.view_level import LevelView
+from restserver.gradual_thread_controller import GradualThreadController
 
 from threading import Thread
 
@@ -41,14 +44,19 @@ class WSGreenWall(Flask):
         logLevel = cg["log-level"]
         logFileName = cg["log-file-name"]
 
+#        reportTemperatureFileName = cg["report-temperature-file-name"]
+#        reportLevelFileName = cg["report-level-file-name"]
+
         reportFileName = cg["report-file-name"]
 
-        self.pumpId = cg["actuator-pump-id"]
-        self.pumpPin = cg["actuator-pump-pin"]
-        self.sensorTemperatureId = cg["sensor-temperature-id"]
-        self.sensorTemperaturePin = cg["sensor-temperature-pin"]
-        self.sensorHumidityId = cg["sensor-humidity-id"]
-        self.sensorHumidityPin = cg["sensor-humidity-pin"]
+        self.webFolderName = cg["web-folder-name"]
+
+#        self.pumpId = cg["actuator-pump-id"]
+#        self.pumpPin = cg["actuator-pump-pin"]
+#        self.sensorTemperatureId = cg["sensor-temperature-id"]
+#        self.sensorTemperaturePin = cg["sensor-temperature-pin"]
+#        self.sensorHumidityId = cg["sensor-humidity-id"]
+#        self.sensorHumidityPin = cg["sensor-humidity-pin"]
 
         # LOG 
         logFolder = IniLocation.get_path_to_config_folder()
@@ -60,6 +68,8 @@ class WSGreenWall(Flask):
 
         # REPORT
         reportFolder = IniLocation.get_path_to_config_folder()
+#        self.reportTemperaturePath = os.path.join(reportFolder, reportTemperatureFileName)
+#        self.reportLevelPath = os.path.join(reportFolder, reportLevelFileName)
         self.reportPath = os.path.join(reportFolder, reportFileName)
 
         # TODO remove self.app and correnct the references
@@ -70,11 +80,24 @@ class WSGreenWall(Flask):
         # This will enable CORS for all routes
         CORS(self.app)
 
+#        self.report = Report(self.reportLevelPath, self.reportTemperaturePath)
         self.report = Report(self.reportPath)
 
         # register the end-points
         InfoView.register(self.app, init_argument=self)
         LevelView.register(self.app, init_argument=self)
+
+        # thread for teperature sensor on server
+#        try:
+#           thread.start_new_thread( self.startTemperatureSensor )
+#        except:
+#           print "Error: unable to start thread"
+
+#    def startTemperatureSensor(self):
+        
+        
+        
+        
 
     def getThreadControllerStatus(self):
         return self.gradualThreadController.getStatus()
@@ -91,5 +114,6 @@ class WSGreenWall(Flask):
     def __del__(self):
         self.unconfigure()
 
-# because of WSGI
+#
+## because of WSGI
 app = WSGreenWall(__name__)

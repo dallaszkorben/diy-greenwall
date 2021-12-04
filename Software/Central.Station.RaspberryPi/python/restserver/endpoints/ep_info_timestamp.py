@@ -1,8 +1,8 @@
 import logging
 from exceptions.invalid_api_usage import InvalidAPIUsage
-from webserver.endpoints.ep import EP
+from restserver.endpoints.ep import EP
 from flask import request
-from webserver.representations import output_json
+from restserver.representations import output_json
 
 from dateutil import parser
 from datetime import datetime
