@@ -50,6 +50,7 @@ class WSGreenWall(Flask):
         reportFileName = cg["report-file-name"]
 
         self.webFolderName = cg["web-folder-name"]
+        self.webPathNameGraph = cg["web-path-name-graph"]
 
 #        self.pumpId = cg["actuator-pump-id"]
 #        self.pumpPin = cg["actuator-pump-pin"]

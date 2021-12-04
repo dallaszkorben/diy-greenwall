@@ -70,7 +70,8 @@ class GraphLevel:
             for r, v in zip( reportCopy[stationId]["record"], newValues):
                 r.update({'levelValue': v})
 
-            reportCopy[stationId]['record'] = reportCopy[stationId]['record'][window:]
+            reportCopy[stationId]['record'] = reportCopy[stationId]['record'][window-1:]
+
 
         return reportCopy
 
@@ -113,18 +114,22 @@ class GraphLevel:
         return reportCopy
 
     @staticmethod
-    def getGraphFromReportCopy(reportCopy, stationId=None, webFolderName="."):
-        retDict = {}
+    def getGraphFromReportCopy(reportCopy, stationId=None, webFolderName=".", webPathNameGraph="graph-images"):
+        retList = []
 
+        # Go through all stations
         for actualStationId in reportCopy:
 
+            # No record for the station (empty) - takes the next
             if len(reportCopy[actualStationId]['record']) == 0:
                 continue
 
+            # Thre is Station filter but the actual Station is not that - takes the next
             if stationId and stationId != actualStationId:
                 continue
 
-#            print(reportCopy[actualLevelId])
+            # Prepare the response
+            retDict = {'stationId': actualStationId, 'levelPath': None, 'temperaturePath': None, 'humidityPath': None}
 
             slope = reportCopy[actualStationId]['slope']
             intercept = reportCopy[actualStationId]['intercept']
@@ -133,10 +138,17 @@ class GraphLevel:
             speedInmmPerDay = slope * 86400 # 60*60*24 => mm/day
             speedInmmPerDayString = "{0:.1f} [mm/day]".format(speedInmmPerDay)
 
-            # Input
+#            import pprint
+#            print("---")
+#            pprint.pprint(recordList)
+
+            # Collect inputs
             measure_timestamps = [record['timeStamp'] for record in recordList]
             measure_dates = [datetime.fromtimestamp(ts) for ts in measure_timestamps]
-            measure_values = [record['levelValue'] for record in recordList]
+            measure_level_values = [record['levelValue'] for record in recordList]
+            measure_temperature_values = [record['temperatureValue'] for record in recordList]
+            measure_humidity_values = [record['humidityValue'] for record in recordList]
+
 
             if len(measure_dates) > 1:
                 trend_dates = [measure_dates[0], measure_dates[-1]]
@@ -145,18 +157,19 @@ class GraphLevel:
                 trend_dates = []
                 trend_values = []
 
+            # -----------
+            # Water Level
+            # -----------
+
             # clean plt
             plt.clf()
 
             plt.rcParams.update({'figure.autolayout': True})
-            plt.tight_layout()
-            #plt.subplots_adjust(bottom=0.30)
-
-#            px = 1/plt.rcParams['figure.dpi'] # pixel in inches
-#            plt.subplots(figsize=(1200*px, 600*px))
             plt.xticks(rotation=25)
-
             plt.text(measure_dates[0], measure_timestamps[0] * slope + intercept, speedInmmPerDayString)
+
+            # Set range
+            plt.ylim(0,110)
 
             ax=plt.gca()
 
@@ -171,33 +184,75 @@ class GraphLevel:
             xfmt=md.DateFormatter('%Y-%m-%d %H:%M')
             ax.xaxis.set_major_formatter(xfmt)
 
-            ax.set(xlabel="time", ylabel='level [mm]', title=f'Sensor {actualStationId}')
+            ax.set(xlabel="", ylabel='level [mm]', title=f'Water level on Sensor {actualStationId}')
             ax.grid()
 
-            plt.plot(measure_dates, measure_values, label="Measure", linewidth='1', color='green')
+            plt.plot(measure_dates, measure_level_values, label="Measure", linewidth='1', color='green')
             plt.plot(trend_dates, trend_values, label="Trend", linewidth='3', color='red')
 
             plt.legend()
 
-            fileName = f'{webFolderName}/graph-images/graph_level_{actualStationId}.jpg'
+            fileName = f'{webFolderName}/{webPathNameGraph}/graph_level_{actualStationId}.jpg'
+            pathName = f'{webPathNameGraph}/graph_level_{actualStationId}.jpg'
 
-            retDict[actualStationId] = {'level': None, 'temperature': None, 'humidity': None}
-            retDict[actualStationId]['level'] = fileName
+            retDict['levelPath'] = pathName
+#            retList.append(retDict)
 
-            plt.savefig(fileName)
-#            plt.savefig("../web-client/graphs/" + fileName)
-#            plt.savefig(fileName)
+            plt.savefig(fileName, bbox_inches="tight")
+
+            # -----------
+            # Temperature
+            # -----------
+
+            # clean plt
+            plt.clf()
+
+#            plt.rcParams.update({'figure.autolayout': True})
+            plt.xticks(rotation=25)
+#            plt.text(measure_dates[0], measure_timestamps[0] * slope + intercept, speedInmmPerDayString)
+            # Set range
+            plt.ylim(0,40)
 
 
-        return retDict
+            ax=plt.gca()
+
+            # configure tick locators
+            x_major_locator=md.DayLocator()
+            x_minor_locator=md.HourLocator(interval=1)
+            ax.xaxis.set_major_locator(x_major_locator)
+            ax.xaxis.set_minor_locator(x_minor_locator)
+
+            # format X values
+            #xfmt=md.DateFormatter('%Y-%m-%d %H:%M:%S')
+            xfmt=md.DateFormatter('%Y-%m-%d %H:%M')
+            ax.xaxis.set_major_formatter(xfmt)
+
+            ax.set(xlabel="", ylabel='temp [°C]', title=f'Temperature on Sensor {actualStationId}')
+            ax.grid()
+
+            plt.plot(measure_dates, measure_temperature_values, label="Measure", linewidth='1', color='blue')
+
+#            plt.legend()
+
+            fileName = f'{webFolderName}/{webPathNameGraph}/graph_temperature_{actualStationId}.jpg'
+            pathName = f'{webPathNameGraph}/graph_temperature_{actualStationId}.jpg'
+
+            retDict['temperaturePath'] = pathName
+            retList.append(retDict)
+
+            plt.savefig(fileName, bbox_inches="tight")
+
+        return retList
 
     @staticmethod
-    def getGraphs(reportCopy, startDateStamp, endDateStamp=None, window=15, webFolderName="."):
+    def getGraphs(reportCopy, startDateStamp, endDateStamp=None, window=15, webFolderName=".", webPathNameGraph="graph-images"):
+
+
 
         #reportCopy = self.getRawReportCopy()
         GraphLevel.smoothReportCopy(reportCopy, window=window)
         GraphLevel.calculateTrendForReportCopy(reportCopy)
-        ret = GraphLevel.getGraphFromReportCopy(reportCopy, stationId=None, webFolderName=webFolderName)
+        ret = GraphLevel.getGraphFromReportCopy(reportCopy, stationId=None, webFolderName=webFolderName, webPathNameGraph=webPathNameGraph)
 
         return ret
 
@@ -219,8 +274,13 @@ class GraphLevel:
 
         x_mean = np.mean(x)
         y_mean = np.mean(y)
+        v = GraphLevel.getVariance(x, x_mean)
 
-        m = GraphLevel.getCovariance(x, x_mean, y, y_mean)/GraphLevel.getVariance(x, x_mean)
+        if v == 0:
+            m = 0
+        else:
+            m = GraphLevel.getCovariance(x, x_mean, y, y_mean)/v
+
         b = y_mean - x_mean*m
 
         return m, b

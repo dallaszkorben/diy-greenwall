@@ -21,7 +21,8 @@ class Config( Property ):
 #    DEFAULT_REPORT_LEVEL_FILE_NAME = ("report", "level-file-name", "report-level.log")
     DEFAULT_REPORT_FILE_NAME = ("report", "file-name", "report-level.log")
 
-    DEFAULT_WEB_FOLDER_NAME = ("web", "folder-name", "/var/www/greenwall")
+    DEFAULT_WEB_FOLDER_NAME = ("web", "folder-name-graph", "/var/www/greenwall")
+    DEFAULT_WEB_PATH_NAME_GRAPH = ("web", "path-name-graph", "graph-images")
 
     DEFAULT_ACTUATOR_PUMP_ID = ("actuator-pump", "id", 1)
     DEFAULT_ACTUATOR_PUMP_PIN = ("actuator-pump", "pin", 18)
@@ -75,6 +76,9 @@ class Config( Property ):
     def getWebFolderName(self):
         return self.get(self.DEFAULT_WEB_FOLDER_NAME[0], self.DEFAULT_WEB_FOLDER_NAME[1], self.DEFAULT_WEB_FOLDER_NAME[2])
 
+    def getWebPathNameGraph(self):
+        return self.get(self.DEFAULT_WEB_PATH_NAME_GRAPH[0], self.DEFAULT_WEB_PATH_NAME_GRAPH[1], self.DEFAULT_WEB_PATH_NAME_GRAPH[2])
+
     def getActuatorPumpId(self):
         return int(self.get(self.DEFAULT_ACTUATOR_PUMP_ID[0], self.DEFAULT_ACTUATOR_PUMP_ID[1], self.DEFAULT_ACTUATOR_PUMP_ID[2]))
 
@@ -118,6 +122,9 @@ class Config( Property ):
     def setWebFolderName(self, webFolderName):
         self.update(self.DEFAULT_WEB_FOLDER_NAME[0], self.DEFAULT_WEB_FOLDER_NAME[1], webFolderName)
 
+    def setWebPathNameGraph(self, webPathNameGraph):
+        self.update(self.DEFAULT_WEB_PATH_NAME_GRAPH[0], self.DEFAULT_WEB_PATH_NAME_GRAPH[1], webPathNameGraph)
+
     def setActuatorPumpId(self, actuatorId):
         self.update(self.DEFAULT_ACTUATOR_PUMP_ID[0], self.DEFAULT_ACTUATOR_PUMP_ID[1], actuatorId)
 
@@ -155,6 +162,7 @@ def getConfig():
     config["report-file-name"] = cb.getReportFileName()
 
     config["web-folder-name"] = cb.getWebFolderName()
+    config["web-path-name-graph"] = cb.getWebPathNameGraph()
 
     config["actuator-pump-id"] = cb.getActuatorPumpId()
     config["actuator-pump-pin"] = cb.getActuatorPumpPin()
@@ -192,6 +200,9 @@ def setConfig(config):
 
     if "web-folder-name" in config:
         cb.setWebFolderName(config["web-folder-name"])
+
+    if "web-path-name-graph" in config:
+        cb.setWebPathNameGraph(config["web-path-name-graph"])
 
     if "actuator-pump-id" in config:
         cb.setActuatorPumpId(config["actuator-pump-id"])
