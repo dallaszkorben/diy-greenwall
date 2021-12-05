@@ -6,7 +6,7 @@ import math
 # "zero-level": 59,
 # "linear-m": 0.11,
 # "linear-b": -35,
-class WaterLevelSensor():
+class SensorLevel():
 
     def __init__(self, analogGpio, sampleNumber, m, b):
 

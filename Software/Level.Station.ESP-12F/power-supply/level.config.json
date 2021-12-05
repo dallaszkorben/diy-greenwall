@@ -5,26 +5,45 @@
         "webserver-ip": "192.168.50.3:5000",
         "webserver-path-level-add": "level/add",
         "webserver-path-info-timestamp": "info/timeStamp"
-
     },
     "level-sta":{
-        "level-id": "5",
+        "station-id": "11",
         "analog-pin": 0,
-        "trigger-pin": 5,
-        "echo-pin": 4,
         "led-status-pin": 2,
         "led-status-inverse": true,
-        "report-interval-sec": 5
+        "report-interval-sec": 10
         "reset-hours": 1
     },
-    "level-sensor":{
-        "zero-level": 76,
+    "sensor-level":{
+
+        "package-name": "sensor_level_hcsr04",
+
+        "trigger-pin": 5,
+        "echo-pin": 4,
+
+        "zero-level-frame": 76,
+        "zero-level-hanger": 78.8,
+        "zero-level": 78.8,
         "linear-m": 1,
         "linear-b": 0,
-        "quadratic-a": -2.7354525,
-        "quadratic-b": 0.262834668,
-        "quadratic-c": -0.000210552445
+
+        "quadratic-a-1": -2.7354525,
+        "quadratic-b-1": 0.262834668,
+        "quadratic-c-1": -0.000210552,
+
+        "quadratic-a-2": -26.2748915,
+        "quadratic-b-2": 0.39095531,
+        "quadratic-c-2": -0.00037595,
+
+        "quadratic-a": -26.2748915,
+        "quadratic-b": 0.39095531,
+        "quadratic-c": -0.00037595,
+
         "sample-number": 100,
-        "maximum-variance": 1.0
+        "maximum-variance": 0.5
+    },
+    "sensor-temp-hum":{
+        "package-name": "sensor_temp_hum_dht11",
+        "data-gpio": 0
     }
 }

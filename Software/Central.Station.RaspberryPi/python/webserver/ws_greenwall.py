@@ -6,7 +6,7 @@ from dateutil import parser
 #from threading import Lock
 
 from datetime import datetime
-import tzlocal
+#import tzlocal
 import time
 
 import json
