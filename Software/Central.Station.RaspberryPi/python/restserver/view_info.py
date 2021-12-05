@@ -5,16 +5,16 @@ from flask import jsonify
 from flask import session
 from flask_classful import FlaskView, route, request
 
-from webserver.representations import output_json
+from restserver.representations import output_json
 
 #from threading import Thread
 
 from exceptions.invalid_api_usage import InvalidAPIUsage
 
-from webserver.endpoints.ep_info_functions import EPInfoFunctions
-from webserver.endpoints.ep_info_level import EPInfoLevel
-from webserver.endpoints.ep_info_graph import EPInfoGraph
-from webserver.endpoints.ep_info_timestamp import EPInfoTimeStamp
+from restserver.endpoints.ep_info_functions import EPInfoFunctions
+from restserver.endpoints.ep_info_level import EPInfoLevel
+from restserver.endpoints.ep_info_graph import EPInfoGraph
+from restserver.endpoints.ep_info_timestamp import EPInfoTimeStamp
 
 # -----------------------------------
 #

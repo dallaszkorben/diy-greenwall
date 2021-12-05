@@ -1,8 +1,10 @@
 import logging
 from exceptions.invalid_api_usage import InvalidAPIUsage
-from webserver.endpoints.ep import EP
+from restserver.endpoints.ep import EP
 from flask import request
-from webserver.representations import output_json
+from restserver.representations import output_json
+
+from graph.graph_level import GraphLevel
 
 from dateutil import parser
 from datetime import datetime
@@ -80,7 +82,10 @@ class EPInfoGraph(EP):
         )
 
         #graphs = self.web_gadget.report.getImageOfGrapWithTrend(startDateStamp, endDateStamp=None, sensorId=parameterSensorIdString)
-        graphs = self.web_gadget.report.getGraphs(startDateStamp, endDateStamp=None, window=16)
+        reportCopy = self.web_gadget.report.getRawReportCopy()
+        webFolderName = self.web_gadget.webFolderName
+        webPathNameGraph = self.web_gadget.webPathNameGraph
+        graphs = GraphLevel.getGraphs(reportCopy, startDateStamp, endDateStamp=None, window=16, webFolderName=webFolderName, webPathNameGraph=webPathNameGraph)
 
         ret = {'result': 'OK', 'graphs': graphs}
         return output_json( ret, EP.CODE_OK)

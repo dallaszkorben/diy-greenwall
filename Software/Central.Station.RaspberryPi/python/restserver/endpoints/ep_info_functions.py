@@ -1,10 +1,10 @@
 import logging
 from exceptions.invalid_api_usage import InvalidAPIUsage
-from webserver.endpoints.ep import EP
-from webserver.endpoints.ep_level_add import EPLevelAdd
-from webserver.endpoints.ep_info_level import EPInfoLevel
+from restserver.endpoints.ep import EP
+from restserver.endpoints.ep_level_add import EPLevelAdd
+from restserver.endpoints.ep_info_level import EPInfoLevel
 
-from webserver.representations import output_json
+from restserver.representations import output_json
 
 class EPInfoFunctions(EP):
 
