@@ -160,6 +160,68 @@ class GraphLevel:
             # -----------
             # Water Level
             # -----------
+            retDict['levelPath'] = GraphLevel.constractGraph(
+                stationId=actualStationId, 
+                title=f'Water level on Sensor {actualStationId}',
+                webFolderName=webFolderName,
+                webPathName=webPathNameGraph,
+                fileName=f'graph_level_{actualStationId}.jpg',
+                xlabel="",
+                ylabel="level [mm]",
+                ylim=(0,110),
+                legend=True,
+                plot=[
+                                {"x": measure_dates, "y": measure_level_values, "label": "Measure", "linewidth": "1", "color": "green"},
+                                {"x": trend_dates, "y": trend_values, "label": "Trend", "linewidth": "3", "color": "red"}])
+
+            # -----------
+            # Temperature
+            # -----------
+            retDict['temperaturePath'] = GraphLevel.constractGraph(
+                stationId=actualStationId, 
+                title=f'Temperature on Sensor {actualStationId}', 
+                webFolderName=webFolderName, 
+                webPathName=webPathNameGraph,
+                fileName=f'graph_temperature_{actualStationId}.jpg',
+                xlabel="", 
+                ylabel="temp [°C]", 
+                ylim=(0,40), 
+                plot=[{"x": measure_dates, "y": measure_temperature_values, "label": "Temp", "linewidth": "1", "color": "blue"}])
+
+            # -----------
+            # Humidity
+            # -----------
+            retDict['humidityPath'] = GraphLevel.constractGraph(
+                stationId=actualStationId, 
+                title=f'Humidity on Sensor {actualStationId}', 
+                webFolderName=webFolderName, 
+                webPathName=webPathNameGraph,
+                fileName=f'graph_humidity_{actualStationId}.jpg',
+                xlabel="", 
+                ylabel="hum [%]", 
+                ylim=(10,90), 
+                plot=[{"x": measure_dates, "y": measure_humidity_values, "label": "Temp", "linewidth": "1", "color": "magenta"}])
+
+            retList.append(retDict)
+
+        return retList
+
+
+
+
+
+
+
+
+
+
+
+
+
+    @staticmethod
+    def toDeleteMethod():
+            plt.plot(measure_dates, measure_level_values, label="Measure", linewidth='1', color='green')
+            plt.plot(trend_dates, trend_values, label="Trend", linewidth='3', color='red')
 
             # clean plt
             plt.clf()
@@ -242,12 +304,18 @@ class GraphLevel:
 
             plt.savefig(fileName, bbox_inches="tight")
 
-        return retList
+            return retList
+
+
+
+
+
+
+
+
 
     @staticmethod
     def getGraphs(reportCopy, startDateStamp, endDateStamp=None, window=15, webFolderName=".", webPathNameGraph="graph-images"):
-
-
 
         #reportCopy = self.getRawReportCopy()
         GraphLevel.smoothReportCopy(reportCopy, window=window)
@@ -255,6 +323,59 @@ class GraphLevel:
         ret = GraphLevel.getGraphFromReportCopy(reportCopy, stationId=None, webFolderName=webFolderName, webPathNameGraph=webPathNameGraph)
 
         return ret
+
+    @staticmethod
+    def constractGraph(
+                stationId="", 
+                title="", 
+                webFolderName="", 
+                webPathName="",
+                fileName="",
+                xlabel="", 
+                ylabel="", 
+                ylim=(0,100), 
+                legend=False,
+                plot=[{"x": [], "y": [], "label": "Temp", "linewidth": "1", "color": "blue"}]):
+
+            # clean plt
+            plt.clf()
+
+            for element in plot:
+                plt.plot(element["x"], element["y"], label=element["label"], linewidth=element["linewidth"], color=element["color"])
+
+            plt.rcParams.update({'figure.autolayout': True})
+            plt.xticks(rotation=25)
+#            plt.text(measure_dates[0], measure_timestamps[0] * slope + intercept, speedInmmPerDayString)
+
+            # Set range
+            plt.ylim(ylim[0], ylim[1])
+
+            ax=plt.gca()
+
+            # configure tick locators
+            x_major_locator=md.DayLocator()
+            x_minor_locator=md.HourLocator(interval=1)
+            ax.xaxis.set_major_locator(x_major_locator)
+            ax.xaxis.set_minor_locator(x_minor_locator)
+
+            # format X values
+            #xfmt=md.DateFormatter('%Y-%m-%d %H:%M:%S')
+            xfmt=md.DateFormatter('%Y-%m-%d %H:%M')
+            ax.xaxis.set_major_formatter(xfmt)
+
+            ax.set(xlabel=xlabel, ylabel=ylabel, title=title)
+            ax.grid()
+
+            if legend:
+                plt.legend()
+
+            folderName = f'{webFolderName}/{webPathName}/{fileName}'
+            pathName = f'{webPathName}/{fileName}'
+
+            plt.savefig(folderName, bbox_inches="tight")
+
+#            retDict['levelPath'] = pathName
+            return pathName
 
     @staticmethod
     def smooth(y, winsize=5):
