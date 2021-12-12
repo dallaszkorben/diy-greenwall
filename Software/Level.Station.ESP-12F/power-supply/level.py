@@ -67,12 +67,11 @@ resetHours=config.getValue('level-sta', 'reset-hours')
 sensorLevelPackageName=config.getValue('sensor-level', 'package-name')
 pinTrigger=config.getValue('sensor-level', 'trigger-pin')
 pinEcho=config.getValue('sensor-level', 'echo-pin')
-zeroLevel=config.getValue('sensor-level', 'zero-level')
-#m=config.getValue('level-sensor', 'linear-m')
-#b=config.getValue('level-sensor', 'linear-b')
-a=config.getValue('sensor-level', 'quadratic-a')
-b=config.getValue('sensor-level', 'quadratic-b')
-c=config.getValue('sensor-level', 'quadratic-c')
+
+levelSensorId=config.getValue('sensor-level', 'sensor-id')
+a=config.getValue('sensor-level', 'quadratic-a-{}'.format(levelSensorId))
+b=config.getValue('sensor-level', 'quadratic-b-{}'.format(levelSensorId))
+c=config.getValue('sensor-level', 'quadratic-c-{}'.format(levelSensorId))
 sampleNumber=config.getValue('sensor-level', 'sample-number')
 maximumVariance=config.getValue('sensor-level', 'maximum-variance')
 
@@ -96,8 +95,7 @@ setTime()
 #
 # Depending on what kind of sensor is used
 #
-wls=SensorLevel(pinTrigger, pinEcho, sampleNumber, a=a, b=b, c=c, zeroLevel=zeroLevel)
-#wls=WaterLevelSensor(pinAnalog, sampleNumber, m, b)
+wls=SensorLevel(pinTrigger, pinEcho, sampleNumber, a=a, b=b, c=c)
 
 ths=SensorTempHum(dataGpio)
 
@@ -116,7 +114,7 @@ while True:
     # Reading water level
     while True:
 
-        level = wls.getLevelMeanInMm()
+        level = wls.getDistanceMeanInMm()
 
         phase = counter % 4
         print("-\r" if phase == 0 else "\\\r" if phase == 1 else "|\r" if phase == 2 else "/\r", end="")
@@ -138,8 +136,7 @@ while True:
     # Reading Temperature and Humidity
     temp, hum = ths.getTempHum()
 
-    data = ujson.dumps({'stationId': stationId, 'dateString': getStringDate(utime.localtime()), 'levelValue': minLevel[0], 'levelVariance': minLevel[1], 'temperatureValue': temp, 'humidityValue': hum  })
-#    data = ujson.dumps({'levelId': levelId, 'value': minLevel[0], 'variance': minLevel[1], 'dateString': getStringDate(utime.localtime())})
+    data = ujson.dumps({'stationId': stationId, 'dateString': getStringDate(utime.localtime()), 'levelValue': float("{:.1f}".format(minLevel[0])), 'levelVariance': float("{:.1f}".format(minLevel[1])), 'temperatureValue': temp, 'humidityValue': hum  })
 
     result = wl.sendRest(type="POST", address=ip, path=path_level_add, data=data)
     gc.collect()
