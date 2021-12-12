@@ -23,6 +23,7 @@ class Config( Property ):
 
     DEFAULT_WEB_FOLDER_NAME = ("web", "folder-name-graph", "/var/www/greenwall")
     DEFAULT_WEB_PATH_NAME_GRAPH = ("web", "path-name-graph", "graph-images")
+    DEFAULT_WEB_SMOOTHING_WINDOW = ("web", "smoothing-window", 15)
 
     DEFAULT_ACTUATOR_PUMP_ID = ("actuator-pump", "id", 1)
     DEFAULT_ACTUATOR_PUMP_PIN = ("actuator-pump", "pin", 18)
@@ -79,6 +80,9 @@ class Config( Property ):
     def getWebPathNameGraph(self):
         return self.get(self.DEFAULT_WEB_PATH_NAME_GRAPH[0], self.DEFAULT_WEB_PATH_NAME_GRAPH[1], self.DEFAULT_WEB_PATH_NAME_GRAPH[2])
 
+    def getWebSmoothingWindow(self):
+        return self.get(self.DEFAULT_WEB_SMOOTHING_WINDOW[0], self.DEFAULT_WEB_SMOOTHING_WINDOW[1], self.DEFAULT_WEB_SMOOTHING_WINDOW[2])
+
     def getActuatorPumpId(self):
         return int(self.get(self.DEFAULT_ACTUATOR_PUMP_ID[0], self.DEFAULT_ACTUATOR_PUMP_ID[1], self.DEFAULT_ACTUATOR_PUMP_ID[2]))
 
@@ -125,6 +129,9 @@ class Config( Property ):
     def setWebPathNameGraph(self, webPathNameGraph):
         self.update(self.DEFAULT_WEB_PATH_NAME_GRAPH[0], self.DEFAULT_WEB_PATH_NAME_GRAPH[1], webPathNameGraph)
 
+    def setWebSmoothingWindow(self, webSmoothingWindow):
+        self.update(self.DEFAULT_WEB_SMOOTHING_WINDOW[0], self.DEFAULT_WEB_SMOOTHING_WINDOW[1], webSmoothingWindow)
+
     def setActuatorPumpId(self, actuatorId):
         self.update(self.DEFAULT_ACTUATOR_PUMP_ID[0], self.DEFAULT_ACTUATOR_PUMP_ID[1], actuatorId)
 
@@ -163,6 +170,7 @@ def getConfig():
 
     config["web-folder-name"] = cb.getWebFolderName()
     config["web-path-name-graph"] = cb.getWebPathNameGraph()
+    config["web-smoothing-window"] = cb.getWebSmoothingWindow()
 
     config["actuator-pump-id"] = cb.getActuatorPumpId()
     config["actuator-pump-pin"] = cb.getActuatorPumpPin()
@@ -203,6 +211,9 @@ def setConfig(config):
 
     if "web-path-name-graph" in config:
         cb.setWebPathNameGraph(config["web-path-name-graph"])
+
+    if "web-smoothing-window" in config:
+        cb.setWebSmoothingWindow(config["web-smoothing-window"])
 
     if "actuator-pump-id" in config:
         cb.setActuatorPumpId(config["actuator-pump-id"])

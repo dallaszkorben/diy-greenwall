@@ -8,6 +8,8 @@ user-scalable=no	-disable user zoom on mobile
 <html>
 <head>
 
+    <title>Green Wall</title>
+
 <style>
 
     #errormessage {
@@ -78,45 +80,6 @@ user-scalable=no	-disable user zoom on mobile
 
     }
 
-    // ================================================
-    //
-    // refresh the value according to the actual status
-    //
-    // ================================================
-    function refreshValues(){
-        $.ajax({type: "GET", url: "/info/actuatorId/1", async: false,
-            success: function(result){
-                jsonResult=JSON.parse(result);
-                currentValue = jsonResult.value.current;
-                isThreadInProgress = jsonResult.thread.inProgress
-
-                if(isThreadInProgress){
-                    enableControllers(false);
-                }else{
-                    enableControllers(true);
-                }
-
-//                $("#value").html(jsonResult.current);
-
-                // disable the change listener on roundSlider until I refresh the value
-                $("#roundslider").roundSlider({change: null})
-
-                // set the current value to the roundSlider
-                $("#roundslider").roundSlider('setValue', currentValue)
-                // equivalent solution
-                //$("#roundslider").data("roundSlider").setValue(currentValue);
-
-                // enable the change listener on roundSlider after the value refresh
-                $("#roundslider").roundSlider({change: sliderChangeListener})
-
-                $("#errormessage").html("");
-            },
-            error: function(xhr,status,error){
-                $("#value").html("");
-                $("#errormessage").html(xhr.statusText + " " + xhr.responseText);
-            }
-        });
-    }
 
     // ================================================
     //
@@ -139,44 +102,110 @@ user-scalable=no	-disable user zoom on mobile
     };
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // ================================================
+    //
+    // refresh the graphs
+    //
+    // ================================================
+    function refreshGraphs(){
+        $.ajax({type: "GET", url: "http://192.168.0.104:5000/info/graph/startDate/2021.11.16", async: true,
+            success: function(result){
+
+                res = result.result
+
+                if(res == "OK"){
+
+                    var tableBody = $('<table border="1"></table>').append($("<tbody>"));
+
+                    graphs = result.graphs;
+                    $.map(graphs,function(graph){
+                        stationId = graph.stationId;
+                        levelPath = graph.levelPath;
+                        temperaturePath = graph.temperaturePath;
+                        humidityPath = graph.humidityPath;
+
+                        row = $('<tr>');
+
+                        // Level
+                        rowData = $('<td>');
+                        if(levelPath != null){
+                            // Tricky solution to clean the image cache
+                            rowData = rowData.html('<img src="' + levelPath + '?v=' + (new Date()).getTime() + '" alt="can not find image">');
+                        }
+                        row.append(rowData);
+
+                        // Temperature
+                        rowData = $('<td>');
+                        if(temperaturePath != null){
+                            // Tricky solution to clean the image cache
+                            rowData = rowData.html('<img src="' + temperaturePath + '?v=' + (new Date()).getTime() + '" alt="can not find image">');
+                        }
+                        row.append(rowData);
+
+                        // Humidity
+                        rowData = $('<td>');
+                        if(humidityPath != null){
+                            // Tricky solution to clean the image cache
+                            rowData = rowData.html('<img src="' + humidityPath + '?v=' + (new Date()).getTime() + '" alt="can not find image">');
+                        }
+                        row.append(rowData);
+
+                        tableBody.append(row);
+                    });
+
+
+                    $('#graphTableDiv').html("");
+                    $('#graphTableDiv').append(tableBody);
+
+                }else{
+                    $("#value").html("");
+                    $("#errormessage").html("something went wrong");
+                }
+
+                $("#errormessage").html("");
+            },
+            error: function(xhr,status,error){
+                $("#value").html("");
+                $("#errormessage").html(xhr.statusText + " " + xhr.responseText);
+            }
+        });
+    }
+
+    // ================================================
+    //  When the page is loaded
+    // ================================================
     $(document).ready(function(){
-
-        //-----------------------
-        // Control UP button click
-        //-----------------------
-        $("#buttonUp10").click(function(){
-            delay = parseInt($("#durationslider").val());
-            $.ajax({type: "POST", url: "/gradually/increase", data: {actuatorId:1, stepValue:10, inSeconds:delay}, async: true, 
-                success: function(result){
-                    //jsonResult=JSON.parse(result);
-                    //$("#value").html(jsonResult.value);
-                    //$("#slider").val(jsonResult.value);
-                },
-                error: function(xhr,status,error){
-                    $("#value").html("");
-                    $("#errormessage").html(xhr.statusText + " " + xhr.responseText);
-                }
-            });
-
-
-        });
-
-        //-----------------------
-        // Control DOWN button click
-        //-----------------------
-        $("#buttonDown10").click(function(){
-            delay = parseInt($("#durationslider").val());
-            $.ajax({type: "POST", url: "/gradually/increase", data: {actuatorId:1, stepValue:-10, inSeconds:delay}, async: true, 
-                success: function(result){
-
-                },
-                error: function(xhr,status,error){
-                    $("#value").html("");
-                    $("#errormessage").html(xhr.statusText + " " + xhr.responseText);
-                }
-            });
-        });
-
 
         //-----------------------
         // Control TURN button click
@@ -199,61 +228,42 @@ user-scalable=no	-disable user zoom on mobile
         });
 
 
-        //----------------------------------
-        // Round SLIDER
-        //----------------------------------
-        $("#roundslider").roundSlider({
-            radius: 310,
-            width: 60,
-            handleSize: "+0", 
-            sliderType: "min-range",
-            value: 0,
-            circleShape: "half",	//pie/half/full/quearter
-            startAngle: 0,
-            handleSize: "60,60",	//Optional
-            editableTooltip: true,	//Optional
-            min: 0,			//Optional
-            max: 100,			//Optional
-            step: 1,			//Optional
-            //drag: function(args){
 
-            change: sliderChangeListener
 
-        });
-        roundslider.tooltip.css("font-size", 100);
-        roundslider.tooltip.css("font-weight", "bold");
 
 
         //-----------------------
-        // Initialize Slider
+        // Refresh graphs
         //-----------------------
-//        refreshValues();
-//        setInterval(refreshValues, 3000);
-
+        refreshGraphs();
+        setInterval(refreshGraphs, 100000);
     });
 </script>
 </head>
 <body>
+    <center><h1>Green Wall</h1></center>
 
-<table border="1"  style="">
-    <thead >
+<!--    <table border="1"  style="">
+        <thead >
+            <tr>
+            <th colspan="3" style='text-aligh: center; font-size:60px''><div>Green Wall</div></th> <br><br>
+            </tr>
+        </thead>
+
         <tr>
-<!--            <th colspan="3" style='text-aligh: center; font-size:60px''><div>Lamp</div></th> --><br><br>
+        <td colspan="3" align="center" style="padding-left:10px; padding-right:10px"> 
         </tr>
-    </thead>
 
-    <tr>
-        <td colspan="3" align="center" style="padding-left:10px; padding-right:10px">
-             <img src="graphs/graph_level_11.jpg" alt="Graph Level 11"> 
-        </td>
-    </tr>
+    </table>
+-->
 
-</table>
+    <div id="graphTableDiv"></div>
 
 
-<div id="errormessage"></div>
+    <div id="value"></div>
 
 
+    <div id="errormessage"></div>
 
 </body>
 </html>

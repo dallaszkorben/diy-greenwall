@@ -81,11 +81,13 @@ class EPInfoGraph(EP):
                 )
         )
 
-        #graphs = self.web_gadget.report.getImageOfGrapWithTrend(startDateStamp, endDateStamp=None, sensorId=parameterSensorIdString)
+#        graphs = self.web_gadget.report.getImageOfGrapWithTrend(startDateStamp, endDateStamp=None, sensorId=parameterSensorIdString)
         reportCopy = self.web_gadget.report.getRawReportCopy()
         webFolderName = self.web_gadget.webFolderName
         webPathNameGraph = self.web_gadget.webPathNameGraph
-        graphs = GraphLevel.getGraphs(reportCopy, startDateStamp, endDateStamp=None, window=16, webFolderName=webFolderName, webPathNameGraph=webPathNameGraph)
+        webSmoothingWindow = self.web_gadget.webSmoothingWindow
+        graphs = GraphLevel.getGraphs(reportCopy, startDateStamp, endDateStamp=None, window=webSmoothingWindow, webFolderName=webFolderName, webPathNameGraph=webPathNameGraph)
+#        graphs = GraphLevel.getGraphs(startDateStamp, endDateStamp=None, window=16, webFolderName=webFolderName, webPathNameGraph=webPathNameGraph)
 
         ret = {'result': 'OK', 'graphs': graphs}
         return output_json( ret, EP.CODE_OK)

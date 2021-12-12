@@ -9,7 +9,6 @@ from dateutil import parser
 #from threading import Lock
 
 from datetime import datetime
-#import tzlocal
 import time
 
 import json
@@ -44,20 +43,11 @@ class WSGreenWall(Flask):
         logLevel = cg["log-level"]
         logFileName = cg["log-file-name"]
 
-#        reportTemperatureFileName = cg["report-temperature-file-name"]
-#        reportLevelFileName = cg["report-level-file-name"]
-
         reportFileName = cg["report-file-name"]
 
         self.webFolderName = cg["web-folder-name"]
         self.webPathNameGraph = cg["web-path-name-graph"]
-
-#        self.pumpId = cg["actuator-pump-id"]
-#        self.pumpPin = cg["actuator-pump-pin"]
-#        self.sensorTemperatureId = cg["sensor-temperature-id"]
-#        self.sensorTemperaturePin = cg["sensor-temperature-pin"]
-#        self.sensorHumidityId = cg["sensor-humidity-id"]
-#        self.sensorHumidityPin = cg["sensor-humidity-pin"]
+        self.webSmoothingWindow = int(cg["web-smoothing-window"])
 
         # LOG 
         logFolder = IniLocation.get_path_to_config_folder()
@@ -69,8 +59,6 @@ class WSGreenWall(Flask):
 
         # REPORT
         reportFolder = IniLocation.get_path_to_config_folder()
-#        self.reportTemperaturePath = os.path.join(reportFolder, reportTemperatureFileName)
-#        self.reportLevelPath = os.path.join(reportFolder, reportLevelFileName)
         self.reportPath = os.path.join(reportFolder, reportFileName)
 
         # TODO remove self.app and correnct the references
@@ -81,24 +69,12 @@ class WSGreenWall(Flask):
         # This will enable CORS for all routes
         CORS(self.app)
 
-#        self.report = Report(self.reportLevelPath, self.reportTemperaturePath)
         self.report = Report(self.reportPath)
 
         # register the end-points
         InfoView.register(self.app, init_argument=self)
         LevelView.register(self.app, init_argument=self)
 
-        # thread for teperature sensor on server
-#        try:
-#           thread.start_new_thread( self.startTemperatureSensor )
-#        except:
-#           print "Error: unable to start thread"
-
-#    def startTemperatureSensor(self):
-        
-        
-        
-        
 
     def getThreadControllerStatus(self):
         return self.gradualThreadController.getStatus()
