@@ -23,6 +23,9 @@ import time
 
 from threading import Lock
 
+
+graphLock = Lock()
+
 class GraphLevel:
 
     @staticmethod
@@ -34,6 +37,8 @@ class GraphLevel:
               "9": {"ip":"192.168.0.117", "record": [{"timeStamp": 35787, "levelValue": 27, "levelVariance": 0.1, "temperatureValue": None, "humidityValue": None}, {}, {}] },
         ]
         """
+
+
         # if NO endDateStamp provided
         if endDateStamp == None:
 
@@ -197,7 +202,7 @@ class GraphLevel:
                 fileName=f'graph_level_{actualStationId}.jpg',
                 xlabel="",
                 ylabel="level [mm]",
-                ylim=(0,40),
+                ylim=(0,30),
                 legend=True,
                 plot=[
                                 {"x": measure_dates, "y": measure_level_values, "label": "Measure", "linewidth": "1", "color": "green", "textoncurve": {}},
@@ -241,79 +246,88 @@ class GraphLevel:
     @staticmethod
     def getGraphs(reportCopy, startDateStamp, endDateStamp=None, window=15, webFolderName=".", webPathNameGraph="graph-images"):
 
-        #reportCopy = self.getRawReportCopy()
-        GraphLevel.smoothReportCopy(reportCopy, window=window)
-        GraphLevel.calculateTrendForReportCopy(reportCopy)
-        ret = GraphLevel.getGraphFromReportCopy(reportCopy, stationId=None, webFolderName=webFolderName, webPathNameGraph=webPathNameGraph)
+        print("waiting for lock ...")
+        with graphLock:
 
-        return ret
+            print("    inside graphLock")
+
+            #reportCopy = self.getRawReportCopy()
+            GraphLevel.smoothReportCopy(reportCopy, window=window)
+            GraphLevel.calculateTrendForReportCopy(reportCopy)
+            ret = GraphLevel.getGraphFromReportCopy(reportCopy, stationId=None, webFolderName=webFolderName, webPathNameGraph=webPathNameGraph)
+
+            print("    end of graphLock", flush=True)
+
+            return ret
+
 
     @staticmethod
     def constractGraph(stationId="", title="", webFolderName="", webPathName="", fileName="", xlabel="", ylabel="", ylim=(0,100), legend=False, plot=[{"x": [], "y": [], "label": "Temp", "linewidth": "1", "color": "blue", "textoncurve": {}}]):
 
-            # clean plt
-            plt.clf()
 
-            maxListSize = 0
+        # clean plt
+        plt.clf()
 
-            # extra text on the curve, if configured
-            for element in plot:
+        maxListSize = 0
 
-                if element["x"] and element["y"]:
+        # extra text on the curve, if configured
+        for element in plot:
 
-                    listSize = len(element["x"])
-                    maxListSize = max(listSize, maxListSize)
+            if element["x"] and element["y"]:
 
-                    if listSize == 1:
-                        plt.plot(element["x"][0], element["y"][0], "o", label=element["label"], linewidth=element["linewidth"], color=element["color"])
+                listSize = len(element["x"])
+                maxListSize = max(listSize, maxListSize)
 
-                    else:
+                if listSize == 1:
+                    plt.plot(element["x"][0], element["y"][0], "o", label=element["label"], linewidth=element["linewidth"], color=element["color"])
 
-                        plt.plot(element["x"], element["y"], "-", label=element["label"], linewidth=element["linewidth"], color=element["color"])
+                else:
 
-                        if "textoncurve" in element and element["textoncurve"]:
-                            textOnCurve = element["textoncurve"]
-                            if textOnCurve:
-                                plt.text(textOnCurve["x"], textOnCurve["y"], textOnCurve["text"])
+                    plt.plot(element["x"], element["y"], "-", label=element["label"], linewidth=element["linewidth"], color=element["color"])
 
-            if maxListSize == 0:
-                return None
+                    if "textoncurve" in element and element["textoncurve"]:
+                        textOnCurve = element["textoncurve"]
+                        if textOnCurve:
+                            plt.text(textOnCurve["x"], textOnCurve["y"], textOnCurve["text"])
 
-            plt.rcParams.update({'figure.autolayout': True})
-            plt.xticks(rotation=25)
+        if maxListSize == 0:
+            return None
 
-            # Set range
-            plt.ylim(ylim[0], ylim[1])
+        plt.rcParams.update({'figure.autolayout': True})
+        plt.xticks(rotation=25)
+
+        # Set range
+        plt.ylim(ylim[0], ylim[1])
 
 #            plt.set_figwidth(3)
 
-            ax=plt.gca()
+        ax=plt.gca()
 
-            # configure tick locators
-            x_major_locator=md.DayLocator(interval=1)
-            x_minor_locator=md.HourLocator(interval=1)
+        # configure tick locators
+        x_major_locator=md.DayLocator(interval=1)
+        x_minor_locator=md.HourLocator(interval=1)
 
-            if maxListSize >= 2:
-                ax.xaxis.set_major_locator(x_major_locator)
-                ax.xaxis.set_minor_locator(x_minor_locator)
+        if maxListSize >= 2:
+            ax.xaxis.set_major_locator(x_major_locator)
+            ax.xaxis.set_minor_locator(x_minor_locator)
 
-            # format X values
-            #xfmt=md.DateFormatter('%Y-%m-%d %H:%M:%S')
-            xfmt=md.DateFormatter('%Y-%m-%d %H:%M')
-            ax.xaxis.set_major_formatter(xfmt)
+        # format X values
+        #xfmt=md.DateFormatter('%Y-%m-%d %H:%M:%S')
+        xfmt=md.DateFormatter('%Y-%m-%d %H:%M')
+        ax.xaxis.set_major_formatter(xfmt)
 
-            ax.set(xlabel=xlabel, ylabel=ylabel, title=title)
-            ax.grid()
+        ax.set(xlabel=xlabel, ylabel=ylabel, title=title)
+        ax.grid()
 
-            if legend:
-                plt.legend()
+        if legend:
+            plt.legend()
 
-            folderName = f'{webFolderName}/{webPathName}/{fileName}'
-            pathName = f'{webPathName}/{fileName}'
+        folderName = f'{webFolderName}/{webPathName}/{fileName}'
+        pathName = f'{webPathName}/{fileName}'
 
-            plt.savefig(folderName, bbox_inches="tight")
+        plt.savefig(folderName, bbox_inches="tight")
 
-            return pathName
+        return pathName
 
     @staticmethod
     def smooth(y, winsize=5):

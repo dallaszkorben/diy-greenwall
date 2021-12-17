@@ -89,6 +89,10 @@ class EPInfoGraph(EP):
         graphs = GraphLevel.getGraphs(reportCopy, startDateStamp, endDateStamp=None, window=webSmoothingWindow, webFolderName=webFolderName, webPathNameGraph=webPathNameGraph)
 #        graphs = GraphLevel.getGraphs(startDateStamp, endDateStamp=None, window=16, webFolderName=webFolderName, webPathNameGraph=webPathNameGraph)
 
+        print("back from getGraphs()", graphs)
+
         ret = {'result': 'OK', 'graphs': graphs}
-        return output_json( ret, EP.CODE_OK)
+        header = {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'}
+        return output_json( ret, EP.CODE_OK, header)
+#        return output_json( ret, EP.CODE_OK)
 
