@@ -20,7 +20,7 @@ from flask_cors import CORS
 
 from restserver.view_info import InfoView
 from restserver.view_level import LevelView
-from restserver.gradual_thread_controller import GradualThreadController
+#from restserver.gradual_thread_controller import GradualThreadController
 
 from threading import Thread
 
@@ -33,9 +33,9 @@ class WSGreenWall(Flask):
 
     def __init__(self, import_name):
 
-        self.gradualThreadController = GradualThreadController.getInstance()
+        super().__init__(import_name)
 
-#        self.lock = Lock()
+#        self.gradualThreadController = GradualThreadController.getInstance()
 
         cg = getConfig()
 
@@ -62,7 +62,8 @@ class WSGreenWall(Flask):
         self.reportPath = os.path.join(reportFolder, reportFileName)
 
         # TODO remove self.app and correnct the references
-        super(WSGreenWall, self).__init__(import_name)
+#        super(WSGreenWall, self).__init__(import_name)
+#        super().__init__(import_name)
 
         self.app = self
 
@@ -75,7 +76,6 @@ class WSGreenWall(Flask):
         InfoView.register(self.app, init_argument=self)
         LevelView.register(self.app, init_argument=self)
 
-
     def getThreadControllerStatus(self):
         return self.gradualThreadController.getStatus()
 
@@ -87,10 +87,9 @@ class WSGreenWall(Flask):
 #    def run(self, host=None, port=None, debug=None, load_dotenv=True, **options):
 #        super(WSGreenWall, self).run(host=host, port=port, debug=debug, load_dotenv=load_dotenv, **options)
 
-
     def __del__(self):
         self.unconfigure()
 
 #
 ## because of WSGI
-app = WSGreenWall(__name__)
+#app = WSGreenWall(__name__)

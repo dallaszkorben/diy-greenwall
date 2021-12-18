@@ -11,8 +11,6 @@ from datetime import datetime
 
 import numpy as np
 
-#from sklearn.linear_model import LinearRegression
-#import pandas as pd
 from scipy import stats
 
 class EPInfoGraph(EP):
@@ -48,32 +46,19 @@ class EPInfoGraph(EP):
         ret['parameters'][0]['min'] = datetime.datetime(2000, 1,1).astimezone().isoformat()
         ret['parameters'][0]['max'] = datetime.datetime.now().astimezone().isoformat()
 
-#        ret['parameters'][1]['attribute'] = EPInfoGraph.ATTR_SENSOR_ID
-#        ret['parameters'][1]['type'] = 'string'
-
         return ret
 
-#    def executeByParameters(self, startDate, sensorId) -> dict:
     def executeByParameters(self, startDate) -> dict:
         payload = {}
         payload[EPInfoGraph.ATTR_START_DATE] = startDate
-#        payload[EPInfoGraph.ATTR_SENSOR_ID] = sensorId
         return self.executeByPayload(payload)
 
     def executeByPayload(self, payload) -> dict:
         parameterStartDateString = payload[EPInfoGraph.ATTR_START_DATE]
-#        parameterSensorIdString = payload[EPInfoGraph.ATTR_SENSOR_ID]
 
         startDateString = parser.parse(parameterStartDateString).astimezone().isoformat()
         startDateTime = parser.parse(startDateString)
         startDateStamp = datetime.timestamp(startDateTime)
-
-#        logging.debug( "WEB request: {0} {1} ('{2}': {3}, '{4}': {5} )".format(
-#                    EPInfoGraph.METHOD, EPInfoGraph.URL,
-#                    EPInfoGraph.ATTR_START_DATE, startDateString,
-#                    EPInfoGraph.ATTR_SENSOR_ID, parameterSensorIdString
-#                    )
-#        )
 
         logging.debug( "WEB request: {0} {1} ('{2}': {3} )".format(
                     EPInfoGraph.METHOD, EPInfoGraph.URL,
@@ -81,18 +66,13 @@ class EPInfoGraph(EP):
                 )
         )
 
-#        graphs = self.web_gadget.report.getImageOfGrapWithTrend(startDateStamp, endDateStamp=None, sensorId=parameterSensorIdString)
         reportCopy = self.web_gadget.report.getRawReportCopy()
         webFolderName = self.web_gadget.webFolderName
         webPathNameGraph = self.web_gadget.webPathNameGraph
         webSmoothingWindow = self.web_gadget.webSmoothingWindow
         graphs = GraphLevel.getGraphs(reportCopy, startDateStamp, endDateStamp=None, window=webSmoothingWindow, webFolderName=webFolderName, webPathNameGraph=webPathNameGraph)
-#        graphs = GraphLevel.getGraphs(startDateStamp, endDateStamp=None, window=16, webFolderName=webFolderName, webPathNameGraph=webPathNameGraph)
-
-        print("back from getGraphs()", graphs)
 
         ret = {'result': 'OK', 'graphs': graphs}
         header = {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'}
         return output_json( ret, EP.CODE_OK, header)
-#        return output_json( ret, EP.CODE_OK)
 

@@ -38,7 +38,6 @@ class GraphLevel:
         ]
         """
 
-
         # if NO endDateStamp provided
         if endDateStamp == None:
 
@@ -62,10 +61,6 @@ class GraphLevel:
               "9": {"ip":"192.168.0.117", "record": [{"timeStamp": 35787, "levelValue": 27, "levelVariance": 0.1, "temperatureValue": None, "humidityValue": None}, {}, {}] },
         ]
         """
-
-#        import pprint
-#        pprint.pprint(reportCopy)
-#        print("----")
 
         for stationId in reportCopy:
 
@@ -95,13 +90,7 @@ class GraphLevel:
 
                 reportCopy[stationId]['record'] = reportCopy[stationId]['record'][min(window-1, max(0, len(reportCopy[stationId]['record']) - 2)   ):]
 
-
-#        pprint.pprint(reportCopy)
-#        print("====")
-
-
         return reportCopy
-
 
     @staticmethod
     def calculateTrendForReportCopy(reportCopy):
@@ -121,11 +110,13 @@ class GraphLevel:
             for record in reportCopy[stationId]['record']:
                 timeStamp = record['timeStamp']
 
-                value = float(record['levelValue'])
-                variance = float(record['levelVariance'])
-
-                dataCollection['x'].append(timeStamp)  # for trend
-                dataCollection['y'].append(value)      # for trend
+                try:
+                    value = float(record['levelValue'])
+                    variance = float(record['levelVariance'])
+                    dataCollection['x'].append(timeStamp)  # for trend
+                    dataCollection['y'].append(value)      # for trend
+                except:
+                    pass
 
             # for trend
             if len(dataCollection['x']) > 1:
@@ -180,16 +171,6 @@ class GraphLevel:
             else:
                 trend_dates = []
                 trend_values = []
-
-
-#            import pprint
-#            print("---")
-#            pprint.pprint(trend_dates)
-#            print("---")
-#            pprint.pprint(trend_values)
-#            print("---")
-#            print(speedInmmPerDayString)
-#            print("---")
 
             # -----------
             # Water Level
@@ -246,24 +227,17 @@ class GraphLevel:
     @staticmethod
     def getGraphs(reportCopy, startDateStamp, endDateStamp=None, window=15, webFolderName=".", webPathNameGraph="graph-images"):
 
-        print("waiting for lock ...")
         with graphLock:
-
-            print("    inside graphLock")
 
             #reportCopy = self.getRawReportCopy()
             GraphLevel.smoothReportCopy(reportCopy, window=window)
             GraphLevel.calculateTrendForReportCopy(reportCopy)
             ret = GraphLevel.getGraphFromReportCopy(reportCopy, stationId=None, webFolderName=webFolderName, webPathNameGraph=webPathNameGraph)
 
-            print("    end of graphLock", flush=True)
-
             return ret
-
 
     @staticmethod
     def constractGraph(stationId="", title="", webFolderName="", webPathName="", fileName="", xlabel="", ylabel="", ylim=(0,100), legend=False, plot=[{"x": [], "y": [], "label": "Temp", "linewidth": "1", "color": "blue", "textoncurve": {}}]):
-
 
         # clean plt
         plt.clf()
@@ -272,6 +246,16 @@ class GraphLevel:
 
         # extra text on the curve, if configured
         for element in plot:
+
+            # remove elements (x,y) with y=None
+            newElementX = []
+            newElementY = []
+            for x, y in zip(element['x'], element['y']):
+                if x and y:
+                    newElementX.append(x)
+                    newElementY.append(y)
+            element['x'] = newElementX
+            element['y'] = newElementY
 
             if element["x"] and element["y"]:
 

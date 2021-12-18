@@ -44,6 +44,9 @@ class Report:
         self.reportDict = {}
         self.reportPath = reportPath
 
+        self.separator = ";"
+
+
         # TODO 'r' is not correct because if the file does not exist, an exception will be raised
         # TODO 'w+' does not work either
         #
@@ -62,7 +65,9 @@ class Report:
             for line in lines:
 
                 try:
-                    lineArray = line.split()
+                    lineArray = line.split(self.separator)
+
+                    print("lineArray: ", lineArray)
 
                     #{date}\t{levelId}\t{ip}\t{value}\t{variance}
                     dateString = lineArray[0]
@@ -72,14 +77,22 @@ class Report:
                     timeStamp = dateTime.timestamp() #datetime.fromtimestamp(value)
                     stationId = lineArray[1]
                     ip = lineArray[2]
-                    levelValue = float(lineArray[3])
-                    levelVariance = float(lineArray[4])
+
+                    try:
+                        levelValue = float(lineArray[3])
+                        levelVariance = float(lineArray[4])
+                    except:
+                        levelValue = None
+                        levelVariance = None
 
                     try:
                         temperatureValue = float(lineArray[5])
-                        humidityValue = float(lineArray[6])
                     except:
                         temperatureValue = None
+
+                    try:
+                        humidityValue = float(lineArray[6])
+                    except:
                         humidityValue = None
 
                     if not stationId in self.reportDict:
@@ -89,11 +102,16 @@ class Report:
                 except Exception as e:
                     continue
 
+            print("end line")
+            print()
+
+
     def getRawReportCopy(self):
         with self.lockReport:
             return deepcopy(self.reportDict)
 
     def addRecordLevel(self, dateString, stationId, ip, levelValue, levelVariance, temperatureValue, humidityValue):
+
 
         with self.lockReport:
 
@@ -106,6 +124,4 @@ class Report:
             self.reportDict[stationId]['record'].append({'timeStamp': timeStamp, 'levelValue': levelValue, 'levelVariance': levelVariance, 'temperatureValue': temperatureValue, 'humidityValue': humidityValue})
 
             with open(self.reportPath, 'a') as fileObject:
-                fileObject.write("{dateString}\t{stationId}\t{ip}\t{levelValue}\t{levelVariance}\t{temperatureValue}\t{humidityValue}\n".format(dateString=dateString, stationId=stationId,ip=ip, levelValue=levelValue,levelVariance=levelVariance,temperatureValue=temperatureValue if temperatureValue else "", humidityValue=humidityValue if humidityValue else ""))
-
-
+                fileObject.write("{dateString}{sep}{stationId}{sep}{ip}\t{levelValue}{sep}{levelVariance}{sep}{temperatureValue}{sep}{humidityValue}\n".format(dateString=dateString, stationId=stationId,ip=ip, levelValue=levelValue,levelVariance=levelVariance,temperatureValue=temperatureValue if temperatureValue else "", humidityValue=humidityValue if humidityValue else "", sep=self.separator))

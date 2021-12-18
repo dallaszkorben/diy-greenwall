@@ -34,12 +34,11 @@ user-scalable=no	-disable user zoom on mobile
 </style>
 <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script> -->
 <script src="script/jquery-3.6.0.min.js"></script>
-<script src="script/roundslider.min.js"></script>
-<link href="script/roundslider.min.css" rel="stylesheet" />
+<!-- <script src="script/roundslider.min.js"></script> -->
+<!-- <link href="script/roundslider.min.css" rel="stylesheet" /> -->
 <!--<link href="script/button.css" rel="stylesheet" />-->
-<link href="script/linearslider.css" rel="stylesheet" />
-
-<link href="script/roundbutton/css/style.css" rel="stylesheet" />
+<!-- <link href="script/linearslider.css" rel="stylesheet" /> -->
+<!-- <link href="script/roundbutton/css/style.css" rel="stylesheet" /> -->
 
 
 <script>
@@ -147,7 +146,7 @@ user-scalable=no	-disable user zoom on mobile
 
                 if(res == "OK"){
 
-                    var tableBody = $('<table border="1"></table>').append($("<tbody>"));
+                    var tableBody = $('<table border="0"></table>').append($("<tbody>"));
 
                     graphs = result.graphs;
                     $.map(graphs,function(graph){
@@ -160,14 +159,14 @@ user-scalable=no	-disable user zoom on mobile
 
                         // StationId
                         rowData = $('<td>');
-                        stationIdField = $('<dev id="labelstationid"></dev>').append(stationId);
+                        stationIdField = $('<dev id="labelstationid"></dev>').append('Sensor ').append(stationId);
                         rowData.html(stationIdField);
 
                         row.append(rowData);
 
 
                         // Level
-                        rowData = $('<td>');
+                        rowData = $('<td style="padding:1px">');
                         if(levelPath != null){
                             // Tricky solution to clean the image cache
                             rowData = rowData.html('<img src="' + levelPath + '?v=' + (new Date()).getTime() + '" alt="can not find image">');
@@ -175,7 +174,7 @@ user-scalable=no	-disable user zoom on mobile
                         row.append(rowData);
 
                         // Temperature
-                        rowData = $('<td>');
+                        rowData = $('<td style="padding:1px">');
                         if(temperaturePath != null){
                             // Tricky solution to clean the image cache
                             rowData = rowData.html('<img src="' + temperaturePath + '?v=' + (new Date()).getTime() + '" alt="can not find image">');
@@ -183,7 +182,7 @@ user-scalable=no	-disable user zoom on mobile
                         row.append(rowData);
 
                         // Humidity
-                        rowData = $('<td>');
+                        rowData = $('<td style="padding:1px">');
                         if(humidityPath != null){
                             // Tricky solution to clean the image cache
                             rowData = rowData.html('<img src="' + humidityPath + '?v=' + (new Date()).getTime() + '" alt="can not find image">');
