@@ -54,8 +54,8 @@ class EPInfoGraph(EP):
     def executeByParameters(self, startDate, endDate = None) -> dict:
         payload = {}
         payload[EPInfoGraph.ATTR_START_DATE] = startDate
-        if endDate:
-            payload[EPInfoGraph.ATTR_END_DATE] = endDate
+#        if endDate:
+        payload[EPInfoGraph.ATTR_END_DATE] = endDate
         return self.executeByPayload(payload)
 
     def executeByPayload(self, payload) -> dict:

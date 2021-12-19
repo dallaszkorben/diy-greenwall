@@ -28,6 +28,22 @@ graphLock = Lock()
 
 class GraphLevel:
 
+# datetime now()
+#  datetime.datetime.now().astimezone()
+#
+# String now()
+#  datetime.datetime.now().astimezone().isoformat()
+#
+# datetime from String
+#    date = parser.parse(dateString)
+#
+# timestamp from datetime
+#    timeStamp = date.timestamp()
+#    timeStamp = datetime.timestamp(date)
+#
+# datetime from timestamp
+#    datetime.fromtimestamp(timeStamp)
+
     @staticmethod
     def filterReportCopy(reportCopy, startDateStamp, endDateStamp=None):
         """
@@ -43,6 +59,10 @@ class GraphLevel:
 
             # takes NOW as endDateStamp
             endDateStamp = datetime.now().astimezone().timestamp()
+
+#        a1=datetime.fromtimestamp(startDateStamp).astimezone().isoformat()
+#        a2=datetime.fromtimestamp(endDateStamp).astimezone().isoformat()
+#        print(a1, a2)
 
         for stationId in reportCopy:
 
@@ -243,6 +263,13 @@ class GraphLevel:
         # clean plt
         plt.clf()
 
+        # traditional way for background color
+        # plt.figure(facecolor='yellow')
+        # plt.figure(facecolor='#94F008')
+        # savefig has its own parameter for facecolor:
+        plt.rcParams['axes.facecolor']= 'palegreen' # 'paleturquoise' 'azure' 'powderblue'
+        plt.rcParams['savefig.facecolor']='darkgrey'
+
         maxListSize = 0
 
         # extra text on the curve, if configured
@@ -279,7 +306,7 @@ class GraphLevel:
             return None
 
         plt.rcParams.update({'figure.autolayout': True})
-        plt.xticks(rotation=25)
+        plt.xticks(rotation=25) #25
 
         # Set range
         plt.ylim(ylim[0], ylim[1])
@@ -287,6 +314,8 @@ class GraphLevel:
 #            plt.set_figwidth(3)
 
         ax=plt.gca()
+
+#        ax.set_facecolor("#1CC4AF")
 
         # configure tick locators
         x_major_locator=md.DayLocator(interval=1)

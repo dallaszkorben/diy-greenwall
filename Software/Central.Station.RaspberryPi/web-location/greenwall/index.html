@@ -12,6 +12,20 @@ user-scalable=no	-disable user zoom on mobile
 
 <style>
 
+    * {
+        font-family: "Comic Sans MS", "Comic Sans", cursive;
+        font-size: 18px;
+    }
+
+    h1 {
+        font-size: 40px;
+    }
+
+    #dateFilter {
+        margin-left: auto;
+        margin-right: auto;
+    }
+
     #errormessage {
         color: red;
         font-weight: bold;
@@ -32,12 +46,11 @@ user-scalable=no	-disable user zoom on mobile
         display: inline-block;
     }
 
-    aaspan {
-        text-align:center;
-        max-width: 3em;
-        display: inline-block;
-        white-space:nowrap;
+    #refreshGraphButton{
+        height: 60px;
+        vertical-align: top;
     }
+
 </style>
 
 <script src="script/jquery/jquery-3.6.0.min.js"></script>
@@ -232,15 +245,15 @@ user-scalable=no	-disable user zoom on mobile
 <body style="background-color:DarkGrey;">
     <center><h1>Green Wall</h1></center> 
 
-    <table border="1">
+    <table id="dateFilter" border="0">
         <tr>
             <td> Start date:</td>
-            <td><input type="text" id="startDatePicker"> </td>
-            <td colspane="2"><button id="refreshGraphButton">Refresh</button></td>
+            <td><input type="text" id="startDatePicker" size="8"> </td>
+            <td rowspan="2"><button id="refreshGraphButton">Refresh</button></td>
         </tr>
         <tr>
             <td> End date:</td>
-            <td><input type="text" id="endDatePicker"> </td>
+            <td><input type="text" id="endDatePicker" size="8"> </td>
         </tr>
 
 
