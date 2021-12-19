@@ -19,12 +19,15 @@ class EPInfoGraph(EP):
     URL = '/info/graph'
 
     PATH_PAR_PAYLOAD = '/graph'
-    PATH_PAR_URL = '/graph/startDate/<startDate>'
+    PATH_PAR_1_URL = '/graph/startDate/<startDate>'
+    PATH_PAR_2_URL = '/graph/startDate/<startDate>/endDate/<endDate>'
 #    PATH_PAR_URL = '/graph/startDate/<startDate>/sensorId/<sensorId>'
 
     METHOD = 'GET'
 
     ATTR_START_DATE = 'startDate'
+    ATTR_END_DATE = 'endDate'
+
 #    ATTR_SENSOR_ID = 'sensorId'
 
     def __init__(self, web_gadget):
@@ -37,7 +40,7 @@ class EPInfoGraph(EP):
         ret['id'] = EPInfoGraph.ID
         ret['method'] = EPInfoGraph.METHOD
         ret['path-parameter-in-payload'] = EPInfoGraph.PATH_PAR_PAYLOAD
-        ret['path-parameter-in-url'] = EPInfoGraph.PATH_PAR_URL
+        ret['path-parameter-in-url'] = EPInfoGraph.PATH_PAR_1_URL
 
         ret['parameters'] = [{}]
 
@@ -48,29 +51,46 @@ class EPInfoGraph(EP):
 
         return ret
 
-    def executeByParameters(self, startDate) -> dict:
+    def executeByParameters(self, startDate, endDate = None) -> dict:
         payload = {}
         payload[EPInfoGraph.ATTR_START_DATE] = startDate
+        if endDate:
+            payload[EPInfoGraph.ATTR_END_DATE] = endDate
         return self.executeByPayload(payload)
 
     def executeByPayload(self, payload) -> dict:
         parameterStartDateString = payload[EPInfoGraph.ATTR_START_DATE]
+        parameterEndDateString = payload[EPInfoGraph.ATTR_END_DATE]
 
         startDateString = parser.parse(parameterStartDateString).astimezone().isoformat()
         startDateTime = parser.parse(startDateString)
         startDateStamp = datetime.timestamp(startDateTime)
 
-        logging.debug( "WEB request: {0} {1} ('{2}': {3} )".format(
+        endDateStamp = None
+
+        if parameterEndDateString:
+            endDateString = parser.parse(parameterEndDateString).astimezone().isoformat()
+            endDateTime = parser.parse(endDateString)
+            endDateStamp = datetime.timestamp(endDateTime)
+
+            logging.debug( "WEB request: {0} {1} ('{2}': {3}, {4}: {5} )".format(
+                    EPInfoGraph.METHOD, EPInfoGraph.URL,
+                    EPInfoGraph.ATTR_START_DATE, startDateString,
+                    EPInfoGraph.ATTR_END_DATE, endDateString
+                )
+            )
+        else:
+            logging.debug( "WEB request: {0} {1} ('{2}': {3} )".format(
                     EPInfoGraph.METHOD, EPInfoGraph.URL,
                     EPInfoGraph.ATTR_START_DATE, startDateString
                 )
-        )
+            )
 
         reportCopy = self.web_gadget.report.getRawReportCopy()
         webFolderName = self.web_gadget.webFolderName
         webPathNameGraph = self.web_gadget.webPathNameGraph
         webSmoothingWindow = self.web_gadget.webSmoothingWindow
-        graphs = GraphLevel.getGraphs(reportCopy, startDateStamp, endDateStamp=None, window=webSmoothingWindow, webFolderName=webFolderName, webPathNameGraph=webPathNameGraph)
+        graphs = GraphLevel.getGraphs(reportCopy, startDateStamp, endDateStamp=endDateStamp, window=webSmoothingWindow, webFolderName=webFolderName, webPathNameGraph=webPathNameGraph)
 
         ret = {'result': 'OK', 'graphs': graphs}
         header = {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'}

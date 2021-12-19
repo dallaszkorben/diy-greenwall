@@ -18,7 +18,7 @@ from config.config import getConfig
 from exceptions.invalid_api_usage import InvalidAPIUsage
 
 from restserver.endpoints.ep_level_add import EPLevelAdd
-from restserver.endpoints.ep_info_level import EPInfoLevel
+#from restserver.endpoints.ep_info_level import EPInfoLevel
 
 from restserver.endpoints.ep import EP
 
@@ -42,7 +42,7 @@ class LevelView(FlaskView):
         self.web_gadget = web_gadget
 
         self.epLevelAdd = EPLevelAdd(web_gadget)
-        self.epInfoLevel = EPInfoLevel(web_gadget)
+#        self.epInfoLevel = EPInfoLevel(web_gadget)
 
     #
     # GET http://localhost:5000/level/
@@ -119,22 +119,22 @@ class LevelView(FlaskView):
     #           }
     #
     #@route('/read', methods=['GET'])
-    @route(EPInfoLevel.PATH_PAR_PAYLOAD, methods=[EPInfoLevel.METHOD])
-    def readWithPayload(self):
-
-        # WEB
-        if request.form:
-            json_data = request.form
-
-        # CURL
-        elif request.json:
-            json_data = request.json
-
-        else:
-            return "Not valid request", EP.CODE_BAD_REQUEST
-
-        out = self.epInfoLevel.executeByPayload(json_data)
-        return out
+#    @route(EPInfoLevel.PATH_PAR_PAYLOAD, methods=[EPInfoLevel.METHOD])
+#    def readWithPayload(self):
+#
+#        # WEB
+#        if request.form:
+#            json_data = request.form
+#
+#        # CURL
+#        elif request.json:
+#            json_data = request.json
+#
+#        else:
+#            return "Not valid request", EP.CODE_BAD_REQUEST
+#
+#        out = self.epInfoLevel.executeByPayload(json_data)
+#        return out
 
     #
     # Read the level - with parameters
@@ -144,11 +144,11 @@ class LevelView(FlaskView):
     # READ http://localhost:5000/level/read/startDate/2021.11.07T20:15:123+01:00
     #
     #@route('/read/startDate/<startDate>', methods=['GET'])
-    @route(EPInfoLevel.PATH_PAR_URL, methods=[EPInfoLevel.METHOD])
-    def readWithParameter(self, startDate):
-
-        out = self.epInfoLevel.executeByParameters(startDate=startDate)
-        return out
+#    @route(EPInfoLevel.PATH_PAR_URL, methods=[EPInfoLevel.METHOD])
+#    def readWithParameter(self, startDate):
+#
+#        out = self.epInfoLevel.executeByParameters(startDate=startDate)
+#        return out
 
 
 # ===

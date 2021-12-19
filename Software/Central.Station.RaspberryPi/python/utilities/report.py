@@ -67,7 +67,7 @@ class Report:
                 try:
                     lineArray = line.split(self.separator)
 
-                    print("lineArray: ", lineArray)
+#                    print("lineArray: ", lineArray)
 
                     #{date}\t{levelId}\t{ip}\t{value}\t{variance}
                     dateString = lineArray[0]
@@ -102,8 +102,8 @@ class Report:
                 except Exception as e:
                     continue
 
-            print("end line")
-            print()
+#            print("end line")
+#            print()
 
 
     def getRawReportCopy(self):
@@ -124,4 +124,4 @@ class Report:
             self.reportDict[stationId]['record'].append({'timeStamp': timeStamp, 'levelValue': levelValue, 'levelVariance': levelVariance, 'temperatureValue': temperatureValue, 'humidityValue': humidityValue})
 
             with open(self.reportPath, 'a') as fileObject:
-                fileObject.write("{dateString}{sep}{stationId}{sep}{ip}\t{levelValue}{sep}{levelVariance}{sep}{temperatureValue}{sep}{humidityValue}\n".format(dateString=dateString, stationId=stationId,ip=ip, levelValue=levelValue,levelVariance=levelVariance,temperatureValue=temperatureValue if temperatureValue else "", humidityValue=humidityValue if humidityValue else "", sep=self.separator))
+                fileObject.write("{dateString}{sep}{stationId}{sep}{ip}{sep}{levelValue}{sep}{levelVariance}{sep}{temperatureValue}{sep}{humidityValue}\n".format(dateString=dateString, stationId=stationId,ip=ip, levelValue=levelValue,levelVariance=levelVariance,temperatureValue=temperatureValue if temperatureValue else "", humidityValue=humidityValue if humidityValue else "", sep=self.separator))

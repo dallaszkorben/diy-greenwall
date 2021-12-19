@@ -18,7 +18,6 @@ user-scalable=no	-disable user zoom on mobile
     }
 
     #labelstationid {
-        display: inline-block;
         white-space: nowrap;
         font-family: Verdana;
         font-size: 18pt;
@@ -29,109 +28,27 @@ user-scalable=no	-disable user zoom on mobile
         -webkit-transform-origin: center center;
         -ms-transform: rotate(-90deg);
         -ms-transform-origin: center center;
+        max-width: 4em;
+        display: inline-block;
     }
 
+    aaspan {
+        text-align:center;
+        max-width: 3em;
+        display: inline-block;
+        white-space:nowrap;
+    }
 </style>
-<!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script> -->
-<script src="script/jquery-3.6.0.min.js"></script>
-<!-- <script src="script/roundslider.min.js"></script> -->
-<!-- <link href="script/roundslider.min.css" rel="stylesheet" /> -->
-<!--<link href="script/button.css" rel="stylesheet" />-->
-<!-- <link href="script/linearslider.css" rel="stylesheet" /> -->
-<!-- <link href="script/roundbutton/css/style.css" rel="stylesheet" /> -->
 
+<script src="script/jquery/jquery-3.6.0.min.js"></script>
+<script src="script/jquery-ui/jquery-ui.min.js"></script>
+<link rel="stylesheet" href="script/jquery-ui/jquery-ui.css">
 
 <script>
 
-    // ================================================
-    //
-    // Eanble/Disable Controllers on the screen
-    //
-    // ================================================
-    function enableControllers(enable){
-
-        if (enable){
-            $("#roundslider").roundSlider('enable', true );
-
-            // enable the Down10 button again
-            $("#buttonDown10").css("pointer-events", "auto");
-            $("#buttonDown10").css("opacity", "1.0");
-
-            // enable the Up10 button again
-            $("#buttonUp10").css("pointer-events", "auto");
-            $("#buttonUp10").css("opacity", "1.0");
-
-
-        }else{
-            $("#roundslider").roundSlider('disable', true );
-            // equivalent solution
-            //$("#roundslider").data("roundSlider").disable();
-
-            // disable the Down10 button
-            $("#buttonDown10").css("pointer-events", "none");
-            $("#buttonDown10").css("opacity", "0.3");
-
-            // disable the Up10 button
-            $("#buttonUp10").css("pointer-events", "none");
-            $("#buttonUp10").css("opacity", "0.3");
-
-        }
-
-
+    function isEmpty(str) {
+        return (!str || str.length === 0 );
     }
-
-
-    // ================================================
-    //
-    // Change listener for roundSlider
-    //
-    // ================================================
-    function sliderChangeListener(args){
-        sliderValue = parseInt(args.value)
-        //delay = parseInt($("#delay").val())
-        delay = parseInt($("#durationslider").val())
-
-        $.ajax({type: "POST", url: "/gradually/set", data: {actuatorId:1, value:sliderValue, inSeconds:delay}, async: true, 
-            success: function(result){
-            },
-            error: function(xhr,status,error){
-                $("#value").html("");
-                $("#errormessage").html(xhr.statusText + " " + xhr.responseText);
-            }
-        });
-    };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     // ================================================
     //
@@ -139,14 +56,58 @@ user-scalable=no	-disable user zoom on mobile
     //
     // ================================================
     function refreshGraphs(){
-        $.ajax({type: "GET", url: "http://192.168.0.104:5000/info/graph/startDate/2021.11.16", async: true,
+
+        startDate = $('#startDatePicker').val();
+        endDate = $('#endDatePicker').val();
+
+        if (!isEmpty(endDate)){
+            // Add 1 more day construct midnight of endDate
+            var date = new Date(endDate);
+            date.setDate(date.getDate() + 1)
+
+            endYear = date.getFullYear()
+            endMonth = date.getMonth() + 1
+            endDay = date.getDate()
+            console.log( endYear + "." + endMonth + "." + endDay);
+        }
+
+        param = "startDate/" + startDate + ( isEmpty(endDate) ? "" : ("/endDate/" + endYear + "-" + endMonth + "-" + endDay))
+
+        $.ajax({type: "GET", url: "http://192.168.0.104:5000/info/graph/" + param, async: true,
             success: function(result){
 
                 res = result.result
 
                 if(res == "OK"){
 
-                    var tableBody = $('<table border="0"></table>').append($("<tbody>"));
+                    var table = $('<table border="0"></table>');
+
+                    //
+                    // header line
+                    //
+                    row = $("<tr>");
+
+                    // empty
+                    rowData = $('<th>');
+                    row.append(rowData)
+
+                    // water level
+                    rowData = $("<th>");
+                    rowData.html("Water level")
+                    row.append(rowData)
+
+                    // temperature
+                    rowData = $("<th>");
+                    rowData.html("Temperature [°C]")
+                    row.append(rowData)
+
+                    // humidity
+                    rowData = $("<th>");
+                    rowData.html("Humidity [%]")
+                    row.append(rowData)
+
+                    var tableBody = $("<tbody>");
+                    tableBody.append(row)
 
                     graphs = result.graphs;
                     $.map(graphs,function(graph){
@@ -159,11 +120,11 @@ user-scalable=no	-disable user zoom on mobile
 
                         // StationId
                         rowData = $('<td>');
-                        stationIdField = $('<dev id="labelstationid"></dev>').append('Sensor ').append(stationId);
+//                        stationIdField = $('<dev id="labelstationid"></dev>').append($('<span>')).append('Sensor ').append(stationId);
+                        stationIdField = $('<dev id="labelstationid">').html('Sensor ' + stationId);
                         rowData.html(stationIdField);
 
                         row.append(rowData);
-
 
                         // Level
                         rowData = $('<td style="padding:1px">');
@@ -192,7 +153,6 @@ user-scalable=no	-disable user zoom on mobile
                         tableBody.append(row);
                     });
 
-
                     $('#graphTableDiv').html("");
                     $('#graphTableDiv').append(tableBody);
 
@@ -216,23 +176,44 @@ user-scalable=no	-disable user zoom on mobile
     $(document).ready(function(){
 
         //-----------------------
-        // Control TURN button click
+        // Start Date
         //-----------------------
-        $("#buttonReverse").click(function(){
-            $.ajax({type: "POST", url: "/immediately/reverse", data: {actuatorId:1}, async: true, 
-                success: function(result){
-                    jsonResult=JSON.parse(result);
-                    $("#value").html(jsonResult.value);
+        $( "#startDatePicker" ).datepicker({
+            dateFormat: 'yy-mm-dd',
+            changeMonth: true,
+            changeYear: true,
+            changeHour: true,
 
-                    $("#slider").val(jsonResult.value);
-                    //$("#slider").slider("refresh");
-                    //$("#slider").slider("value", jsonResult.value);
-                },
-                error: function(xhr,status,error){
-                    $("#value").html("");
-                    $("#errormessage").html(xhr.statusText + " " + xhr.responseText);
-                }
-            });
+//            onSelect: function(datetext){
+//                console.log(datetext)
+//            }
+        });
+
+        var date = new Date();
+        var weekBefore = new Date(date.getFullYear(), date.getMonth(), date.getDate() - 7);
+        $('#startDatePicker').datepicker('setDate', weekBefore);
+
+        //-----------------------
+        // End Date
+        //-----------------------
+        $( "#endDatePicker" ).datepicker({
+            dateFormat: 'yy-mm-dd',
+            changeMonth: true,
+            changeYear: true,
+            changeHour: true,
+        });
+
+        //-----------------------
+        // Refresh graph Button
+        //-----------------------
+        $("#refreshGraphButton").click(function(){
+//            startDate = $('#startDatePicker').val();
+//            var date = new Date(startDate);
+//            startYear = date.getFullYear()
+//            startMonth = date.getMonth() + 1
+//            startDay = date.getDate()
+//            console.log( startYear + "." + startMonth + "." + startDay);
+            refreshGraphs();
         });
 
 
@@ -243,13 +224,27 @@ user-scalable=no	-disable user zoom on mobile
         //-----------------------
         // Refresh graphs
         //-----------------------
-        refreshGraphs();
+        //refreshGraphs();
         setInterval(refreshGraphs, 600000);
     });
 </script>
 </head>
-<body>
-    <center><h1>Green Wall</h1></center>
+<body style="background-color:DarkGrey;">
+    <center><h1>Green Wall</h1></center> 
+
+    <table border="1">
+        <tr>
+            <td> Start date:</td>
+            <td><input type="text" id="startDatePicker"> </td>
+            <td colspane="2"><button id="refreshGraphButton">Refresh</button></td>
+        </tr>
+        <tr>
+            <td> End date:</td>
+            <td><input type="text" id="endDatePicker"> </td>
+        </tr>
+
+
+    </table>
 
     <div id="graphTableDiv"></div>
 

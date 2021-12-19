@@ -48,6 +48,7 @@ class GraphLevel:
 
             for c in list(reportCopy[stationId]["record"]):
                 if c['timeStamp'] < startDateStamp or c['timeStamp'] > endDateStamp:
+
                     reportCopy[stationId]['record'].remove(c)
 
         return reportCopy
@@ -120,7 +121,6 @@ class GraphLevel:
 
             # for trend
             if len(dataCollection['x']) > 1:
-
                 slope, intercept = GraphLevel.getRegression(dataCollection['x'], dataCollection['y'])
             else:
                 slope = 0
@@ -230,6 +230,7 @@ class GraphLevel:
         with graphLock:
 
             #reportCopy = self.getRawReportCopy()
+            GraphLevel.filterReportCopy(reportCopy, startDateStamp, endDateStamp)
             GraphLevel.smoothReportCopy(reportCopy, window=window)
             GraphLevel.calculateTrendForReportCopy(reportCopy)
             ret = GraphLevel.getGraphFromReportCopy(reportCopy, stationId=None, webFolderName=webFolderName, webPathNameGraph=webPathNameGraph)
@@ -289,11 +290,11 @@ class GraphLevel:
 
         # configure tick locators
         x_major_locator=md.DayLocator(interval=1)
-        x_minor_locator=md.HourLocator(interval=1)
-
-        if maxListSize >= 2:
-            ax.xaxis.set_major_locator(x_major_locator)
-            ax.xaxis.set_minor_locator(x_minor_locator)
+#        x_minor_locator=md.HourLocator(interval=1)
+#
+#        if maxListSize >= 2:
+#            ax.xaxis.set_major_locator(x_major_locator)
+#            ax.xaxis.set_minor_locator(x_minor_locator)
 
         # format X values
         #xfmt=md.DateFormatter('%Y-%m-%d %H:%M:%S')
