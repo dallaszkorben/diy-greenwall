@@ -453,7 +453,7 @@ I’ll show it later
     ```
 
 ##### Install Web server on Raspberry Pi
-Apache2 server should be installed and configured to allow browsers to connect and see the statuses of "Stations"s
+  Apache2 server should be installed and configured to allow browsers to connect and see the statuses of "Stations"s
 
   * Find the codes <b>Software/Central.RaspberryPi/web-location/greenwall/</b>  
     ```sh
