@@ -27,13 +27,13 @@ Printed frames needed for
 * the water hose from the pump to keep it in a stable position
 * the "Central station" to keep the microcontroller, the LCD display, the Rotary encoder and the transformer in one closed block
 
-
+---
 ## Green wall
-
 ---
 
-
+---
 ## "Station"
+---
 ### 3D
 
 ### ESP-12F
@@ -154,14 +154,13 @@ and then restart again by [Ctrl]d
 ```
 
 ---
-
-
 ## "Central station"
+---
 ### 3D
 
 ### Raspberry PI Zero W
 
-### Install Python packages in Raspberry Pi
+##### Install Python packages in Raspberry Pi
 
   ```sh
   $ sudo apt-get install python3-sklearn python3-sklearn-lib  
@@ -169,7 +168,7 @@ and then restart again by [Ctrl]d
   $ pip3 install evdev  
   ```
 
-### Install Flask server on Raspberry Pi
+##### Install Flask server on Raspberry Pi
 
 * Find the codes for Raspberry Pi: <b>Software/Central.RaspberryPi/python</b>  
   ```sh
@@ -453,7 +452,7 @@ I’ll show it later
 		       valid_lft forever preferred_lft forever
     ```
 
-### Install Web server on Raspberry Pi
+##### Install Web server on Raspberry Pi
 Apache2 server should be installed and configured to allow browsers to connect and see the statuses of "Stations"s
 
   * Find the codes <b>Software/Central.RaspberryPi/web-location/greenwall/</b>  
@@ -514,32 +513,32 @@ Apache2 server should be installed and configured to allow browsers to connect a
     </VirtualHost>
     ```
 
-* Configure enabled Apach2 config file
+  * Configure enabled Apach2 config file
     ```sh
     pi@raspberrypi:~$ ln -s /etc/apache2/conf-available/green-wall.conf /etc/apache2/conf-enabled/green-wall.conf      
     ```
-* Restart Apach2 service
+  * Restart Apach2 service
     ```sh
     pi@raspberrypi:~$ sudo systemctl restart apache2      
     ```
 
 
-
-
-
-
-
-
-
-
-* ky040 - rotary encoder
+##### ky040 - rotary encoder
   
-  
-  * Install necessary SWs on RP
-    ```sh
-    
-    $ pip3 install pynput
+  To enable/configure the rotary-encoder device tree overlay, simply put something like the following into **/boot/config.txt** (with the encoder connected to pins **5** and **6** on the Raspberry Pi)
+  While you’re at it, you might also want to add the middle button as a key (mine is connected to pin 13):
+
+  * enable rotary encoder
+    ```sh       
+    pi@raspberrypi:~$ vi /boot/config.txt
+       dtoverlay=rotary-encoder,pin_a=5,pin_b=6,relative_axis=1
+       dtoverlay=gpio-key,gpio=13,keycode=28,label="ENTER"       
     ```
+  After a reboot you’ll have a new device in **/dev/input/** for the rotary encoder. You can use the **evtest** tool (as in evtest /dev/input/event0) to look at the events it generates and confirm that it reacts perfectly to every turn of the encoder, without missing a movement or confusing the direction.
+
+
+
+
 
 
 
