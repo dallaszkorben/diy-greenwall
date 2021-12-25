@@ -536,6 +536,32 @@ I’ll show it later
     ```
   After a reboot you’ll have a new device in **/dev/input/** for the rotary encoder. You can use the **evtest** tool (as in evtest /dev/input/event0) to look at the events it generates and confirm that it reacts perfectly to every turn of the encoder, without missing a movement or confusing the direction.
 
+  * Here is an example, shows how to read the output of the rotary encoder.
+    ```sh
+    from __future__ import print_function
+    import evdev
+    import select
+
+    devices = [evdev.InputDevice(fn) for fn in evdev.list_devices()]
+    devices = {dev.fd: dev for dev in devices}
+    value = 1
+    print("Value: {0}".format(value))
+    done = False
+    
+    while True:
+        r, w, x = select.select(devices, [], [])
+        for fd in r:
+            for event in devices[fd].read():
+                event = evdev.util.categorize(event)
+                if isinstance(event, evdev.events.RelEvent):
+                    value = value + event.event.value
+                    print("Value: {0}".format(value))
+                elif isinstance(event, evdev.events.KeyEvent):
+                    if event.keycode == "KEY_ENTER" and event.keystate == event.key_up:
+		        print("Enter")
+    ```
+  
+  
 
 
 
