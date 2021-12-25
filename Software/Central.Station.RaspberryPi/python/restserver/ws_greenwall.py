@@ -1,12 +1,10 @@
 import os
 import logging
 
-from threading import Thread
+from controlbox.controlbox import Controlbox
 
 from logging.handlers import RotatingFileHandler
 from dateutil import parser
-
-#from threading import Lock
 
 from datetime import datetime
 import time
@@ -21,8 +19,6 @@ from flask_cors import CORS
 from restserver.view_info import InfoView
 from restserver.view_level import LevelView
 #from restserver.gradual_thread_controller import GradualThreadController
-
-from threading import Thread
 
 from config.config import getConfig
 from config.ini_location import IniLocation
@@ -75,6 +71,8 @@ class WSGreenWall(Flask):
         # register the end-points
         InfoView.register(self.app, init_argument=self)
         LevelView.register(self.app, init_argument=self)
+
+        controlbox = Controlbox(self.app)
 
     def getThreadControllerStatus(self):
         return self.gradualThreadController.getStatus()

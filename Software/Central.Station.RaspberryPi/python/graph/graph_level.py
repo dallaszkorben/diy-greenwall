@@ -197,13 +197,13 @@ class GraphLevel:
             # -----------
             retDict['levelPath'] = GraphLevel.constractGraph(
                 stationId=actualStationId, 
-                title=f'Water level on Sensor {actualStationId}',
+                title=f'Water level on Station {actualStationId}',
                 webFolderName=webFolderName,
                 webPathName=webPathNameGraph,
                 fileName=f'graph_level_{actualStationId}.jpg',
                 xlabel="",
                 ylabel="level [mm]",
-                ylim=(0,30),
+                ylim=(0,45),
                 legend=True,
                 plot=[
                                 {"x": measure_dates, "y": measure_level_values, "label": "Measure", "linewidth": "1", "color": "green", "textoncurve": {}},
@@ -215,13 +215,13 @@ class GraphLevel:
             # -----------
             retDict['temperaturePath'] = GraphLevel.constractGraph(
                 stationId=actualStationId,
-                title=f'Temperature on Sensor {actualStationId}',
+                title=f'Temperature on Station {actualStationId}',
                 webFolderName=webFolderName,
                 webPathName=webPathNameGraph,
                 fileName=f'graph_temperature_{actualStationId}.jpg',
                 xlabel="",
                 ylabel="temp [°C]",
-                ylim=(20,30),
+                ylim=(19,30),
                 plot=[{"x": measure_dates, "y": measure_temperature_values, "label": "Temp", "linewidth": "1", "color": "blue"}
             ])
 
@@ -230,7 +230,7 @@ class GraphLevel:
             # -----------
             retDict['humidityPath'] = GraphLevel.constractGraph(
                 stationId=actualStationId,
-                title=f'Humidity on Sensor {actualStationId}',
+                title=f'Humidity on Station {actualStationId}',
                 webFolderName=webFolderName,
                 webPathName=webPathNameGraph,
                 fileName=f'graph_humidity_{actualStationId}.jpg',
@@ -275,6 +275,10 @@ class GraphLevel:
         # extra text on the curve, if configured
         for element in plot:
 
+#            print("stationId:", stationId, title)
+#            print("inx:", element["x"])
+#            print("iny:", element["y"])
+
             # remove elements (x,y) with y=None
             newElementX = []
             newElementY = []
@@ -285,7 +289,11 @@ class GraphLevel:
             element['x'] = newElementX
             element['y'] = newElementY
 
-            if element["x"] and element["y"]:
+#            print("x:", element["x"])
+#            print("y:", element["y"])
+
+            # check if the values are NOT None neiter nan
+            if element["x"] and element["y"] and not (element["y"] != element["y"]):
 
                 listSize = len(element["x"])
                 maxListSize = max(listSize, maxListSize)
@@ -306,6 +314,12 @@ class GraphLevel:
             return None
 
         plt.rcParams.update({'figure.autolayout': True})
+
+#        print()
+#        print()
+#        print()
+#        print()
+
         plt.xticks(rotation=25) #25
 
         # Set range
@@ -315,15 +329,12 @@ class GraphLevel:
 
         ax=plt.gca()
 
-#        ax.set_facecolor("#1CC4AF")
-
         # configure tick locators
-        x_major_locator=md.DayLocator(interval=1)
-#        x_minor_locator=md.HourLocator(interval=1)
-#
-#        if maxListSize >= 2:
-#            ax.xaxis.set_major_locator(x_major_locator)
-#            ax.xaxis.set_minor_locator(x_minor_locator)
+        if maxListSize >= 2:
+            x_major_locator=md.DayLocator(interval=1)
+            x_minor_locator=md.HourLocator(interval=1)
+            ax.xaxis.set_major_locator(x_major_locator)
+            ax.xaxis.set_minor_locator(x_minor_locator)
 
         # format X values
         #xfmt=md.DateFormatter('%Y-%m-%d %H:%M:%S')

@@ -403,3 +403,19 @@ I’ll show it later
 		       valid_lft forever preferred_lft forever
     ```
 
+* ky040 - rotary encoder
+  * Install necessary SWs on RP
+    ```sh
+    $ pip3 install evdev
+    $ pip3 install pynput
+    ```
+
+
+
+
+  * Configure device
+    Add the 
+
+    ```sh
+    $ pip3 install evdev
+    ```

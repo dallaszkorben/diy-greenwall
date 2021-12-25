@@ -1,7 +1,5 @@
 #! /usr/bin/python3
 
-#from restserver.ws_greenwall import app as application
-
 from restserver.ws_greenwall import WSGreenWall
 
 if __name__ == "__main__":
@@ -17,4 +15,5 @@ if __name__ == "__main__":
 #        application.run(host= '0.0.0.0', debug=False, threaded=False)
 
     finally:
+
         application.unconfigure()
