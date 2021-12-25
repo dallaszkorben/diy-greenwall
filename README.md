@@ -1,20 +1,21 @@
 # diy-greenwall
 
 Basically the Green wall project consists of 2 main parts:
-* "Station"
-  * Client
-  * ESP-12F
-  * Different sensors: Water level measure, Temperature/Humidity measure, Camera ...
-  * Sends the status of the sensors to the "Central station" periodically
+* Green wall with plants and irrigation system placed into plastic balconera
+* "Station"s which are placed to right next to the plants attached to the balconera. Ideally you install as many "Station" as many balconera you have, but it could be less.
+  * It works as Client
+  * ESP-12F microcontroller does the job for the "Station"
+  * Different sensors can be connected to the microcontroller: Water level measure, Temperature/Humidity measure, Camera ...
+  * The microcontroller sends the status of the sensors to the "Central station" periodically
 * "Central station"
-  * Server
-  * Raspberry Pi Zero/W
-  * Receives signals from the "Station"s
-  * Runs Webserver to be able to see the statuses/graphs of the sensors
-  * Has a control box (LCD display and Rotary encoder) to 
-    * show values of the sensors 
-    * show alarms
-    * control activators manually
+  * It works as Server
+  * The software runs on a Raspberry Pi Zero/W
+  * The Server receives signals from the "Station"s
+  * On the Raspberry, runs a Webserver to allow to see the statuses/graphs of the sensors through a web browser
+  * A control box (LCD display and Rotary encoder) is connected to the "Central station":
+    * shows values of the sensors 
+    * shows alarms
+    * allows you to control activators manually
       * water pump
       * lamp
 
