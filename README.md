@@ -1,6 +1,6 @@
 # diy-greenwall
 
-Basically the Green wall project consists of 2 main parts:
+Basically the Green wall project consists of 3 main parts:
 * Green wall with plants and irrigation system placed into plastic balconera
 * "Station"s which are placed to right next to the plants attached to the balconera. Ideally you install as many "Station" as many balconera you have, but it could be less.
   * It works as Client
@@ -19,13 +19,22 @@ Basically the Green wall project consists of 2 main parts:
       * water pump
       * lamp
 
-## Frame of the green wall
+Besides the green wall, the HW and the SW, there are 3D printed accessories as well. 
+Printed frames needed for 
+* the "Station" to keep the microcontroller and the sensors in a stable and safe position
+* the water hose from the pump to keep it in a stable position
+* the "Central station" to keep the microcontroller, the LCD display, the Rotary encoder and the transformer in one closed block
 
-## HW support for the green wall
 
-## ESP-12F
+## Green wall
 
-### Install SW on ESP-12F
+---
+
+
+## "Station"
+### 3D
+### ESP-12F
+#### Install SW on ESP-12F
 
 * Find the codes for ESP-12F: <b>Software/Level.Station.ESP-12F/power-supply/</b>  
 boot.py  
@@ -141,9 +150,12 @@ and then restart again by [Ctrl]d
   ...
 ```
 
+---
 
-## Raspberry Pi Zero W
 
+## "Central station"
+### 3D
+### Raspberry PI Zero W
 
 ### Install Python packages in Raspberry Pi
 
