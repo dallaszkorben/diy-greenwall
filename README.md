@@ -1,5 +1,16 @@
 # diy-greenwall
 
+Basically the Green wall project consists of 2 main parts:
+* "Station"
+** Client
+** ESP-12F
+** Different sensors/activators: Water level measure, Temperature/Humidity measure, Camera, Lamp
+* "Central stations"
+** Server
+** Raspberry Pi Zero/W
+** Receiving signals from the "Station"
+** Running Webserver to be able to see the statuses/graphs of the sensors
+
 ## Frame of the green wall
 
 ## HW support for the green wall
