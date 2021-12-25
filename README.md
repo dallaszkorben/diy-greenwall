@@ -8,7 +8,9 @@ Basically the Green wall project consists of 3 main parts:
   * Different sensors can be connected to the microcontroller: Water level measure, Temperature/Humidity measure, Camera ...
   * The microcontroller sends the status of the sensors to the "Central station" periodically
 * "Central station"
-  * It works as Server
+  * It works as Server. Two servers work on the "Central station"
+    * Web server (Apache2) to provide web page about the status of the "Station"s
+    * Flask server to receive data from the "Stations"s
   * The software runs on a Raspberry Pi Zero/W
   * The Server receives signals from the "Station"s
   * On the Raspberry, runs a Webserver to allow to see the statuses/graphs of the sensors through a web browser
@@ -167,7 +169,7 @@ and then restart again by [Ctrl]d
   $ pip3 install evdev  
   ```
 
-### Install SW on Raspberry Pi
+### Install Flask server on Raspberry Pi
 
 * Find the codes for Raspberry Pi: <b>Software/Central.RaspberryPi/python</b>  
   ```sh
@@ -450,6 +452,51 @@ I’ll show it later
 	       inet6 fe80::ba27:ebff:fe97:d5fe/64 scope link
 		       valid_lft forever preferred_lft forever
     ```
+
+### Install Web server on Raspberry Pi
+Apache2 server should be installed and configured to allow browsers to connect and see the statuses of "Stations"s
+
+  * Configure available Apach2 config file
+    ```sh
+    pi@raspberrypi:~$ touch /etc/apache2/conf-available/green-wall.conf
+     
+    <VirtualHost *:80>
+       ServerAdmin webmaster@greenwallsite.com
+       ServerName www.greenwallsite.com
+       ServerAlias greenwallsite.com
+
+       ErrorLog /var/www/logs/error.log
+       CustomLog /var/www/logs/access.log combined
+
+       <IfModule dir_module>
+           DirectoryIndex index.html
+       </IfModule>
+
+       Alias /greenwall/ /var/www/greenwall/
+       <Directory /var/www/greenwall>
+          Order allow,deny
+          Allow from all
+       </Directory>
+    </VirtualHost>
+    ```
+
+* Configure enabled Apach2 config file
+    ```sh
+    pi@raspberrypi:~$ ln -s /etc/apache2/conf-available/green-wall.conf /etc/apache2/conf-enabled/green-wall.conf      
+    ```
+* Restart Apach2 service
+    ```sh
+    pi@raspberrypi:~$ sudo systemctl restart apache2      
+    ```
+
+
+
+
+
+
+
+
+
 
 * ky040 - rotary encoder
   
