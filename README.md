@@ -457,32 +457,32 @@ I’ll show it later
 Apache2 server should be installed and configured to allow browsers to connect and see the statuses of "Stations"s
 
   * Find the codes <b>Software/Central.RaspberryPi/web-location/greenwall/</b>  
-  ```sh
-  .
-  └── greenwall
-      ├── favicon.ico
-      ├── /graph-images
-      ├── /index.html
-      └── /script
-          ├── /jquery
-          │   └── jquery-3.6.0.min.js
-          └── /jquery-ui
-              ├── AUTHORS.txt
-              ├── /external
-              │   └── /jquery
-              │       └── jquery.js
-              ├── images              
-              ├── index.html
-              ├── jquery-ui.css
-              ├── jquery-ui.js
-              ├── jquery-ui.min.css
-              ├── jquery-ui.min.js
-              ├── jquery-ui.structure.css
-              ├── jquery-ui.structure.min.css
-              ├── jquery-ui.theme.css
-              ├── jquery-ui.theme.min.css
-              ├── LICENSE.txt
-              └── package.json
+    ```sh
+    .
+    └── greenwall
+        ├── favicon.ico
+        ├── /graph-images
+        ├── /index.html
+        └── /script
+            ├── /jquery
+            │   └── jquery-3.6.0.min.js
+            └── /jquery-ui
+                ├── AUTHORS.txt
+                ├── /external
+                │   └── /jquery
+                │       └── jquery.js
+                ├── images              
+                ├── index.html
+                ├── jquery-ui.css
+                ├── jquery-ui.js
+                ├── jquery-ui.min.css
+                ├── jquery-ui.min.js
+                ├── jquery-ui.structure.css
+                ├── jquery-ui.structure.min.css
+                ├── jquery-ui.theme.css
+                ├── jquery-ui.theme.min.css
+                ├── LICENSE.txt
+                └── package.json
     ```
   * Copy the home page to /var/www folder
   
