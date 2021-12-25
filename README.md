@@ -33,6 +33,7 @@ Printed frames needed for
 
 ## "Station"
 ### 3D
+
 ### ESP-12F
 #### Install SW on ESP-12F
 
@@ -155,49 +156,16 @@ and then restart again by [Ctrl]d
 
 ## "Central station"
 ### 3D
+
 ### Raspberry PI Zero W
 
 ### Install Python packages in Raspberry Pi
 
   ```sh
-  sudo apt-get install python3-sklearn python3-sklearn-lib
+  $ sudo apt-get install python3-sklearn python3-sklearn-lib  
+  $ sudo apt install python3-pandas
+  $ pip3 install evdev  
   ```
-  ```sh
-  sudo apt install python3-pandas
-  ```
-
-
-  ```sh
-  sudo apt install adafruit_DHT
-  ```
-
-  ```sh
-  wget -q -O - https://packages.grafana.com/gpg.key | sudo apt-key add -
-
-  sudo add-apt-repository "deb https://packages.grafana.com/oss/deb stable main"
-  sudo apt update
-  sudo apt install grafana
-  sudo systemctl start grafana-server
-  sudo systemctl status grafan-server
-  sudo systemctl enable grafana-server
-
-  #check which port grafan is running:
-  sudo lsof -i -P | grep -i grafana
-
-  #http://localhost:3000
-  ```
-
-#  ```sh
-#  pip3 install adafruit-blinka
-#  ```
-#  ```sh
-#  pip3 install adafruit-circuitpython-dht
-#  ```
-#
-#  ```sh
-#  sudo apt install libgpiod2
-#  ```
-
 
 ### Install SW on Raspberry Pi
 
@@ -209,27 +177,76 @@ and then restart again by [Ctrl]d
   │   ├── ini_location.py
   │   ├── __init.py__
   │   ├── permanent_data.py
-  │   └── property.py
-  ├── converter.py
+  │   ├── property.py
+  │   └── __pycache__
+  │       ├── config.cpython-37.pyc
+  │       ├── ini_location.cpython-37.pyc
+  │       ├── permanent_data.cpython-37.pyc
+  │       └── property.cpython-37.pyc
+  ├── controlbox
+  │   ├── controlbox.py
+  │   ├── __init__.py
+  │   └── __pycache__
+  │       ├── controlbox.cpython-37.pyc
+  │       └── __init__.cpython-37.pyc
   ├── exceptions
   │   ├── __init.py__
-  │   └── invalid_api_usage.py
+  │   ├── invalid_api_usage.py
+  │   └── __pycache__
+  │       └── invalid_api_usage.cpython-37.pyc
+  ├── graph
+  │   ├── graph_level.py
+  │   ├── __init.py__
+  │   └── __pycache__
+  │       └── graph_level.cpython-37.pyc
   ├── greenwall.wsgi
+  ├── ky040
+  │   ├── __init__.py
+  │   ├── ky040.py
+  │   └── __pycache__
+  │       ├── __init__.cpython-37.pyc
+  │       ├── ky040.cpython-37.pyc
+  │       └── KY040.cpython-37.pyc
+  ├── restserver
+  │   ├── endpoints
+  │   │   ├── ep_info_functions.py
+  │   │   ├── ep_info_graph.py
+  │   │   ├── ep_info_timestamp.py
+  │   │   ├── ep_level_add.py
+  │   │   ├── ep.py
+  │   │   ├── __init.py__
+  │   │   ├── __pycache__
+  │   │   │   ├── ep.cpython-37.pyc
+  │   │   │   ├── ep_info_functions.cpython-37.pyc
+  │   │   │   ├── ep_info_graph.cpython-37.pyc
+  │   │   │   ├── ep_info_level.cpython-37.pyc
+  │   │   │   ├── ep_info_timestamp.cpython-37.pyc
+  │   │   │   ├── ep_info_trend.cpython-37.pyc
+  │   │   │   ├── ep_level_add.cpython-37.pyc
+  │   │   │   └── ep_level_read.cpython-37.pyc
+  │   │   ├── representations.py
+  │   │   └── ~toDelete
+  │   │       └── ep_info_level.py
+  │   ├── gradual_thread_controller.py
+  │   ├── __init.py__
+  │   ├── __pycache__
+  │   │   ├── gradual_thread_controller.cpython-37.pyc
+  │   │   ├── representations.cpython-37.pyc
+  │   │   ├── view_info.cpython-37.pyc
+  │   │   ├── view_level.cpython-37.pyc
+  │   │   └── ws_greenwall.cpython-37.pyc
+  │   ├── representations.py
+  │   ├── view_info.py
+  │   ├── view_level.py
+  │   └── ws_greenwall.py
   ├── start.py
-  └── webserver
-      ├── endpoints
-      │   ├── ep_info_functions.py
-      │   ├── ep_level_add.py
-      │   ├── ep.py
-      │   ├── __init.py__
-      │   └── representations.py
-      ├── gradual_thread_controller.py
+  └── utilities
       ├── __init.py__
-      ├── representations.py
-      ├── view_info.py
-      ├── view_level.py
-      └── ws_greenwall.py
+      ├── __pycache__
+      │   └── report.cpython-37.pyc
+      └── report.py  
   ```
+  
 * Configure Access Point
   * Update Respberry    
     ```sh
@@ -435,18 +452,14 @@ I’ll show it later
     ```
 
 * ky040 - rotary encoder
+  
+  
   * Install necessary SWs on RP
     ```sh
-    $ pip3 install evdev
+    
     $ pip3 install pynput
     ```
 
 
 
 
-  * Configure device
-    Add the 
-
-    ```sh
-    $ pip3 install evdev
-    ```
