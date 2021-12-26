@@ -561,8 +561,28 @@ I’ll show it later
 		        print("Enter")
     ```
   
+##### 2x16 LCD display
   
-
+  * In the Raspberry Pi run the "Raspberry Pi Configuration" application and undert the "Interfaces" tab, **Enable** the I2C
+  * Connect the pins of LCD display to the corresponding pins of RP
+    * GND -> GND
+    * VCC -> 5V
+    * SDA -> SDA1
+    * SCL -> SCL1
+  * Check th eaddress of the I2C box on the RP
+    ```sh         
+    pi@raspberrypi:/var/www $ i2cdetect -y 1
+         0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
+    00:          -- -- -- -- -- -- -- -- -- -- -- -- -- 
+    10: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+    20: -- -- -- -- -- -- -- 27 -- -- -- -- -- -- -- -- 
+    30: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+    40: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+    50: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+    60: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+    70: -- -- -- -- -- -- -- --                       
+    ```
+    
 
 
 
