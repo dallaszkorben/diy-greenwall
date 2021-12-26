@@ -165,7 +165,8 @@ and then restart again by [Ctrl]d
   ```sh
   $ sudo apt-get install python3-sklearn python3-sklearn-lib  
   $ sudo apt install python3-pandas
-  $ pip3 install evdev  
+  $ pip3 install evdev 
+  $ sudo pip3 install rpi_lcd
   ```
 
 ##### Install Flask server on Raspberry Pi
