@@ -1,12 +1,43 @@
 # diy-greenwall
 
-## Frame of the green wall
+Basically the Green wall project consists of 3 main parts:
+* Green wall with plants and irrigation system placed into plastic balconera
+* "Station"s which are placed to right next to the plants attached to the balconera. Ideally you install as many "Station" as many balconera you have, but it could be less.
+  * It works as Client
+  * ESP-12F microcontroller does the job for the "Station"
+  * Different sensors can be connected to the microcontroller: Water level measure, Temperature/Humidity measure, Camera ...
+  * The microcontroller sends the status of the sensors to the "Central station" periodically
+* "Central station"
+  * It works as Server. Two servers work on the "Central station"
+    * Web server (Apache2) to provide web page about the status of the "Station"s
+    * Flask server to receive data from the "Stations"s
+  * The software runs on a Raspberry Pi Zero/W
+  * The Server receives signals from the "Station"s
+  * On the Raspberry, runs a Webserver to allow to see the statuses/graphs of the sensors through a web browser
+  * A control box (LCD display and Rotary encoder) is connected to the "Central station":
+    * shows values of the sensors 
+    * shows alarms
+    * allows you to control activators manually
+      * water pump
+      * lamp
 
-## HW support for the green wall
+Besides the green wall, the HW and the SW, there are 3D printed accessories as well. 
+Printed frames needed for 
+* the "Station" to keep the microcontroller and the sensors in a stable and safe position
+* the water hose from the pump to keep it in a stable position
+* the "Central station" to keep the microcontroller, the LCD display, the Rotary encoder and the transformer in one closed block
 
-## ESP-12F
+---
+## Green wall
+---
 
-### Install SW on ESP-12F
+---
+## "Station"
+---
+### 3D
+
+### ESP-12F
+#### Install SW on ESP-12F
 
 * Find the codes for ESP-12F: <b>Software/Level.Station.ESP-12F/power-supply/</b>  
 boot.py  
@@ -122,53 +153,23 @@ and then restart again by [Ctrl]d
   ...
 ```
 
+---
+## "Central station"
+---
+### 3D
 
-## Raspberry Pi Zero W
+### Raspberry PI Zero W
 
-
-### Install Python packages in Raspberry Pi
-
-  ```sh
-  sudo apt-get install python3-sklearn python3-sklearn-lib
-  ```
-  ```sh
-  sudo apt install python3-pandas
-  ```
-
+##### Install Python packages in Raspberry Pi
 
   ```sh
-  sudo apt install adafruit_DHT
+  $ sudo apt-get install python3-sklearn python3-sklearn-lib  
+  $ sudo apt install python3-pandas
+  $ pip3 install evdev 
+  $ sudo pip3 install rpi_lcd
   ```
 
-  ```sh
-  wget -q -O - https://packages.grafana.com/gpg.key | sudo apt-key add -
-
-  sudo add-apt-repository "deb https://packages.grafana.com/oss/deb stable main"
-  sudo apt update
-  sudo apt install grafana
-  sudo systemctl start grafana-server
-  sudo systemctl status grafan-server
-  sudo systemctl enable grafana-server
-
-  #check which port grafan is running:
-  sudo lsof -i -P | grep -i grafana
-
-  #http://localhost:3000
-  ```
-
-#  ```sh
-#  pip3 install adafruit-blinka
-#  ```
-#  ```sh
-#  pip3 install adafruit-circuitpython-dht
-#  ```
-#
-#  ```sh
-#  sudo apt install libgpiod2
-#  ```
-
-
-### Install SW on Raspberry Pi
+##### Install Flask server on Raspberry Pi
 
 * Find the codes for Raspberry Pi: <b>Software/Central.RaspberryPi/python</b>  
   ```sh
@@ -178,27 +179,76 @@ and then restart again by [Ctrl]d
   │   ├── ini_location.py
   │   ├── __init.py__
   │   ├── permanent_data.py
-  │   └── property.py
-  ├── converter.py
+  │   ├── property.py
+  │   └── __pycache__
+  │       ├── config.cpython-37.pyc
+  │       ├── ini_location.cpython-37.pyc
+  │       ├── permanent_data.cpython-37.pyc
+  │       └── property.cpython-37.pyc
+  ├── controlbox
+  │   ├── controlbox.py
+  │   ├── __init__.py
+  │   └── __pycache__
+  │       ├── controlbox.cpython-37.pyc
+  │       └── __init__.cpython-37.pyc
   ├── exceptions
   │   ├── __init.py__
-  │   └── invalid_api_usage.py
+  │   ├── invalid_api_usage.py
+  │   └── __pycache__
+  │       └── invalid_api_usage.cpython-37.pyc
+  ├── graph
+  │   ├── graph_level.py
+  │   ├── __init.py__
+  │   └── __pycache__
+  │       └── graph_level.cpython-37.pyc
   ├── greenwall.wsgi
+  ├── ky040
+  │   ├── __init__.py
+  │   ├── ky040.py
+  │   └── __pycache__
+  │       ├── __init__.cpython-37.pyc
+  │       ├── ky040.cpython-37.pyc
+  │       └── KY040.cpython-37.pyc
+  ├── restserver
+  │   ├── endpoints
+  │   │   ├── ep_info_functions.py
+  │   │   ├── ep_info_graph.py
+  │   │   ├── ep_info_timestamp.py
+  │   │   ├── ep_level_add.py
+  │   │   ├── ep.py
+  │   │   ├── __init.py__
+  │   │   ├── __pycache__
+  │   │   │   ├── ep.cpython-37.pyc
+  │   │   │   ├── ep_info_functions.cpython-37.pyc
+  │   │   │   ├── ep_info_graph.cpython-37.pyc
+  │   │   │   ├── ep_info_level.cpython-37.pyc
+  │   │   │   ├── ep_info_timestamp.cpython-37.pyc
+  │   │   │   ├── ep_info_trend.cpython-37.pyc
+  │   │   │   ├── ep_level_add.cpython-37.pyc
+  │   │   │   └── ep_level_read.cpython-37.pyc
+  │   │   ├── representations.py
+  │   │   └── ~toDelete
+  │   │       └── ep_info_level.py
+  │   ├── gradual_thread_controller.py
+  │   ├── __init.py__
+  │   ├── __pycache__
+  │   │   ├── gradual_thread_controller.cpython-37.pyc
+  │   │   ├── representations.cpython-37.pyc
+  │   │   ├── view_info.cpython-37.pyc
+  │   │   ├── view_level.cpython-37.pyc
+  │   │   └── ws_greenwall.cpython-37.pyc
+  │   ├── representations.py
+  │   ├── view_info.py
+  │   ├── view_level.py
+  │   └── ws_greenwall.py
   ├── start.py
-  └── webserver
-      ├── endpoints
-      │   ├── ep_info_functions.py
-      │   ├── ep_level_add.py
-      │   ├── ep.py
-      │   ├── __init.py__
-      │   └── representations.py
-      ├── gradual_thread_controller.py
+  └── utilities
       ├── __init.py__
-      ├── representations.py
-      ├── view_info.py
-      ├── view_level.py
-      └── ws_greenwall.py
+      ├── __pycache__
+      │   └── report.cpython-37.pyc
+      └── report.py  
   ```
+  
 * Configure Access Point
   * Update Respberry    
     ```sh
@@ -403,19 +453,140 @@ I’ll show it later
 		       valid_lft forever preferred_lft forever
     ```
 
-* ky040 - rotary encoder
-  * Install necessary SWs on RP
+##### Install Web server on Raspberry Pi
+  Apache2 server should be installed and configured to allow browsers to connect and see the statuses of "Stations"s
+
+  * Find the codes <b>Software/Central.RaspberryPi/web-location/greenwall/</b>  
     ```sh
-    $ pip3 install evdev
-    $ pip3 install pynput
+    .
+    └── greenwall
+        ├── favicon.ico
+        ├── /graph-images
+        ├── /index.html
+        └── /script
+            ├── /jquery
+            │   └── jquery-3.6.0.min.js
+            └── /jquery-ui
+                ├── AUTHORS.txt
+                ├── /external
+                │   └── /jquery
+                │       └── jquery.js
+                ├── images              
+                ├── index.html
+                ├── jquery-ui.css
+                ├── jquery-ui.js
+                ├── jquery-ui.min.css
+                ├── jquery-ui.min.js
+                ├── jquery-ui.structure.css
+                ├── jquery-ui.structure.min.css
+                ├── jquery-ui.theme.css
+                ├── jquery-ui.theme.min.css
+                ├── LICENSE.txt
+                └── package.json
+    ```
+  * Copy the home page to /var/www folder
+  
+    ```sh
+    pi@raspberrypi:~$ cp -r greenwall /var/www/
+    ```
+
+  * Configure available Apach2 config file
+    ```sh
+    pi@raspberrypi:~$ touch /etc/apache2/conf-available/green-wall.conf
+     
+    <VirtualHost *:80>
+       ServerAdmin webmaster@greenwallsite.com
+       ServerName www.greenwallsite.com
+       ServerAlias greenwallsite.com
+
+       ErrorLog /var/www/logs/error.log
+       CustomLog /var/www/logs/access.log combined
+
+       <IfModule dir_module>
+           DirectoryIndex index.html
+       </IfModule>
+
+       Alias /greenwall/ /var/www/greenwall/
+       <Directory /var/www/greenwall>
+          Order allow,deny
+          Allow from all
+       </Directory>
+    </VirtualHost>
+    ```
+
+  * Configure enabled Apach2 config file
+    ```sh
+    pi@raspberrypi:~$ ln -s /etc/apache2/conf-available/green-wall.conf /etc/apache2/conf-enabled/green-wall.conf      
+    ```
+  * Restart Apach2 service
+    ```sh
+    pi@raspberrypi:~$ sudo systemctl restart apache2      
     ```
 
 
+##### ky040 - rotary encoder
+  
+  To enable/configure the rotary-encoder device tree overlay, simply put something like the following into **/boot/config.txt** (with the encoder connected to pins **5** and **6** on the Raspberry Pi)
+  While you’re at it, you might also want to add the middle button as a key (mine is connected to pin 13):
 
-
-  * Configure device
-    Add the 
-
-    ```sh
-    $ pip3 install evdev
+  * enable rotary encoder
+    ```sh       
+    pi@raspberrypi:~$ vi /boot/config.txt
+       dtoverlay=rotary-encoder,pin_a=5,pin_b=6,relative_axis=1
+       dtoverlay=gpio-key,gpio=13,keycode=28,label="ENTER"       
     ```
+  After a reboot you’ll have a new device in **/dev/input/** for the rotary encoder. You can use the **evtest** tool (as in evtest /dev/input/event0) to look at the events it generates and confirm that it reacts perfectly to every turn of the encoder, without missing a movement or confusing the direction.
+
+  * Here is an example, shows how to read the output of the rotary encoder.
+    ```sh
+    from __future__ import print_function
+    import evdev
+    import select
+
+    devices = [evdev.InputDevice(fn) for fn in evdev.list_devices()]
+    devices = {dev.fd: dev for dev in devices}
+    value = 1
+    print("Value: {0}".format(value))
+    done = False
+    
+    while True:
+        r, w, x = select.select(devices, [], [])
+        for fd in r:
+            for event in devices[fd].read():
+                event = evdev.util.categorize(event)
+                if isinstance(event, evdev.events.RelEvent):
+                    value = value + event.event.value
+                    print("Value: {0}".format(value))
+                elif isinstance(event, evdev.events.KeyEvent):
+                    if event.keycode == "KEY_ENTER" and event.keystate == event.key_up:
+		        print("Enter")
+    ```
+  
+##### 2x16 LCD display
+  
+  * In the Raspberry Pi run the "Raspberry Pi Configuration" application and undert the "Interfaces" tab, **Enable** the I2C
+  * Connect the pins of LCD display to the corresponding pins of RP
+    * GND -> GND
+    * VCC -> 5V
+    * SDA -> SDA1
+    * SCL -> SCL1
+  * Check th eaddress of the I2C box on the RP
+    ```sh         
+    pi@raspberrypi:/var/www $ i2cdetect -y 1
+         0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
+    00:          -- -- -- -- -- -- -- -- -- -- -- -- -- 
+    10: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+    20: -- -- -- -- -- -- -- 27 -- -- -- -- -- -- -- -- 
+    30: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+    40: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+    50: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+    60: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+    70: -- -- -- -- -- -- -- --                       
+    ```
+    
+
+
+
+
+
+
