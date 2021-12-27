@@ -8,7 +8,9 @@ if __name__ == "__main__":
 
     try:
 
-        application.run(host= '0.0.0.0', debug=True)
+        #disable the reloader using use_reloader=False, otherwise the Flask ran again
+        application.run(host= '0.0.0.0', debug=True, use_reloader=False)
+
 
 #        application.run(host= '0.0.0.0', debug=True)
 #        application.run(host= '0.0.0.0', debug=False, threaded=True)

@@ -26,12 +26,16 @@ from config.ini_location import IniLocation
 from utilities.report import Report
 
 class WSGreenWall(Flask):
+#class WSGreenWall():
 
     def __init__(self, import_name):
 
+        print("init started")
+
         super().__init__(import_name)
 
-#        self.gradualThreadController = GradualThreadController.getInstance()
+#        self.app = Flask(__name__)
+        self.app = self
 
         cg = getConfig()
 
@@ -61,7 +65,6 @@ class WSGreenWall(Flask):
 #        super(WSGreenWall, self).__init__(import_name)
 #        super().__init__(import_name)
 
-        self.app = self
 
         # This will enable CORS for all routes
         CORS(self.app)
@@ -82,7 +85,8 @@ class WSGreenWall(Flask):
 #        self.egLight.unconfigure()
 
 #    # Because of WSGI
-#    def run(self, host=None, port=None, debug=None, load_dotenv=True, **options):
+#    def run(self, host=None, port=None, debug=None, load_dotenv=True, use_reloader=False, **options):
+#        self.app.run(host=host, port=port, debug=debug, use_reloader=False)
 #        super(WSGreenWall, self).run(host=host, port=port, debug=debug, load_dotenv=load_dotenv, **options)
 
     def __del__(self):

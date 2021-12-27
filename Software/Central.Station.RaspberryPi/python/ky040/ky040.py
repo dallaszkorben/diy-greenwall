@@ -1,8 +1,7 @@
-from __future__ import print_function
+#from __future__ import print_function
 import evdev
 import select
 import threading
-
 
 class KY040():
 
