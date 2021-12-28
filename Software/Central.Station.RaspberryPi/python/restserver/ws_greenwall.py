@@ -30,8 +30,6 @@ class WSGreenWall(Flask):
 
     def __init__(self, import_name):
 
-        print("init started")
-
         super().__init__(import_name)
 
 #        self.app = Flask(__name__)

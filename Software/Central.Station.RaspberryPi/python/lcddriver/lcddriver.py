@@ -122,14 +122,14 @@ class lcd:
     self.write(LCD_CLEARDISPLAY)
     self.write(LCD_RETURNHOME)
 
-  def backlight_off(self):
+  def backlightOff(self):
     """turn off backlight, anything that calls write turns it on again"""
     self.device.write_cmd(LCD_NOBACKLIGHT)
 
-  def display_off(self):
+  def displayOff(self):
     """turn off the text display"""
     self.write(LCD_DISPLAYCONTROL | LCD_DISPLAYOFF)
 
-  def display_on(self):
+  def displayOn(self):
     """turn on the text display"""
     self.write(LCD_DISPLAYCONTROL | LCD_DISPLAYON)

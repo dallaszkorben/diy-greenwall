@@ -1,6 +1,6 @@
 from lcddriver.lcddriver import lcd as Lcd
 from ky040.ky040 import KY040
-from lcdmenu.lcdmenu import LcdMenu
+from lcdmenu.lcdmenu import LcdSubMenu, LcdSubElement, LcdRootMenu
 
 class Controlbox:
 
@@ -8,22 +8,62 @@ class Controlbox:
 
         self.web_gadget = web_gadget
 
-        lcd = Lcd()
-        maxLine = 2
+#        lcd = Lcd()
+#        maxLine = 2
 
-        self.rootMenu=LcdMenu(lcd, maxLine, self.rootText)
+        self.rootMenu=LcdRootMenu()
 
-        menu1 = LcdMenu(lcd, maxLine, self.menu1Text)
-        menu2 = LcdMenu(lcd, maxLine, self.menu2Text)
-        menu3 = LcdMenu(lcd, maxLine, self.menu3Text)
-        menu4 = LcdMenu(lcd, maxLine, self.menu4Text)
-        menu5 = LcdMenu(lcd, maxLine, self.menu5Text)
+        subMenu1 = LcdSubMenu( "Show actual data" )
+        subMenu2 = LcdSubMenu( "Control actuators" )
+        self.rootMenu.addLcdMenu(subMenu1)
+        self.rootMenu.addLcdMenu(subMenu2)
 
-        self.rootMenu.addLcdMenu(menu1)
-        self.rootMenu.addLcdMenu(menu2)
-        self.rootMenu.addLcdMenu(menu3)
-        self.rootMenu.addLcdMenu(menu4)
-        self.rootMenu.addLcdMenu(menu5)
+# ------ Show actual data -------
+
+        subMenu11 = LcdSubMenu( " Station 10" )
+        subMenu12 = LcdSubMenu( " Station 11" )
+        subMenu13 = LcdSubMenu( " Station 12" )
+        subMenu1.addLcdMenu(subMenu11)
+        subMenu1.addLcdMenu(subMenu12)
+        subMenu1.addLcdMenu(subMenu13)
+
+#        
+
+        subMenu111 = LcdSubElement("  Level: 35mm")
+        subMenu112 = LcdSubElement("  Temp: 23" + chr(223) + "C")
+        subMenu113 = LcdSubElement("  Hum: 30%")
+        subMenu11.addLcdMenu(subMenu111)
+        subMenu11.addLcdMenu(subMenu112)
+        subMenu11.addLcdMenu(subMenu113)
+
+        subMenu121 = LcdSubElement("  Level: 32mm")
+        subMenu122 = LcdSubElement("  Temp: 22.4" + chr(223) + "C")
+        subMenu123 = LcdSubElement("  Hum: 32.3%")
+        subMenu12.addLcdMenu(subMenu121)
+        subMenu12.addLcdMenu(subMenu122)
+        subMenu12.addLcdMenu(subMenu123)
+
+        subMenu131 = LcdSubElement("  Level: 29mm")
+        subMenu132 = LcdSubElement("  Temp: 24.5" + chr(223) + "C")
+        subMenu133 = LcdSubElement("  Hum: 29.7%")
+        subMenu13.addLcdMenu(subMenu131)
+        subMenu13.addLcdMenu(subMenu132)
+        subMenu13.addLcdMenu(subMenu133)
+
+# ------ Control actuators -------
+
+        subMenu21 = LcdSubElement( " Pump On", self.turnPumpOn )
+        subMenu22 = LcdSubElement( " Pump Off", self.turnPumpOff )
+        subMenu23 = LcdSubElement( " Light On", self.turnLampOn )
+        subMenu24 = LcdSubElement( " Light Off", self.turnLampOff )
+        subMenu2.addLcdMenu(subMenu21)
+        subMenu2.addLcdMenu(subMenu22)
+        subMenu2.addLcdMenu(subMenu23)
+        subMenu2.addLcdMenu(subMenu24)
+
+
+
+#       
 
         self.rootMenu.initialize()
 
@@ -34,28 +74,25 @@ class Controlbox:
 
     def functionUp(self):
         self.rootMenu.up()
+#        self.rootMenu.showMenu()
 
     def functionDown(self):
         self.rootMenu.down()
+#        self.rootMenu.showMenu()
 
     def functionEnter(self):
-        print("Enter")
+        self.rootMenu.enter()
+#        self.rootMenu.showMenu()
 
-    def rootText(self):
-        "."
+    def turnPumpOn(self):
+        print("pump ON")
 
-    def menu1Text(self):
-        return "menu 1"
+    def turnPumpOff(self):
+        print("pump OFF")
 
-    def menu2Text(self):
-        return "menu 2"
+    def turnLampOn(self):
+        print("lamp ON")
 
-    def menu3Text(self):
-        return "menu 3"
-
-    def menu4Text(self):
-        return "menu 4"
-
-    def menu5Text(self):
-        return "menu 5"
+    def turnLampOff(self):
+        print("lamp OFF")
 
