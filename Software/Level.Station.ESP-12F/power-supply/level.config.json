@@ -7,7 +7,7 @@
         "webserver-path-info-timestamp": "info/timeStamp"
     },
     "level-sta":{
-        "station-id": "10",
+        "station-id": "11",
         "analog-pin": 0,
         "led-status-pin": 2,
         "led-status-inverse": true,
@@ -16,20 +16,20 @@
     },
     "sensor-level":{
 
-        "sensor-id": 1
+        "sensor-id": 2,
 
         "package-name": "sensor_level_hcsr04",
 
         "trigger-pin": 5,
         "echo-pin": 4,
 
-        "quadratic-a-1": 86.826639
-        "quadratic-b-1": -0.14049907
-        "quadratic-c-1": -0.00002216339
+        "quadratic-a-1": 87.60655,
+        "quadratic-b-1": -0.1551917,
+        "quadratic-c-1": 0.0000071606,
 
-        "quadratic-a-2": 39.61448,
-        "quadratic-b-2": 0.1336365,
-        "quadratic-c-2": -0.0004177164,
+        "quadratic-a-2": 49.370704,
+        "quadratic-b-2": 0.07206394,
+        "quadratic-c-2": -0.00031533548,
 
         "sample-number": 100,
         "maximum-variance": 0.5

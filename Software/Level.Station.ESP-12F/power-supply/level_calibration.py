@@ -77,14 +77,15 @@ class LevelCalibration():
         while True:
             gc.collect()
 
-            a = 39.61448,
-            b = 0.1336365,
-            c = -0.0004177164,
+            a = 49.370704
+            b = 0.07206394
+            c = -0.00031533548
 
             wls=SensorLevel(pinTrigger, pinEcho, sampleNumber, a=a, b=b, c=c)
 
-            pulse = wls.getDistanceMeanInMm()
+#            pulse = wls.getDistanceMeanInMm()
+            level = wls.getDistanceMeanInMm()
 
-            print("\r {0}        ".format(pulse),  end="")
+            print("\r {0}        ".format(level),  end="")
 
             time.sleep(0.5)

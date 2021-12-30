@@ -176,7 +176,6 @@ class GraphLevel:
             speedInmmPerDay = slope * 86400 # 60*60*24 => mm/day
             speedInmmPerDayString = "{0:.1f} [mm/day]".format(speedInmmPerDay)
 
-
             # Collect inputs
             measure_timestamps = [record['timeStamp'] for record in recordList]
             measure_dates = [datetime.fromtimestamp(ts) for ts in measure_timestamps]
