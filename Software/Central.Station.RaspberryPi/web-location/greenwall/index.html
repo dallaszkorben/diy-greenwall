@@ -1,7 +1,7 @@
 <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
 
 <!--
-user-scalable=no	-disable user zoom on mobile
+user-scalable=no -disable user zoom on mobile
 -->
 <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=0.55">
 
@@ -33,7 +33,6 @@ user-scalable=no	-disable user zoom on mobile
 
     #labelstationid {
         white-space: nowrap;
-        font-family: Verdana;
         font-size: 18pt;
         font-weight: bold;
         -moz-transform: rotate(-90deg);
@@ -42,7 +41,7 @@ user-scalable=no	-disable user zoom on mobile
         -webkit-transform-origin: center center;
         -ms-transform: rotate(-90deg);
         -ms-transform-origin: center center;
-        max-width: 4em;
+        max-width: 2em;
         display: inline-block;
     }
 
@@ -70,6 +69,9 @@ user-scalable=no	-disable user zoom on mobile
     // ================================================
     function refreshGraphs(){
 
+        $("#spinner").show();
+
+        // Fetch the date values from the fields
         startDate = $('#startDatePicker').val();
         endDate = $('#endDatePicker').val();
 
@@ -86,14 +88,17 @@ user-scalable=no	-disable user zoom on mobile
 
         param = "startDate/" + startDate + ( isEmpty(endDate) ? "" : ("/endDate/" + endYear + "-" + endMonth + "-" + endDay))
 
+        $("#errormessage").html("");
+
         $.ajax({type: "GET", url: "http://192.168.0.104:5000/info/graph/" + param, async: true,
             success: function(result){
+
+                $("#spinner").hide();
 
                 res = result.result
 
                 if(res == "OK"){
 
-                    var table = $('<table border="0"></table>');
 
                     //
                     // header line
@@ -133,8 +138,7 @@ user-scalable=no	-disable user zoom on mobile
 
                         // StationId
                         rowData = $('<td>');
-//                        stationIdField = $('<dev id="labelstationid"></dev>').append($('<span>')).append('Sensor ').append(stationId);
-                        stationIdField = $('<dev id="labelstationid">').html('Sensor ' + stationId);
+                        stationIdField = $('<dev id="labelstationid">').html('Station ' + stationId);
                         rowData.html(stationIdField);
 
                         row.append(rowData);
@@ -164,21 +168,28 @@ user-scalable=no	-disable user zoom on mobile
                         row.append(rowData);
 
                         tableBody.append(row);
+
+
+                        var table = $('<table border="0"></table>').append(tableBody);
+
+                        $('#graphTableDiv').html("");
+                        $('#graphTableDiv').append(table);
+
                     });
 
-                    $('#graphTableDiv').html("");
-                    $('#graphTableDiv').append(tableBody);
 
                 }else{
-                    $("#value").html("");
+                    //$("#value").html("");
                     $("#errormessage").html("something went wrong");
+                    $("#spinner").hide();
                 }
 
                 $("#errormessage").html("");
             },
             error: function(xhr,status,error){
-                $("#value").html("");
+                //$("#value").html("");
                 $("#errormessage").html(xhr.statusText + " " + xhr.responseText);
+                $("#spinner").hide();
             }
         });
     }
@@ -187,6 +198,8 @@ user-scalable=no	-disable user zoom on mobile
     //  When the page is loaded
     // ================================================
     $(document).ready(function(){
+
+        $("#spinner").hide()
 
         //-----------------------
         // Start Date
@@ -226,6 +239,9 @@ user-scalable=no	-disable user zoom on mobile
 //            startMonth = date.getMonth() + 1
 //            startDay = date.getDate()
 //            console.log( startYear + "." + startMonth + "." + startDay);
+
+            $("#spinner").show();
+
             refreshGraphs();
         });
 
@@ -250,20 +266,19 @@ user-scalable=no	-disable user zoom on mobile
             <td> Start date:</td>
             <td><input type="text" id="startDatePicker" size="8"> </td>
             <td rowspan="2"><button id="refreshGraphButton">Refresh</button></td>
+            <td rowspan="2" width="60px"><img id="spinner" src="spinner.gif" width="60"></td>
+            <td rowspan="2" ><div id="errormessage"></div></td>
         </tr>
         <tr>
             <td> End date:</td>
             <td><input type="text" id="endDatePicker" size="8"> </td>
         </tr>
-
-
     </table>
 
     <div id="graphTableDiv"></div>
 
-    <div id="value"></div>
+<!--    <div id="value"></div> -->
 
-    <div id="errormessage"></div>
 
 </body>
 </html>

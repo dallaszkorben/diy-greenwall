@@ -315,12 +315,7 @@ class GraphLevel:
 
         plt.rcParams.update({'figure.autolayout': True})
 
-#        print()
-#        print()
-#        print()
-#        print()
-
-        plt.xticks(rotation=25) #25
+        plt.xticks(rotation=90) #25
 
         # Set range
         plt.ylim(ylim[0], ylim[1])
@@ -338,7 +333,8 @@ class GraphLevel:
 
         # format X values
         #xfmt=md.DateFormatter('%Y-%m-%d %H:%M:%S')
-        xfmt=md.DateFormatter('%Y-%m-%d %H:%M')
+        #xfmt=md.DateFormatter('%Y-%m-%d %H:%M')
+        xfmt=md.DateFormatter('%Y-%m-%d')
         ax.xaxis.set_major_formatter(xfmt)
 
         ax.set(xlabel=xlabel, ylabel=ylabel, title=title)

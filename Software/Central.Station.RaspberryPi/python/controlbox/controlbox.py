@@ -1,6 +1,8 @@
 from lcddriver.lcddriver import lcd as Lcd
 from ky040.ky040 import KY040
 from lcdmenu.lcdmenu import LcdSubMenu, LcdSubElement, LcdRootMenu
+import time
+import threading
 
 class Controlbox:
 
@@ -13,19 +15,21 @@ class Controlbox:
 
         self.rootMenu=LcdRootMenu()
 
-        subMenu1 = LcdSubMenu( "Show actual data" )
+        self.subMenu1 = LcdSubMenu( "Show actual data" )
         subMenu2 = LcdSubMenu( "Control actuators" )
-        self.rootMenu.addLcdMenu(subMenu1)
+        subMenu3 = LcdSubMenu( "Alerts" )
+        self.rootMenu.addLcdMenu(self.subMenu1)
         self.rootMenu.addLcdMenu(subMenu2)
+        self.rootMenu.addLcdMenu(subMenu3)
 
 # ------ Show actual data -------
 
-        subMenu11 = LcdSubMenu( " Station 10" )
-        subMenu12 = LcdSubMenu( " Station 11" )
-        subMenu13 = LcdSubMenu( " Station 12" )
-        subMenu1.addLcdMenu(subMenu11)
-        subMenu1.addLcdMenu(subMenu12)
-        subMenu1.addLcdMenu(subMenu13)
+        subMenu11 = LcdSubMenu( "Station 10" )
+        subMenu12 = LcdSubMenu( "Station 11" )
+        subMenu13 = LcdSubMenu( "Station 12" )
+        self.subMenu1.addLcdMenu(subMenu11)
+        self.subMenu1.addLcdMenu(subMenu12)
+        self.subMenu1.addLcdMenu(subMenu13)
 
 #        
 
@@ -62,7 +66,6 @@ class Controlbox:
         subMenu2.addLcdMenu(subMenu24)
 
 
-
 #       
 
         self.rootMenu.initialize()
@@ -71,6 +74,9 @@ class Controlbox:
 
         ky040 = KY040(self.functionUp, self.functionDown, self.functionEnter)
         ky040.start()
+
+        x = threading.Thread(target=self.refreshActualData)
+        x.start()
 
     def functionUp(self):
         self.rootMenu.up()
@@ -96,3 +102,20 @@ class Controlbox:
     def turnLampOff(self):
         print("lamp OFF")
 
+
+    def refreshActualData(self):
+
+        while True:
+
+            time.sleep(20)
+
+            START = 1
+            for index, subMenu in enumerate(self.subMenu1.menuList[START:], START):
+                print(subMenu.text)
+
+                self.subMenu1.removeSubMenu(subMenu)
+
+                time.sleep(20)
+
+            break
+            time.sleep(10)

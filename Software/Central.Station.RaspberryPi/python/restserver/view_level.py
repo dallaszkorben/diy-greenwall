@@ -9,8 +9,6 @@ from flask_classful import FlaskView, route, request
 
 from restserver.representations import output_json
 
-#from threading import Thread
-
 from config.permanent_data import getPermanentData
 from config.permanent_data import setPermanentData
 from config.config import getConfig

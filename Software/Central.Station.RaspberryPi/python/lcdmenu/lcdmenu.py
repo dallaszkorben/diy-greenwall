@@ -32,11 +32,23 @@ class AbstractLcdMenu:
 
             lcd.clear()
 
+
+            print("   range({0}, {1})".format(activeIndex + self.startRelativeWindow, activeIndex + self.startRelativeWindow + min(maxMenuLines, len(self.menuList))))
+            print("   menuList:", self.menuList)
+
             dispPos = 1
             for i in range(activeIndex + self.startRelativeWindow, activeIndex + self.startRelativeWindow + min(maxMenuLines, len(self.menuList))):
 
                 subMenu = self.menuList[i]
-                text = subMenu.text
+
+                # if the line is the active line and it is submenu
+                if i == 0:
+                    text = subMenu.text
+                elif activeIndex == i and isinstance(subMenu, LcdSubMenu):
+                    text = ">" + subMenu.text
+                else:
+                    text = " " + subMenu.text
+
                 lcd.display_string("{0}".format(text), dispPos)
 
                 dispPos += 1
@@ -54,8 +66,17 @@ class AbstractLcdMenu:
             return False
 
     def initialize(self):
-        self.activeMenu = self.menuList[1]
-        self.startRelativeWindow = 0
+
+        if len(self.menuList) == 1:
+            self.activeMenu = self.menuList[0]
+            self.startRelativeWindow = 0
+
+        elif len(self.menuList) <= maxMenuLines:
+            self.activeMenu = self.menuList[1]
+            self.startRelativeWindow = -1
+        else:
+            self.activeMenu = self.menuList[1]
+            self.startRelativeWindow = 0
 
     def setParent(self, parent):
         self.parent = parent
@@ -113,12 +134,16 @@ class AbstractLcdMenu:
 
                 self.parent.showMenu()
 
-            # if there is not executeFunction then jump in
+            # if there is no executeFunction then jump in
             elif isinstance(self.activeMenu, LcdSubMenu) and not self.activeMenu.executeFunction:
 
                 # and hand it over to the active menu
-                self.activeMenu.activeMenu = self.activeMenu.menuList[1]
-                self.activeMenu.startRelativeWindow = 0
+                self.activeMenu.initialize()
+#                if len(self.activeMenu.menuList) > 1:
+#                    self.activeMenu.activeMenu = self.activeMenu.menuList[1]
+#                else:
+#                    self.activeMenu.activeMenu = self.activeMenu.menuList[0]
+#                self.activeMenu.startRelativeWindow = 0
 
                 self.previousActiveMenu = self.activeMenu
                 self.previousRelativeWindow = self.startRelativeWindow
@@ -130,7 +155,7 @@ class AbstractLcdMenu:
                 self.showMenu()
 
             # if there is executeFunction then execute
-            elif isinstance(self.activeMenu, LcdSubElement) and self.activeMenu.executeFunction:
+            elif self.activeMenu.executeFunction: #isinstance(self.activeMenu, LcdSubElement) and self.activeMenu.executeFunction:
 
                 self.activeMenu.executeFunction()
 
@@ -147,6 +172,14 @@ class AbstractLcdMenu:
                     return True
             return False
 
+    def removeSubMenu(self, subMenu):
+        self.menuList.remove(subMenu)
+
+        print("menu list after remove", self.menuList)
+
+        if self.activeMenu and not self.startRelativeWindow == None:
+            self.initialize()
+            self.showMenu()
 
 class LcdRootMenu(AbstractLcdMenu):
 
