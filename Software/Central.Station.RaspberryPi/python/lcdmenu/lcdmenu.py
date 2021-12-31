@@ -32,9 +32,8 @@ class AbstractLcdMenu:
 
             lcd.clear()
 
-
-            print("   range({0}, {1})".format(activeIndex + self.startRelativeWindow, activeIndex + self.startRelativeWindow + min(maxMenuLines, len(self.menuList))))
-            print("   menuList:", self.menuList)
+#            print("   range({0}, {1})".format(activeIndex + self.startRelativeWindow, activeIndex + self.startRelativeWindow + min(maxMenuLines, len(self.menuList))))
+#            print("   menuList:", self.menuList)
 
             dispPos = 1
             for i in range(activeIndex + self.startRelativeWindow, activeIndex + self.startRelativeWindow + min(maxMenuLines, len(self.menuList))):
@@ -172,14 +171,32 @@ class AbstractLcdMenu:
                     return True
             return False
 
+    def isIn(self, menu):
+        if menu.activeMenu and not menu.startRelativeWindow == None:
+            return True
+        else:
+            for subMenu in menu.menuList:
+                result = self.isIn(subMenu)
+                if result:
+                    return True
+            return False
+
     def removeSubMenu(self, subMenu):
+
+        # remove this menu
         self.menuList.remove(subMenu)
 
-        print("menu list after remove", self.menuList)
+        # if we are in the subMenu (in any level)
+        if self.isIn(subMenu):
 
-        if self.activeMenu and not self.startRelativeWindow == None:
-            self.initialize()
-            self.showMenu()
+            # move up to the parent
+            subMenu.parent.initialize()
+            subMenu.parent.showMenu()
+
+        elif subMenu.parent.activeMenu and not subMenu.parent.startRelativeWindow == None:
+
+            subMenu.parent.initialize()
+            subMenu.parent.showMenu()
 
 class LcdRootMenu(AbstractLcdMenu):
 

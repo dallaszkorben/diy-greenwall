@@ -105,6 +105,13 @@ class Report:
 #            print("end line")
 #            print()
 
+    def getLatestValues(self):
+        output = []
+        for stationId, value in self.reportDict.items():
+            ip=value['ip']
+            lastRecord = value['record'][-1]
+            output.append({"stationId": stationId, "ip": ip, "timeStamp": lastRecord['timeStamp'], "levelValue": lastRecord['levelValue'], "temperatureValue":lastRecord['temperatureValue'], "humidityValue": lastRecord['humidityValue']   })
+        return output
 
     def getRawReportCopy(self):
         with self.lockReport:
