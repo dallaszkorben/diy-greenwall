@@ -52,9 +52,6 @@ class Controlbox:
         subMenu2.addLcdMenu(subMenu23)
         subMenu2.addLcdMenu(subMenu24)
 
-
-#
-
         self.rootMenu.initialize()
 
         self.rootMenu.showMenu()
@@ -62,8 +59,8 @@ class Controlbox:
         ky040 = KY040(self.functionUp, self.functionDown, self.functionEnter)
         ky040.start()
 
-        x = threading.Thread(target=self.refreshAllData)
-        x.start()
+#        x = threading.Thread(target=self.refreshAllData)
+#        x.start()
 
     def functionUp(self):
         self.rootMenu.up()
@@ -105,7 +102,6 @@ class Controlbox:
             # have to create the menu
             stationMenu = LcdSubMenu( "Station " + stationId )
 
-
             levelMenu =       LcdSubElement("levl: ")
             temperatureMenu = LcdSubElement("temp: ")
             humidityMenu =    LcdSubElement("relh: ")
@@ -123,77 +119,45 @@ class Controlbox:
             if self.dataMenu and not self.dataMenu.startRelativeWindow == None:
                 self.dataMenu.showMenu()
 
-
         return stationMenu
 
+    def refreshLatestValues(self, latestValues):
+
+        # go through the latestValues list
+        for i in latestValues:
+            si = i["stationId"]
+            ip = i["ip"]
+            timeStamp = i['timeStamp']
+            levelValue = i['levelValue']
+            temperatureValue = i['temperatureValue']
+            humidityValue = i['humidityValue']
+
+            dateString = datetime.fromtimestamp(timeStamp).astimezone().isoformat()
+
+            stationMenu = self.getStationMenu(si)
+
+            # water level
+            stationMenu.menuList[1].text = "levl: {0} mm".format(levelValue)
+
+            # temperature
+            stationMenu.menuList[2].text = "temp: {0} {1}C".format(temperatureValue, chr(223))
+
+            # humidity
+            stationMenu.menuList[3].text = "relh: {0} %".format(humidityValue)
+
+            # date
+            stationMenu.menuList[4].text = "date: {0} %".format(dateString)
+
+            # ip
+            stationMenu.menuList[5].text = "ip: {0} %".format(ip)
+
+            if stationMenu.activeMenu and not stationMenu.startRelativeWindow == None:
+                stationMenu.showMenu()
+
+    def refreshData(self, stationId):
+        latestValues = self.webGadget.report.getLatestValues(stationId)
+        self.refreshLatestValues(latestValues)
+
     def refreshAllData(self):
-
-        while True:
-
-            time.sleep(10)
-
-            latestValues = self.webGadget.report.getLatestValues()
-
-            # go through the latestValues list
-            for i in latestValues:
-                stationId = i["stationId"]
-                ip = i["ip"]
-                timeStamp = i['timeStamp']
-                levelValue = i['levelValue']
-                temperatureValue = i['temperatureValue']
-                humidityValue = i['humidityValue']
-
-                dateString = datetime.fromtimestamp(timeStamp).astimezone().isoformat()
-
-                stationMenu = self.getStationMenu(stationId)
-
-                # water level
-                stationMenu.menuList[1].text = "levl: {0} mm".format(levelValue)
-
-                # temperature
-                stationMenu.menuList[2].text = "temp: {0} {1}C".format(temperatureValue, chr(223))
-
-                # humidity
-                stationMenu.menuList[3].text = "relh: {0} %".format(humidityValue)
-
-                # date
-                stationMenu.menuList[4].text = "date: {0} %".format(dateString)
-
-                # ip
-                stationMenu.menuList[5].text = "ip: {0} %".format(ip)
-
-                if stationMenu.activeMenu and not stationMenu.startRelativeWindow == None:
-                    stationMenu.showMenu()
-
-
-    def rrrrefreshActualData(self):
-
-        loop = 0
-        while True:
-
-            loop += 1
-            time.sleep(10)
-
-            START = 1
-            for index, subMenu in enumerate(self.dataMenu.menuList[START:], START):
-                print(subMenu.text)
-
-
-                # water level
-                subMenu.menuList[1].text = "  h:  {0} mm".format(loop)
-
-                # temperature
-                subMenu.menuList[2].text = "  t:  {0} {1}C".format(loop, chr(223))
-
-                # humidity
-                subMenu.menuList[3].text = "  rh: {0} %".format(loop)
-
-                if subMenu.activeMenu and not subMenu.startRelativeWindow == None:
-                    subMenu.showMenu()
-
-                #self.subMenu1.removeSubMenu(subMenu)
-
-#                time.sleep(20)
-
-#            break
-#            time.sleep(10)
+        latestValues = self.webGadget.report.getLatestValues()
+        self.refreshLatestValues(latestValues)

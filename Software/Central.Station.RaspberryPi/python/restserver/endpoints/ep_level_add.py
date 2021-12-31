@@ -144,5 +144,8 @@ class EPLevelAdd(EP):
 #        print(dateString, levelId, ip, value, variance)
         self.web_gadget.report.addRecordLevel(dateString, stationId, ip, levelValue, levelVariance, temperatureValue, humidityValue)
 
+        # print out to LCD
+        self.web_gadget.controlBox.refreshData(stationId)
+
         return output_json( {'result': 'OK'}, EP.CODE_OK)
 

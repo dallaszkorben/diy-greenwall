@@ -72,7 +72,7 @@ class WSGreenWall(Flask):
         InfoView.register(self.app, init_argument=self)
         LevelView.register(self.app, init_argument=self)
 
-        self.controlbox = Controlbox(self.app)
+        self.controlBox = Controlbox(self.app)
 
     def getThreadControllerStatus(self):
         return self.gradualThreadController.getStatus()
