@@ -1,8 +1,13 @@
 from lcddriver.lcddriver import lcd as Lcd
+import threading
 
 maxMenuLines = 2
 lcd = Lcd()
+lock = threading.Lock()
 
+def showMenu(menu, shift=0, clear=True):
+    with lock:
+        menu.showMenu(shift=shift, clear=clear)
 
 class AbstractLcdMenu:
 
@@ -11,6 +16,7 @@ class AbstractLcdMenu:
         self.menuList = []
 
         self.text = None
+        self.rotateAt = 0
 
         self.activeMenu = None
         self.startRelativeWindow = None
@@ -22,43 +28,81 @@ class AbstractLcdMenu:
     def setText(self, text):
         self.text = text
 
+    def setRotateAt(self, rotateAt):
+        self.rotateAt = rotateAt
+
     def setExecuteFunction(self, executeFunction):
         self.executeFunction = executeFunction
 
-    def showMenu(self):
+    def showMenu(self, shift=0, clear=True):
+
+        visibleLength = 15
+
         if self.activeMenu:
 
             activeIndex = self.menuList.index(self.activeMenu)
 
-            lcd.clear()
+            if clear:
+                lcd.clear()
 
-#            print("   range({0}, {1})".format(activeIndex + self.startRelativeWindow, activeIndex + self.startRelativeWindow + min(maxMenuLines, len(self.menuList))))
-#            print("   menuList:", self.menuList)
+            wasShift = False
 
             dispPos = 1
             for i in range(activeIndex + self.startRelativeWindow, activeIndex + self.startRelativeWindow + min(maxMenuLines, len(self.menuList))):
 
                 subMenu = self.menuList[i]
 
-                # if the line is the active line and it is submenu
-                if i == 0:
-                    text = subMenu.text
-                elif activeIndex == i and isinstance(subMenu, LcdSubMenu):
-                    text = ">" + subMenu.text
-                else:
-                    text = " " + subMenu.text
+                needToShift = shift > 0 and len(subMenu.text) > visibleLength and i == activeIndex
+                if needToShift:
+                    fixPart = subMenu.text[0:subMenu.rotateAt]
+                    rotatingPart = subMenu.text[subMenu.rotateAt:]
 
-                lcd.display_string("{0}".format(text), dispPos)
+#                    shift = shift % len(subMenu.text)
+                    shift = shift % len(rotatingPart)
+
+                    end = shift + visibleLength - len(fixPart)
+
+#                    text = (subMenu.text + " " + subMenu.text)[shift:end]
+                    text = fixPart + (rotatingPart + " " + rotatingPart)[shift:end]
+
+                else:
+                    text = subMenu.text
+
+                text = text[0:visibleLength]
+
+                if activeIndex == i:
+                    text = ">" + text
+                else:
+                    text = " " + text
+
+#                # if the line is the active line and it is submenu
+#                if i == 0:
+#                    text = text
+#
+#                # if the line is active submenu
+#                elif activeIndex == i and isinstance(subMenu, LcdSubMenu):
+#
+#                    text = ">" + text
+#
+#                # if the line is not active
+#                else:
+#                    text = " " + text
+
+
+#                print(dispPos)
+
+                if shift==0 or (activeIndex == i and ((isinstance(subMenu, LcdSubMenu)) or isinstance(subMenu, LcdSubElement))):
+                    lcd.display_string("{0}".format(text), dispPos)
 
                 dispPos += 1
 
-            lcd.cursorActiveLine(abs(self.startRelativeWindow) + 1)
+#               lcd.cursorActiveLine(abs(self.startRelativeWindow) + 1)
 
             return True
 
         else:
             for subMenu in self.menuList:
-                result = subMenu.showMenu()
+                result = subMenu.showMenu(shift, clear)
                 if result:
                     return True
 
@@ -92,7 +136,8 @@ class AbstractLcdMenu:
                 self.activeMenu = self.menuList[activeIndex + 1]
                 self.startRelativeWindow = max( -(maxMenuLines - 1), self.startRelativeWindow - 1)
 
-                self.showMenu()
+#                self.showMenu()
+                showMenu(self)
 
                 return True
         else:
@@ -109,7 +154,8 @@ class AbstractLcdMenu:
                 self.activeMenu = self.menuList[activeIndex - 1]
                 self.startRelativeWindow = min( 0, self.startRelativeWindow + 1)
 
-                self.showMenu()
+#                self.showMenu()
+                showMenu(self)
 
                 return True
         else:
@@ -131,7 +177,8 @@ class AbstractLcdMenu:
                 self.parent.activeMenu = self.parent.previousActiveMenu
                 self.parent.startRelativeWindow = self.parent.previousRelativeWindow
 
-                self.parent.showMenu()
+#                self.parent.showMenu()
+                showMenu(self.parent)
 
             # if there is no executeFunction then jump in
             elif isinstance(self.activeMenu, LcdSubMenu) and not self.activeMenu.executeFunction:
@@ -151,7 +198,8 @@ class AbstractLcdMenu:
                 self.activeMenu = None
                 self.startRelativeWindow = None
 
-                self.showMenu()
+#                self.showMenu()
+                showMenu(self)
 
             # if there is executeFunction then execute
             elif self.activeMenu.executeFunction: #isinstance(self.activeMenu, LcdSubElement) and self.activeMenu.executeFunction:
@@ -191,12 +239,14 @@ class AbstractLcdMenu:
 
             # move up to the parent
             subMenu.parent.initialize()
-            subMenu.parent.showMenu()
+#            subMenu.parent.showMenu()
+            showMenu(subMenu.parent)
 
         elif subMenu.parent.activeMenu and not subMenu.parent.startRelativeWindow == None:
 
             subMenu.parent.initialize()
-            subMenu.parent.showMenu()
+#            subMenu.parent.showMenu()
+            showMenu(subMenu.parent)
 
 class LcdRootMenu(AbstractLcdMenu):
 
@@ -211,21 +261,23 @@ class LcdRootMenu(AbstractLcdMenu):
 
 class LcdSubMenu(AbstractLcdMenu):
 
-    def __init__(self, text):
+    def __init__(self, text, rotateAt=0):
 
         super().__init__()
         self.setText( text )
+        self.setRotateAt( rotateAt )
 
         backMenu = LcdBackMenu("^")
         self.addLcdMenu(backMenu)
 
 class LcdSubElement(AbstractLcdMenu):
 
-    def __init__(self, text, executeFunction=None):
+    def __init__(self, text, executeFunction=None, rotateAt=0):
 
         super().__init__()
         self.setText( text )
         self.setExecuteFunction(executeFunction)
+        self.setRotateAt( rotateAt )
 
 class LcdBackMenu(AbstractLcdMenu):
 

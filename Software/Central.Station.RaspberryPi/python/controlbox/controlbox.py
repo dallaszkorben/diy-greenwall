@@ -1,6 +1,7 @@
 from lcddriver.lcddriver import lcd as Lcd
 from ky040.ky040 import KY040
 from lcdmenu.lcdmenu import LcdSubMenu, LcdSubElement, LcdRootMenu
+from lcdmenu.lcdmenu import *
 import time
 from datetime import datetime
 import threading
@@ -10,6 +11,8 @@ class Controlbox:
     def __init__(self, web_gadget):
 
         self.webGadget = web_gadget
+
+        self.counterLock = threading.Lock()
 
 #        lcd = Lcd()
 #        maxLine = 2
@@ -54,23 +57,40 @@ class Controlbox:
 
         self.rootMenu.initialize()
 
-        self.rootMenu.showMenu()
+#        self.rootMenu.showMenu()
+        showMenu(self.rootMenu)
 
         ky040 = KY040(self.functionUp, self.functionDown, self.functionEnter)
         ky040.start()
 
+        self.resetCounter()
+
+        x = threading.Thread(target=self.watchdog, args=(3,))
+        x.start()
+
 #        x = threading.Thread(target=self.refreshAllData)
 #        x.start()
 
+    def resetCounter(self):
+        with self.counterLock:
+            self.counter = 0
+
+    def incrementCounter(self, sleepValue):
+        with self.counterLock:
+            self.counter += sleepValue
+
     def functionUp(self):
+        self.resetCounter()
         self.rootMenu.up()
 #        self.rootMenu.showMenu()
 
     def functionDown(self):
+        self.resetCounter()
         self.rootMenu.down()
 #        self.rootMenu.showMenu()
 
     def functionEnter(self):
+        self.resetCounter()
         self.rootMenu.enter()
 #        self.rootMenu.showMenu()
 
@@ -117,7 +137,8 @@ class Controlbox:
             self.dataMenu.addLcdMenu(stationMenu)
 
             if self.dataMenu and not self.dataMenu.startRelativeWindow == None:
-                self.dataMenu.showMenu()
+#                self.dataMenu.showMenu()
+                showMenu(self.dataMenu)
 
         return stationMenu
 
@@ -137,22 +158,25 @@ class Controlbox:
             stationMenu = self.getStationMenu(si)
 
             # water level
-            stationMenu.menuList[1].text = "levl: {0} mm".format(levelValue)
+            stationMenu.menuList[1].setText("levl: {0} mm".format(levelValue))
 
             # temperature
-            stationMenu.menuList[2].text = "temp: {0} {1}C".format(temperatureValue, chr(223))
+            stationMenu.menuList[2].setText("temp: {0} {1}C".format(temperatureValue, chr(223)))
 
             # humidity
-            stationMenu.menuList[3].text = "relh: {0} %".format(humidityValue)
+            stationMenu.menuList[3].setText("relh: {0} %".format(humidityValue))
 
             # date
-            stationMenu.menuList[4].text = "date: {0} %".format(dateString)
+            stationMenu.menuList[4].setText("date: {0}".format(dateString))
+            stationMenu.menuList[4].setRotateAt(6)
 
             # ip
-            stationMenu.menuList[5].text = "ip: {0} %".format(ip)
+            stationMenu.menuList[5].setText("ip: {0}".format(ip))
+            stationMenu.menuList[5].setRotateAt(4)
 
             if stationMenu.activeMenu and not stationMenu.startRelativeWindow == None:
-                stationMenu.showMenu()
+#                stationMenu.showMenu()
+                showMenu(stationMenu)
 
     def refreshData(self, stationId):
         latestValues = self.webGadget.report.getLatestValues(stationId)
@@ -161,3 +185,22 @@ class Controlbox:
     def refreshAllData(self):
         latestValues = self.webGadget.report.getLatestValues()
         self.refreshLatestValues(latestValues)
+
+    def watchdog(self, waitInSec):
+        sleepValue = 0.1
+
+        self.resetCounter()
+        while True:
+
+            while self.counter <= waitInSec:
+
+                time.sleep(sleepValue)
+                self.incrementCounter(sleepValue)
+
+            # circulating starts
+            shift = 0
+            while self.counter != 0:
+                shift += 1
+                showMenu(self.rootMenu,shift=shift, clear=False)
+                time.sleep(0.2)
+#            showMenu(self.rootMenu)

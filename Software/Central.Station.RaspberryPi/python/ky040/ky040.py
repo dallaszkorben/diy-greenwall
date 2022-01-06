@@ -31,9 +31,9 @@ class KY040():
                     event = evdev.util.categorize(event)
                     if isinstance(event, evdev.events.RelEvent):
                         if event.event.value == 1:
-                            self.callbackUp()
-                        else:
                             self.callbackDown()
+                        else:
+                            self.callbackUp()
 
                     elif isinstance(event, evdev.events.KeyEvent):
                         if event.keycode == "KEY_ENTER" and event.keystate == event.key_up:
