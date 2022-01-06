@@ -68,6 +68,9 @@ class Controlbox:
         x = threading.Thread(target=self.watchdog, args=(3,))
         x.start()
 
+        # Show existing data
+        self.refreshAllData()
+
 #        x = threading.Thread(target=self.refreshAllData)
 #        x.start()
 
@@ -202,5 +205,5 @@ class Controlbox:
             while self.counter != 0:
                 shift += 1
                 showMenu(self.rootMenu,shift=shift, clear=False)
-                time.sleep(0.2)
+                time.sleep(0.5)
 #            showMenu(self.rootMenu)

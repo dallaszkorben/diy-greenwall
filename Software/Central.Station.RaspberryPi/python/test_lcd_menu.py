@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 from lcddriver.lcddriver import lcd as Lcd
 from ky040.ky040 import KY040
 from lcdmenu.lcdmenu import LcdSubMenu, LcdSubElement, LcdRootMenu
@@ -69,7 +71,7 @@ class Controlbox:
             while self.counter != 0:
                 shift += 1
                 showMenu(self.rootMenu,shift=shift, clear=False)
-                time.sleep(0.2)
+                time.sleep(0.4)
 #            showMenu(self.rootMenu)
 
 
