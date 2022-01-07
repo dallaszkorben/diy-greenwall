@@ -5,6 +5,9 @@ from lcdmenu.lcdmenu import *
 import time
 from datetime import datetime
 import threading
+import psutil
+import socket
+
 
 class Controlbox:
 
@@ -14,50 +17,57 @@ class Controlbox:
 
         self.counterLock = threading.Lock()
 
-#        lcd = Lcd()
-#        maxLine = 2
-
         self.rootMenu=LcdRootMenu()
 
         self.dataMenu = LcdSubMenu( "Actual data" )
-        subMenu2 = LcdSubMenu( "Control" )
-        subMenu3 = LcdSubMenu( "Alerts" )
+        self.controlMenu = LcdSubMenu( "Control" )
+        self.alertMenu = LcdSubMenu( "Alerts" )
+        self.piMenu = LcdSubMenu( "PI" )
         self.rootMenu.addLcdMenu(self.dataMenu)
-        self.rootMenu.addLcdMenu(subMenu2)
-        self.rootMenu.addLcdMenu(subMenu3)
-
-# ------ Show actual data -------
-
-#        subMenu11 = LcdSubMenu( "Station 10" )
-#        subMenu12 = LcdSubMenu( "Station 11" )
-#        subMenu13 = LcdSubMenu( "Station 12" )
-#        self.subMenu1.addLcdMenu(subMenu11)
-#        self.subMenu1.addLcdMenu(subMenu12)
-#        self.subMenu1.addLcdMenu(subMenu13)
-
-#        
-
-#        subMenu111 = LcdSubElement("  h:  35mm")
-#        subMenu112 = LcdSubElement("  t:  23" + chr(223) + "C")
-#        subMenu113 = LcdSubElement("  rh: 30%")
-#        subMenu11.addLcdMenu(subMenu111)
-#        subMenu11.addLcdMenu(subMenu112)
-#        subMenu11.addLcdMenu(subMenu113)
+        self.rootMenu.addLcdMenu(self.controlMenu)
+        self.rootMenu.addLcdMenu(self.alertMenu)
+        self.rootMenu.addLcdMenu(self.piMenu)
 
 # ------ Control actuators -------
 
-        subMenu21 = LcdSubElement( " Pump On", self.turnPumpOn )
-        subMenu22 = LcdSubElement( " Pump Off", self.turnPumpOff )
-        subMenu23 = LcdSubElement( " Light On", self.turnLampOn )
-        subMenu24 = LcdSubElement( " Light Off", self.turnLampOff )
-        subMenu2.addLcdMenu(subMenu21)
-        subMenu2.addLcdMenu(subMenu22)
-        subMenu2.addLcdMenu(subMenu23)
-        subMenu2.addLcdMenu(subMenu24)
+        controlMenu_1 = LcdSubElement( " Pump On", self.turnPumpOn )
+        controlMenu_2 = LcdSubElement( " Pump Off", self.turnPumpOff )
+        controlMenu_3 = LcdSubElement( " Light On", self.turnLampOn )
+        controlMenu_4 = LcdSubElement( " Light Off", self.turnLampOff )
+
+        self.controlMenu.addLcdMenu(controlMenu_1)
+        self.controlMenu.addLcdMenu(controlMenu_2)
+        self.controlMenu.addLcdMenu(controlMenu_3)
+        self.controlMenu.addLcdMenu(controlMenu_4)
+
+# ------ PI menu -------
+
+        interfacesMenu = LcdSubMenu( "Interfaces" )
+        self.piMenu.addLcdMenu(interfacesMenu)
+
+        hostMenu = LcdSubElement( "Host: {0}".format(socket.gethostname()), rotateAt=6 )
+        self.piMenu.addLcdMenu(hostMenu)
+
+
+# ------ Interfaces menu -------
+
+        ipAddresses = self.getIpAddresses()
+        for interface, data in ipAddresses.items():
+
+            if interface == "lo":
+                continue
+
+            ifMenu = LcdSubMenu(interface)
+            interfacesMenu.addLcdMenu(ifMenu)
+
+            macMenu = LcdSubElement( "mac: {0}".format(data["mac"]), rotateAt=5 )
+            ifMenu.addLcdMenu(macMenu)
+
+            ipMenu = LcdSubElement( "ip: {0}".format(data["ip"]), rotateAt=4 )
+            ifMenu.addLcdMenu(ipMenu)
 
         self.rootMenu.initialize()
 
-#        self.rootMenu.showMenu()
         showMenu(self.rootMenu)
 
         ky040 = KY040(self.functionUp, self.functionDown, self.functionEnter)
@@ -71,8 +81,20 @@ class Controlbox:
         # Show existing data
         self.refreshAllData()
 
-#        x = threading.Thread(target=self.refreshAllData)
-#        x.start()
+
+
+    def getIpAddresses(self):
+        ret = {}
+        for interface, snics in psutil.net_if_addrs().items():
+            ret[interface] = {}
+            for snic in snics:
+                if snic.family == socket.AF_INET:
+                    ret[interface]["ip"] = snic.address
+                elif snic.family == socket.AF_PACKET:
+                    ret[interface]["mac"] = snic.address
+        return ret
+
+
 
     def resetCounter(self):
         with self.counterLock:
