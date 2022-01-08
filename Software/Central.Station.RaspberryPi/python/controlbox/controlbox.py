@@ -8,7 +8,6 @@ import threading
 import psutil
 import socket
 
-
 class Controlbox:
 
     def __init__(self, web_gadget):
@@ -22,25 +21,32 @@ class Controlbox:
         self.dataMenu = LcdSubMenu( "Actual data" )
         self.controlMenu = LcdSubMenu( "Control" )
         self.alertMenu = LcdSubMenu( "Alerts" )
-        self.piMenu = LcdSubMenu( "PI" )
+        self.piMenu = LcdSubMenu( "PI Box" )
         self.rootMenu.addLcdMenu(self.dataMenu)
         self.rootMenu.addLcdMenu(self.controlMenu)
         self.rootMenu.addLcdMenu(self.alertMenu)
         self.rootMenu.addLcdMenu(self.piMenu)
 
-# ------ Control actuators -------
+# ------ Control -------
 
-        controlMenu_1 = LcdSubElement( " Pump On", self.turnPumpOn )
-        controlMenu_2 = LcdSubElement( " Pump Off", self.turnPumpOff )
-        controlMenu_3 = LcdSubElement( " Light On", self.turnLampOn )
-        controlMenu_4 = LcdSubElement( " Light Off", self.turnLampOff )
+        controlMenu_pump = LcdSubMenu( " Pump" )
+        self.controlMenu.addLcdMenu(controlMenu_pump)
 
-        self.controlMenu.addLcdMenu(controlMenu_1)
-        self.controlMenu.addLcdMenu(controlMenu_2)
-        self.controlMenu.addLcdMenu(controlMenu_3)
-        self.controlMenu.addLcdMenu(controlMenu_4)
+        controlMenu_lamp = LcdSubMenu( " Lamp" )
+        self.controlMenu.addLcdMenu(controlMenu_lamp)
 
-# ------ PI menu -------
+# ------ Pump -------
+
+        lampMenu_on_5sec = LcdSubElement( " Pump On 5 sec", self.turnPumpOn5sec )
+        controlMenu_pump.addLcdMenu(lampMenu_on_5sec)
+
+        lampMenu_on_10sec = LcdSubElement( " Pump On 10 sec", self.turnPumpOn10sec )
+        controlMenu_pump.addLcdMenu(lampMenu_on_10sec)
+
+        lampMenu_off = LcdSubElement( " Pump Off", self.turnPumpOff )
+        controlMenu_pump.addLcdMenu(lampMenu_off)
+
+# ------ PI Box menu -------
 
         interfacesMenu = LcdSubMenu( "Interfaces" )
         self.piMenu.addLcdMenu(interfacesMenu)
@@ -81,8 +87,6 @@ class Controlbox:
         # Show existing data
         self.refreshAllData()
 
-
-
     def getIpAddresses(self):
         ret = {}
         for interface, snics in psutil.net_if_addrs().items():
@@ -93,8 +97,6 @@ class Controlbox:
                 elif snic.family == socket.AF_PACKET:
                     ret[interface]["mac"] = snic.address
         return ret
-
-
 
     def resetCounter(self):
         with self.counterLock:
@@ -119,17 +121,7 @@ class Controlbox:
         self.rootMenu.enter()
 #        self.rootMenu.showMenu()
 
-    def turnPumpOn(self):
-        print("pump ON")
 
-    def turnPumpOff(self):
-        print("pump OFF")
-
-    def turnLampOn(self):
-        print("lamp ON")
-
-    def turnLampOff(self):
-        print("lamp OFF")
 
     def getStationMenu(self, stationId):
         stationMenu = None
@@ -229,3 +221,13 @@ class Controlbox:
                 showMenu(self.rootMenu,shift=shift, clear=False)
                 time.sleep(0.5)
 #            showMenu(self.rootMenu)
+
+    def turnPumpOn5sec(self):
+        self.webGadget.pump.triggerPump(5)
+
+    def turnPumpOn10sec(self):
+        self.webGadget.pump.triggerPump(10)
+
+    def turnPumpOff(self):
+        self.webGadget.pump.stopPump()
+

@@ -54,9 +54,9 @@ class PermanentData( Property ):
 # ---
 # ---
 
-lock = Lock()
+configLock = Lock()
 def getPermanentData():
-    with lock:
+    with configLock:
         ce = PermanentData.getInstance()
         config = {}
 
@@ -66,7 +66,7 @@ def getPermanentData():
         return config
 
 def setPermanentData(config):
-    with lock:
+    with configLock:
         ce = PermanentData.getInstance()
 
         if "light-current-value" in config:

@@ -2,6 +2,7 @@ import os
 import logging
 
 from controlbox.controlbox import Controlbox
+from pump.pump import Pump
 
 from logging.handlers import RotatingFileHandler
 from dateutil import parser
@@ -46,6 +47,9 @@ class WSGreenWall(Flask):
         self.webPathNameGraph = cg["web-path-name-graph"]
         self.webSmoothingWindow = int(cg["web-smoothing-window"])
 
+        self.pumpGpio = cg["pump-gpio"]
+        self.pumpId = cg["pump-id"]
+
         # LOG 
         logFolder = IniLocation.get_path_to_config_folder()
         logPath = os.path.join(logFolder, logFileName)
@@ -58,11 +62,6 @@ class WSGreenWall(Flask):
         reportFolder = IniLocation.get_path_to_config_folder()
         self.reportPath = os.path.join(reportFolder, reportFileName)
 
-        # TODO remove self.app and correnct the references
-#        super(WSGreenWall, self).__init__(import_name)
-#        super().__init__(import_name)
-
-
         # This will enable CORS for all routes
         CORS(self.app)
 
@@ -73,6 +72,9 @@ class WSGreenWall(Flask):
         LevelView.register(self.app, init_argument=self)
 
         self.controlBox = Controlbox(self.app)
+
+        # PUMP
+        self.pump = Pump(self.pumpId, self.pumpGpio)
 
     def getThreadControllerStatus(self):
         return self.gradualThreadController.getStatus()

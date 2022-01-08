@@ -35,7 +35,6 @@ hideMap = [
     0b00000
 ]
 
-
 customCharacterCollection = [
     cursorMap,
     backMap,

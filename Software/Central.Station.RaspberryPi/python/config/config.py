@@ -17,22 +17,14 @@ class Config( Property ):
     DEFAULT_LOG_FILE_NAME = ("log", "file-name", "greenwall.log")
     DEFAULT_LOG_FOLDER_NAME = ("log", "folder-name", "DEBUG")
 
-#    DEFAULT_REPORT_TEMPERATURE_FILE_NAME = ("report", "temperature-file-name", "report-temperature.log")
-#    DEFAULT_REPORT_LEVEL_FILE_NAME = ("report", "level-file-name", "report-level.log")
     DEFAULT_REPORT_FILE_NAME = ("report", "file-name", "report-level.log")
 
     DEFAULT_WEB_FOLDER_NAME = ("web", "folder-name-graph", "/var/www/greenwall")
     DEFAULT_WEB_PATH_NAME_GRAPH = ("web", "path-name-graph", "graph-images")
     DEFAULT_WEB_SMOOTHING_WINDOW = ("web", "smoothing-window", 15)
 
-    DEFAULT_ACTUATOR_PUMP_ID = ("actuator-pump", "id", 1)
-    DEFAULT_ACTUATOR_PUMP_PIN = ("actuator-pump", "pin", 18)
-
-#    DEFAULT_SENSOR_TEMPERATURE_ID = ("sensor-temperature", "id", 1)
-#    DEFAULT_SENSOR_TEMPERATURE_PIN = ("sensor-temperature", "pin", 17)
-
-#    DEFAULT_SENSOR_HUMIDITY_ID = ("sensor-humidity", "id", 1)
-#    DEFAULT_SENSOR_HUMIDITY_PIN = ("sensor-humidity", "pin", 17)
+    DEFAULT_PUMP_ID = ("pump", "id", 1)
+    DEFAULT_PUMP_GPIO = ("pump", "gpio", 26)
 
     __instance = None
 
@@ -66,11 +58,6 @@ class Config( Property ):
     def getLogFolderName(self):
         return self.get(self.DEFAULT_LOG_FOLDER_NAME[0], self.DEFAULT_LOG_FOLDER_NAME[1], self.DEFAULT_LOG_FOLDER_NAME[2])
 
-#    def getReportTemperatureFileName(self):
-#        return self.get(self.DEFAULT_REPORT_TEMPERATURE_FILE_NAME[0], self.DEFAULT_REPORT_TEMPERATURE_FILE_NAME[1], self.DEFAULT_REPORT_TEMPERATURE_FILE_NAME[2])
-#    def getReportLevelFileName(self):
-#        return self.get(self.DEFAULT_REPORT_LEVEL_FILE_NAME[0], self.DEFAULT_REPORT_LEVEL_FILE_NAME[1], self.DEFAULT_REPORT_LEVEL_FILE_NAME[2])
-
     def getReportFileName(self):
         return self.get(self.DEFAULT_REPORT_FILE_NAME[0], self.DEFAULT_REPORT_FILE_NAME[1], self.DEFAULT_REPORT_FILE_NAME[2])
 
@@ -83,23 +70,11 @@ class Config( Property ):
     def getWebSmoothingWindow(self):
         return self.get(self.DEFAULT_WEB_SMOOTHING_WINDOW[0], self.DEFAULT_WEB_SMOOTHING_WINDOW[1], self.DEFAULT_WEB_SMOOTHING_WINDOW[2])
 
-    def getActuatorPumpId(self):
-        return int(self.get(self.DEFAULT_ACTUATOR_PUMP_ID[0], self.DEFAULT_ACTUATOR_PUMP_ID[1], self.DEFAULT_ACTUATOR_PUMP_ID[2]))
+    def getPumpId(self):
+        return int(self.get(self.DEFAULT_PUMP_ID[0], self.DEFAULT_PUMP_ID[1], self.DEFAULT_PUMP_ID[2]))
 
-    def getActuatorPumpPin(self):
-        return int(self.get(self.DEFAULT_ACTUATOR_PUMP_PIN[0], self.DEFAULT_ACTUATOR_PUMP_PIN[1], self.DEFAULT_ACTUATOR_PUMP_PIN[2]))
-
-#    def getSensorTemperatureId(self):
-#        return int(self.get(self.DEFAULT_SENSOR_TEMPERATURE_ID[0], self.DEFAULT_SENSOR_TEMPERATURE_ID[1], self.DEFAULT_SENSOR_TEMPERATURE_ID[2]))
-#
-#    def getSensorTemperaturePin(self):
-#        return int(self.get(self.DEFAULT_SENSOR_TEMPERATURE_PIN[0], self.DEFAULT_SENSOR_TEMPERATURE_PIN[1], self.DEFAULT_SENSOR_TEMPERATURE_PIN[2]))
-#
-#    def getSensorHumidityId(self):
-#        return int(self.get(self.DEFAULT_SENSOR_HUMIDITY_ID[0], self.DEFAULT_SENSOR_HUMIDITY_ID[1], self.DEFAULT_SENSOR_HUMIDITY_ID[2]))
-#
-#    def getSensorHumidityPin(self):
-#        return int(self.get(self.DEFAULT_SENSOR_HUMIDITY_PIN[0], self.DEFAULT_SENSOR_HUMIDITY_PIN[1], self.DEFAULT_SENSOR_HUMIDITY_PIN[2]))
+    def getPumpGpio(self):
+        return int(self.get(self.DEFAULT_PUMP_GPIO[0], self.DEFAULT_PUMP_GPIO[1], self.DEFAULT_PUMP_GPIO[2]))
 
 # ---
 
@@ -115,11 +90,6 @@ class Config( Property ):
     def setLogFolderName(self, logFolderName):
         self.update(self.DEFAULT_LOG_FILE_NAME[0], self.DEFAULT_LOG_FILE_NAME[1], logFolderName)
 
-#    def setReportTemperatureFileName(self, reportFileName):
-#        self.update(self.DEFAULT_REPORT_TEMPERATURE_FILE_NAME[0], self.DEFAULT_REPORT_TEMPERATURE_FILE_NAME[1], reportFileName)
-#    def setReportLevelFileName(self, reportFileName):
-#        self.update(self.DEFAULT_REPORT_LEVEL_FILE_NAME[0], self.DEFAULT_REPORT_LEVEL_FILE_NAME[1], reportFileName)
-
     def setReportFileName(self, reportFileName):
         self.update(self.DEFAULT_REPORT_FILE_NAME[0], self.DEFAULT_REPORT_FILE_NAME[1], reportFileName)
 
@@ -132,23 +102,11 @@ class Config( Property ):
     def setWebSmoothingWindow(self, webSmoothingWindow):
         self.update(self.DEFAULT_WEB_SMOOTHING_WINDOW[0], self.DEFAULT_WEB_SMOOTHING_WINDOW[1], webSmoothingWindow)
 
-    def setActuatorPumpId(self, actuatorId):
-        self.update(self.DEFAULT_ACTUATOR_PUMP_ID[0], self.DEFAULT_ACTUATOR_PUMP_ID[1], actuatorId)
+    def setPumpId(self, actuatorId):
+        self.update(self.DEFAULT_PUMP_ID[0], self.DEFAULT_PUMP_ID[1], actuatorId)
 
-    def setActuatorPumpPin(self, pwmPin):
-        self.update(self.DEFAULT_ACTUATOR_PUMP_PIN[0], self.DEFAULT_ACTUATOR_PUMP_PIN[1], pwmPin)
-
-#    def setSensorTemperatureId(self, sensorId):
-#        self.update(self.DEFAULT_SENSOR_TEMPERATURE_ID[0], self.DEFAULT_SENSOR_TEMPERATURE_ID[1], sensorId)
-#
-#    def setSensorTemperaturePin(self, sensorPin):
-#        self.update(self.DEFAULT_SENSOR_TEMPERATURE_PIN[0], self.DEFAULT_SENSOR_TEMPERATURE_PIN[1], sensorPin)
-#
-#    def setSensorHumidityId(self, sensorId):
-#        self.update(self.DEFAULT_SENSOR_HUMIDITY_ID[0], self.DEFAULT_SENSOR_HUMIDITY_ID[1], sensorId)
-#
-#    def setSensorHumidityPin(self, sensorPin):
-#        self.update(self.DEFAULT_SENSOR_HUMIDITY_PIN[0], self.DEFAULT_SENSOR_HUMIDITY_PIN[1], sensorPin)
+    def setPumpGpio(self, gpio):
+        self.update(self.DEFAULT_PUMP_GPIO[0], self.DEFAULT_PUMP_GPIO[1], gpio)
 
 # ---
 # ---
@@ -163,23 +121,14 @@ def getConfig():
     config["log-file-name"] = cb.getLogFileName()
     config["log-folder-name"] = cb.getLogFolderName()
 
-#    config["report-temperature-file-name"] = cb.getReportTemperatureFileName()
-#    config["report-level-file-name"] = cb.getReportLevelFileName()
-
     config["report-file-name"] = cb.getReportFileName()
 
     config["web-folder-name"] = cb.getWebFolderName()
     config["web-path-name-graph"] = cb.getWebPathNameGraph()
     config["web-smoothing-window"] = cb.getWebSmoothingWindow()
 
-    config["actuator-pump-id"] = cb.getActuatorPumpId()
-    config["actuator-pump-pin"] = cb.getActuatorPumpPin()
-
-#    config["sensor-temperature-id"] = cb.getSensorTemperatureId()
-#    config["sensor-temperature-pin"] = cb.getSensorTemperaturePin()
-#
-#    config["sensor-humidity-id"] = cb.getSensorHumidityId()
-#    config["sensor-humidity-pin"] = cb.getSensorHumidityPin()
+    config["pump-id"] = cb.getPumpId()
+    config["pump-gpio"] = cb.getPumpGpio()
 
     return config
 
@@ -198,11 +147,6 @@ def setConfig(config):
     if "log-folder-name" in config:
         cb.setLogFolderName(config["log-folder-name"])
 
-#    if "report-temperature-file-name" in config:
-#        cb.setReportTemperatureFileName(config["report-temperature-file-name"])
-#    if "report-level-file-name" in config:
-#        cb.setReportLevelFileName(config["report-level-file-name"])
-
     if "report-file-name" in config:
         cb.setReportFileName(config["report-file-name"])
 
@@ -215,20 +159,9 @@ def setConfig(config):
     if "web-smoothing-window" in config:
         cb.setWebSmoothingWindow(config["web-smoothing-window"])
 
-    if "actuator-pump-id" in config:
-        cb.setActuatorPumpId(config["actuator-pump-id"])
+    if "pump-id" in config:
+        cb.setPumpId(config["pump-id"])
 
-    if "actuator-pump-pin" in config:
-        cb.setActuatorPumpPin(config["actuator-pump-pin"])
+    if "pump-gpio" in config:
+        cb.setPumpGpio(config["pump-gpio"])
 
-#    if "sensor-Temperature-id" in config:
-#         cb.setSensorTemperatureId(config["sensor-temperature-id"])
-#
-#    if "sensor-Temperature-pin" in config:
-#         cb.setSensorTemperaturePin(config["sensor-temperature-pin"])
-#
-#    if "sensor-Humidity-id" in config:
-#         cb.setSensorHumidityId(config["sensor-Humidity-id"])
-#
-#    if "sensor-Humidity-pin" in config:
-#         cb.setSensorHumidityPin(config["sensor-Humidity-pin"])
