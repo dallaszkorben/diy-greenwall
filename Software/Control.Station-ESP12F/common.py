@@ -8,7 +8,7 @@ class LedControl():
 
     MAX_DUTY = 1023
 
-    INVERSE = config.getValue('level-sta', 'led-status-inverse')
+    INVERSE = config.getValue('control-sta', 'led-status-inverse')
 
     STATUS_BEFORE_CONNECTION = {
         "freq": 15,
@@ -41,7 +41,7 @@ class LedControl():
     }
 
     def __init__(self):
-        self.pinLedStatus=config.getValue('level-sta', 'led-status-pin')
+        self.pinLedStatus=config.getValue('control-sta', 'led-status-gpio')
 
     def setBeforeConnection(self):
         led = PWM(Pin(self.pinLedStatus), freq=LedControl.STATUS_BEFORE_CONNECTION['freq'], duty=LedControl.STATUS_BEFORE_CONNECTION['duty'])

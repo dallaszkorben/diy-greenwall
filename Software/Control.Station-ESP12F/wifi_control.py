@@ -11,11 +11,6 @@ import json
 from common import getOffsetDateString
 from common import LedControl
 
-try:
-    import usocket as socket
-except:
-    import socket
-
 class WifiControl():
 
     def __init__(self):

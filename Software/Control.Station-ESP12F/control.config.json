@@ -3,47 +3,23 @@
         "essid": "Central-Station-006",
         "password": "viragfal"
         "webserver-ip": "192.168.50.3:5000",
-        "webserver-path-level-add": "level/add",
         "webserver-path-info-timestamp": "info/timeStamp"
+        "webserver-path-register-pwm": "register/lamp",
+        "webserver-path-register-on-off": "register/pump",
     },
 
-    "level-sta":{
-        "station-id": "10",
-        "analog-pin": 0,
-        "led-status-pin": 2,
+    "control-sta":{
+        "station-id": "lamp-sta",
+
+        "pwm-gpio": 5,
+        "on-off-gpio": 4,
+
+        "led-status-gpio": 2,
         "led-status-inverse": true,
+
         "report-interval-sec": 600
         "reset-hours": 1
     },
 
 
-
-
-
-
-
-    "sensor-level":{
-
-        "sensor-id": 1,
-
-        "package-name": "sensor_level_hcsr04",
-
-        "trigger-pin": 5,
-        "echo-pin": 4,
-
-        "quadratic-a-1": 87.60655,
-        "quadratic-b-1": -0.1551917,
-        "quadratic-c-1": 0.0000071606,
-
-        "quadratic-a-2": 49.370704,
-        "quadratic-b-2": 0.07206394,
-        "quadratic-c-2": -0.00031533548,
-
-        "sample-number": 100,
-        "maximum-variance": 0.5
-    },
-    "sensor-temp-hum":{
-        "package-name": "sensor_temp_hum_dht22",
-        "data-gpio": 0
-    }
 }
