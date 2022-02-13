@@ -18,6 +18,7 @@ class LampControl:
 
         dutyCycle = 0
 
+        print("lampGpio: {0}".format(lampGpio))
         self.led = PWM(Pin(lampGpio), LampControl.FREQ)
 
         gc.collect()

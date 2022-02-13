@@ -3,7 +3,6 @@ import ujson
 import re
 import gc
 
-
 try:
   import usocket as socket
 except:
@@ -45,8 +44,6 @@ class WebServer:
 
             rawRequest = conn.recv(1024)
             request = rawRequest.decode("utf-8")
-
-#            print('Got a connection from {0}, Request: {1}'.format(str(addr), request.replace("\r\n", " ")))
 
             if len(request) == 0:
                 conn.close()
@@ -111,11 +108,15 @@ class WebServer:
 
             gc.collect()
 
-            conn.send('HTTP/1.1 200 OK\n')
-            conn.send('Content-Type: text/html\n')
-            conn.send('Connection: close\n\n')
-            conn.sendall(response)
-            conn.close()
+            try:
+                conn.send('HTTP/1.1 200 OK\n')
+                conn.send('Content-Type: text/html\n')
+                conn.send('Connection: close\n\n')
+                conn.sendall(response)
+            except Exception as e:
+                print("Exception: {0}".format(e))
+            finally:
+                conn.close()
 
             if type == "POST" and path == "/lamp/on":
 
@@ -124,8 +125,6 @@ class WebServer:
             elif type == "POST" and path == "/lamp/off":
 
                 self.lampControl.off(lengthInSec)
-
-#            print("--- {0} {1} {2}".format(type, path, lengthInSec))
 
         print("Finished listening ...")
         self.s.close()
