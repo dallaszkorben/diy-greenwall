@@ -3,11 +3,11 @@
         "essid": "Central-Station-006",
         "password": "viragfal"
         "webserver-ip": "192.168.50.3:5000",
-        "webserver-path-level-add": "level/add",
+        "webserver-path-level-add": "sensor/add",
         "webserver-path-info-timestamp": "info/timeStamp"
     },
     "level-sta":{
-        "station-id": "10",
+        "station-id": "11",
         "analog-pin": 0,
         "led-status-pin": 2,
         "led-status-inverse": true,
@@ -16,7 +16,7 @@
     },
     "sensor-level":{
 
-        "sensor-id": 1,
+        "sensor-id": 2,
 
         "package-name": "sensor_level_hcsr04",
 

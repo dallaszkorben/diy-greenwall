@@ -4,12 +4,12 @@
         "password": "viragfal"
         "webserver-ip": "192.168.50.3:5000",
         "webserver-path-info-timestamp": "info/timeStamp"
-        "webserver-path-register-pwm": "register/lamp",
-        "webserver-path-register-on-off": "register/pump",
+        "webserver-path-pwm-register": "lamp/register",
+        "webserver-path-switch-register": "pump/register",
     },
 
     "control-sta":{
-        "station-id": "lamp-sta",
+        "lamp-id": "lamp-sta",
 
         "pwm-gpio": 5,
         "on-off-gpio": 4,

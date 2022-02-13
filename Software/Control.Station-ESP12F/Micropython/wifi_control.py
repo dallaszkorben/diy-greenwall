@@ -24,6 +24,9 @@ class WifiControl():
         self.apPassword=config.getValue('central-ap', 'password')
         self.apIp=config.getValue('central-ap', 'webserver-ip')
         self.apWebServerPathInfoTimestamp=config.getValue('central-ap', 'webserver-path-info-timestamp')
+        self.apWebServerPathLampRegister=config.getValue('central-ap', 'webserver-path-pwm-register')
+
+        self.lampId=config.getValue('control-sta', 'lamp-id')
 
         # NO Access Point
         ap_if = network.WLAN(network.AP_IF)
@@ -36,11 +39,15 @@ class WifiControl():
 
         self.syncTime()
 
+        self.registerLamp()
+
         print('==========================')
 
         gc.collect()
 
-    def connectToAp(self):
+    def connectToAp(self, message=""):
+
+        gc.collect()
 
         if not self.wlan.isconnected() or self.wlan.ifconfig()[0] == "0.0.0.0":
             self.wlan.active(True)
@@ -48,15 +55,20 @@ class WifiControl():
 
             counter = 0
             while not self.wlan.isconnected():
+
+                gc.collect()
+
                 time.sleep(1)
 
                 phase = counter % 4
-                print("Connecting to network {0} {1}s{2}".format("-" if phase == 0 else "\\" if phase == 1 else "|" if phase == 2 else "/", counter, "\r"),  end="")
+                print("{3}Connecting to network {0} {1}s{2}".format("-" if phase == 0 else "\\" if phase == 1 else "|" if phase == 2 else "/", counter, "\r", message),  end="")
                 counter += 1
+
+                gc.collect()
 
         if self.wlan.isconnected():
 
-            print("Connected to {0}. My IP: {1}".format(self.apIp, self.wlan.ifconfig()[0]))
+            print("{2}Connected to {0}. My IP: {1}".format(self.apIp, self.wlan.ifconfig()[0], message))
             return output_json(success=True)
 
         else:
@@ -71,7 +83,7 @@ class WifiControl():
     def getIfconfig(self):
         return self.wlan.ifconfig()
 
-    def sendRest(self, type="POST", address="192.168.4.1", path="", data="{}"):
+    def sendRest(self, type="POST", address="192.168.4.1", path="", data="{}", message=""):
         """
             return: Object
                             .status_code
@@ -83,7 +95,7 @@ class WifiControl():
         """
         #gc.collect()
 
-        # Indicate on the LED, BEFORE CONNECTION
+        # Indicate on the LED, BEFORE CONNECTION - Fast blink
         self.ledControl.setBeforeConnection()
 
 
@@ -96,21 +108,26 @@ class WifiControl():
         }
         #gc.collect()
 
-        conn = self.connectToAp()
+        conn = self.connectToAp(message=message)
         #gc.collect()
+
+        gc.collect()
 
         if conn['success']:
 
-            # Indicate on the LED, BEFORE SENDING REST
+            # Indicate on the LED, BEFORE SENDING REST - Slow blink
             self.ledControl.setBeforeSendRest()
 
             # Send the POST request
             print(" - POST " if type == "POST" else " - GET ", end="")
             print(url, data, end=" ")
 
-            MAX_LOOP = 20
+            MAX_LOOP = 10
             cycle = 0
             while cycle < MAX_LOOP:
+
+                gc.collect()
+
                 exception = ""
 
                 time.sleep(4)
@@ -142,7 +159,10 @@ class WifiControl():
                 # Indicate on the LED, sending FAILED
                 self.ledControl.setFailedSendRest()
 
+                self.wlan.disconnect()
+
                 print("!!! Network issue. Can not send request !!!", str(exception))
+
 
                 conn = output_json(success=False)
 
@@ -156,12 +176,11 @@ class WifiControl():
     def syncTime(self):
 
         result = {'success': False}
-
         while not result['success']:
             #timeutime.localtime(0)
             epocDate = "2000.01.01"
             #data = ujson.dumps({'epocDate': epocDate})
-            result = self.sendRest(type="GET", address=self.apIp, path=self.apWebServerPathInfoTimestamp + "/epocDate/" + epocDate)
+            result = self.sendRest(message="Sync time -> ", type="GET", address=self.apIp, path=self.apWebServerPathInfoTimestamp + "/epocDate/" + epocDate)
             time.sleep(1)
 
         timeStamp = result['data']['timeStamp']
@@ -170,4 +189,12 @@ class WifiControl():
         machine.RTC().datetime(correctedDate)
         print("Synchronized time: {0}".format(getOffsetDateString(utime.localtime())))
 
+    def registerLamp(self):
+
+        result = {'success': False}
+        while not result['success']:
+
+            result = self.sendRest(message="Register lamp -> ", type="POST", address=self.apIp, path=self.apWebServerPathLampRegister + "/dateString/" + getOffsetDateString(utime.localtime()) + "/lampId/" + self.lampId)
+
+        return result
 

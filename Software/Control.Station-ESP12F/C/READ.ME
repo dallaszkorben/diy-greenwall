@@ -1,0 +1,53 @@
+Needed libraries in Arduino UI needed to be installed:
+
+    Time                            Info: https://github.com/PaulStoffregen/Time
+    ArduinoJson                     v5.13.5
+    StreamUtils
+
+SPIFFS - File system to stor config file
+    https://www.instructables.com/Using-ESP8266-SPIFFS/
+
+    1. ESP8266FS library
+
+        1.1. Download a copy of 'ESP8266FS-0.2.0.zip: https://github.com/esp8266/arduino-esp8266fs-plugin/releases/
+        1.2. Unzip
+        1.3. Create folders under your Arduino folder like:
+            mkdir <Arduino_Folder>/tools/ESP8266FS
+            mkdir <Arduino_Folder>/tools/ESP8266FS/tools
+        1.4. Copy esp8266fs.jar file under <Arduino_Folder>/tools/ESP8266FS/tools/
+        1.5. Restart Arduino
+        1.6. You can see new menu: Tools > 8266 Sketch Data upload
+
+    2. Upload file to th efile system
+
+        2.1. Create a sub-directory within your sketch directory named 'data'
+        2.2. Place the files you wish to upload into the 'data' directory
+        2.3. From 'Tools' menu, select the correct ESP8266 device and choose the 'Flash Size' with the SPIFFS you require ie. '1M (256K SPIFFS)'
+        2.4. Ensure the serial monitor dialogue box is closed,
+        2.5. Prepare the ESP8266 device for upload;
+                Hold down 'Flash',
+                Pulse 'Reset'
+                Release 'Flash',
+        2.6. From Tools menu select 'ESP8266 Sketch Data Upload'
+        2.7. Once upload is complete. Arduino IDE message window will show 100% upload.
+                esptool.py v3.0
+                Serial port /dev/ttyUSB0
+                Connecting........_
+                Chip is ESP8266EX
+                Features: WiFi
+                Crystal is 26MHz
+                MAC: 3c:61:05:d0:09:50
+                Uploading stub...
+                Running stub...
+                Stub running...
+                Configuring flash size...
+                Auto-detected Flash size: 4MB
+                Compressed 65536 bytes to 196...
+                Writing at 0x000eb000... (100 %)
+                Wrote 65536 bytes (196 compressed) at 0x000eb000 in 0.0 seconds (effective 22127.0 kbit/s)...
+                Hash of data verified.
+
+                Leaving...
+                Hard resetting via RTS pin...
+
+    3. Upload the sketch file
