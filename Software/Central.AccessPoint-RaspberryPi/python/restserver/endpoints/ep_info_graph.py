@@ -86,7 +86,7 @@ class EPInfoGraph(EP):
                 )
             )
 
-        reportCopy = self.web_gadget.report.getRawReportCopy()
+        reportCopy = self.web_gadget.reportSensor.getRawReportCopy()
         webFolderName = self.web_gadget.webFolderName
         webPathNameGraph = self.web_gadget.webPathNameGraph
         webSmoothingWindow = self.web_gadget.webSmoothingWindow

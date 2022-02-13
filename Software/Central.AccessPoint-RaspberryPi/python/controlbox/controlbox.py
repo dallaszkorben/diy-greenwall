@@ -35,16 +35,19 @@ class Controlbox:
         controlMenu_lamp = LcdSubMenu( " Lamp" )
         self.controlMenu.addLcdMenu(controlMenu_lamp)
 
-# ------ Pump -------
+# ------ Lamp -------
 
-        lampMenu_on_5sec = LcdSubElement( " Pump On 5 sec", self.turnPumpOn5sec )
-        controlMenu_pump.addLcdMenu(lampMenu_on_5sec)
+        lampMenu_on_5sec = LcdSubElement( " Lamp On 5 sec", self.turnLampOn5sec )
+        controlMenu_lamp.addLcdMenu(lampMenu_on_5sec)
 
-        lampMenu_on_10sec = LcdSubElement( " Pump On 10 sec", self.turnPumpOn10sec )
-        controlMenu_pump.addLcdMenu(lampMenu_on_10sec)
+        lampMenu_on_10sec = LcdSubElement( " Lamp On 30 sec", self.turnLampOn30sec )
+        controlMenu_lamp.addLcdMenu(lampMenu_on_10sec)
 
-        lampMenu_off = LcdSubElement( " Pump Off", self.turnPumpOff )
-        controlMenu_pump.addLcdMenu(lampMenu_off)
+        lampMenu_off_5sec = LcdSubElement( " Lamp Off 5 sec", self.turnLampOff5sec )
+        controlMenu_lamp.addLcdMenu(lampMenu_off_5sec)
+
+        lampMenu_off_10sec = LcdSubElement( " Lamp Off 30 sec", self.turnLampOff30sec )
+        controlMenu_lamp.addLcdMenu(lampMenu_off_10sec)
 
 # ------ PI Box menu -------
 
@@ -196,11 +199,11 @@ class Controlbox:
                 showMenu(stationMenu)
 
     def refreshData(self, stationId):
-        latestValues = self.webGadget.report.getLatestValues(stationId)
+        latestValues = self.webGadget.reportSensor.getLatestValues(stationId)
         self.refreshLatestValues(latestValues)
 
     def refreshAllData(self):
-        latestValues = self.webGadget.report.getLatestValues()
+        latestValues = self.webGadget.reportSensor.getLatestValues()
         self.refreshLatestValues(latestValues)
 
     def watchdog(self, waitInSec):
@@ -222,12 +225,23 @@ class Controlbox:
                 time.sleep(0.5)
 #            showMenu(self.rootMenu)
 
-    def turnPumpOn5sec(self):
-        self.webGadget.pump.triggerPump(5)
 
-    def turnPumpOn10sec(self):
-        self.webGadget.pump.triggerPump(10)
 
-    def turnPumpOff(self):
-        self.webGadget.pump.stopPump()
 
+    def turnLampOn5sec(self):
+        self.webGadget.lamp.turnLampOn(5)
+
+    def turnLampOn10sec(self):
+        self.webGadget.lamp.turnLampOn(10)
+
+    def turnLampOn30sec(self):
+        self.webGadget.lamp.turnLampOn(30)
+
+    def turnLampOff5sec(self):
+        self.webGadget.lamp.turnLampOff(5)
+
+    def turnLampOff10sec(self):
+        self.webGadget.lamp.turnLampOff(10)
+
+    def turnLampOff30sec(self):
+        self.webGadget.lamp.turnLampOff(30)

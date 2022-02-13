@@ -2,7 +2,7 @@ import os
 import logging
 
 from controlbox.controlbox import Controlbox
-from pump.pump import Pump
+from lamp.lamp import Lamp
 
 from logging.handlers import RotatingFileHandler
 from dateutil import parser
@@ -18,12 +18,14 @@ from flask_classful import FlaskView, route, request
 from flask_cors import CORS
 
 from restserver.view_info import InfoView
-from restserver.view_level import LevelView
+from restserver.view_sensor import SensorView
+from restserver.view_lamp import LampView
 
 from config.config import getConfig
 from config.ini_location import IniLocation
 
-from utilities.report import Report
+from utilities.report_sensor import ReportSensor
+from utilities.register_lamp import RegisterLamp
 
 class WSGreenWall(Flask):
 #class WSGreenWall():
@@ -41,14 +43,15 @@ class WSGreenWall(Flask):
         logLevel = cg["log-level"]
         logFileName = cg["log-file-name"]
 
-        reportFileName = cg["report-file-name"]
+        sensorReportFileName = cg["sensor-report-file-name"]
+        lampRegisterFileName = cg["lamp-register-file-name"]
 
         self.webFolderName = cg["web-folder-name"]
         self.webPathNameGraph = cg["web-path-name-graph"]
         self.webSmoothingWindow = int(cg["web-smoothing-window"])
 
-        self.pumpGpio = cg["pump-gpio"]
-        self.pumpId = cg["pump-id"]
+#        self.pumpGpio = cg["pump-gpio"]
+#        self.pumpId = cg["pump-id"]
 
         # LOG 
         logFolder = IniLocation.get_path_to_config_folder()
@@ -60,21 +63,27 @@ class WSGreenWall(Flask):
 
         # REPORT
         reportFolder = IniLocation.get_path_to_config_folder()
-        self.reportPath = os.path.join(reportFolder, reportFileName)
+        self.reportPath = os.path.join(reportFolder, sensorReportFileName)
+        self.lampRegisterPath = os.path.join(reportFolder, lampRegisterFileName)
 
         # This will enable CORS for all routes
         CORS(self.app)
 
-        self.report = Report(self.reportPath)
+        self.reportSensor = ReportSensor(self.reportPath)
+        self.registerLamp = RegisterLamp(self.lampRegisterPath)
 
         # register the end-points
         InfoView.register(self.app, init_argument=self)
-        LevelView.register(self.app, init_argument=self)
+        SensorView.register(self.app, init_argument=self)
+        LampView.register(self.app, init_argument=self)
 
         self.controlBox = Controlbox(self.app)
 
+        # LAMP
+        self.lamp = Lamp(self.app)
+
         # PUMP
-        self.pump = Pump(self.pumpId, self.pumpGpio)
+        #self.pump = Pump(self.app)
 
     def getThreadControllerStatus(self):
         return self.gradualThreadController.getStatus()

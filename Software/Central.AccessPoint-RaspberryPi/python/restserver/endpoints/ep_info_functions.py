@@ -1,9 +1,8 @@
 import logging
 from exceptions.invalid_api_usage import InvalidAPIUsage
 from restserver.endpoints.ep import EP
-from restserver.endpoints.ep_level_add import EPLevelAdd
+from restserver.endpoints.ep_sensor_add import EPSensorAdd
 from restserver.endpoints.ep_info_graph import EPInfoGraph
-#from restserver.endpoints.ep_info_level import EPInfoLevel
 
 from restserver.representations import output_json
 
@@ -45,7 +44,7 @@ class EPInfoFunctions(EP):
         )
 
         a1 = self.getRequestDescriptionWithPayloadParameters()
-        a2 = EPLevelAdd.getRequestDescriptionWithPayloadParameters()
+        a2 = EPSensorAdd.getRequestDescriptionWithPayloadParameters()
         a3 = EPInfoGraph.getRequestDescriptionWithPayloadParameters()
 
         data = {}

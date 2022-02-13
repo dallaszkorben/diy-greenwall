@@ -30,7 +30,7 @@ from threading import Lock
 #    datetime.fromtimestamp(timeStamp)
 #
 
-class Report:
+class ReportSensor:
 
     #   reportDict[
     #      "5": {"ip":"192.168.0.112", "record": [{"timestamp": 35779, "levelValue": 31, "levelVariance": 0.0, "temperatureValue": 20.1, "humidityValue": 20}, {}, {}] },
@@ -102,9 +102,6 @@ class Report:
                 except Exception as e:
                     continue
 
-#            print("end line")
-#            print()
-
     def getLatestValues(self, stationId=None):
         output = []
         for si, value in self.reportDict.items():
@@ -119,8 +116,7 @@ class Report:
         with self.lockReport:
             return deepcopy(self.reportDict)
 
-    def addRecordLevel(self, dateString, stationId, ip, levelValue, levelVariance, temperatureValue, humidityValue):
-
+    def addRecordSensor(self, dateString, stationId, ip, levelValue, levelVariance, temperatureValue, humidityValue):
 
         with self.lockReport:
 
@@ -134,3 +130,9 @@ class Report:
 
             with open(self.reportPath, 'a') as fileObject:
                 fileObject.write("{dateString}{sep}{stationId}{sep}{ip}{sep}{levelValue}{sep}{levelVariance}{sep}{temperatureValue}{sep}{humidityValue}\n".format(dateString=dateString, stationId=stationId,ip=ip, levelValue=levelValue,levelVariance=levelVariance,temperatureValue=temperatureValue if temperatureValue else "", humidityValue=humidityValue if humidityValue else "", sep=self.separator))
+
+
+
+
+
+

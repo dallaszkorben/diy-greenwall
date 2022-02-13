@@ -17,14 +17,16 @@ class Config( Property ):
     DEFAULT_LOG_FILE_NAME = ("log", "file-name", "greenwall.log")
     DEFAULT_LOG_FOLDER_NAME = ("log", "folder-name", "DEBUG")
 
-    DEFAULT_REPORT_FILE_NAME = ("report", "file-name", "report-level.log")
+    DEFAULT_SENSOR_REPORT_FILE_NAME = ("sensor-report", "file-name", "sensor_report.log")
+
+    DEFAULT_LAMP_REGISTER_FILE_NAME = ("lamp", "file-name", "lamp_register.log")
 
     DEFAULT_WEB_FOLDER_NAME = ("web", "folder-name-graph", "/var/www/greenwall")
     DEFAULT_WEB_PATH_NAME_GRAPH = ("web", "path-name-graph", "graph-images")
     DEFAULT_WEB_SMOOTHING_WINDOW = ("web", "smoothing-window", 15)
 
-    DEFAULT_PUMP_ID = ("pump", "id", 1)
-    DEFAULT_PUMP_GPIO = ("pump", "gpio", 26)
+#    DEFAULT_PUMP_ID = ("pump", "id", 1)
+#    DEFAULT_PUMP_GPIO = ("pump", "gpio", 26)
 
     __instance = None
 
@@ -58,8 +60,11 @@ class Config( Property ):
     def getLogFolderName(self):
         return self.get(self.DEFAULT_LOG_FOLDER_NAME[0], self.DEFAULT_LOG_FOLDER_NAME[1], self.DEFAULT_LOG_FOLDER_NAME[2])
 
-    def getReportFileName(self):
-        return self.get(self.DEFAULT_REPORT_FILE_NAME[0], self.DEFAULT_REPORT_FILE_NAME[1], self.DEFAULT_REPORT_FILE_NAME[2])
+    def getSensorReportFileName(self):
+        return self.get(self.DEFAULT_SENSOR_REPORT_FILE_NAME[0], self.DEFAULT_SENSOR_REPORT_FILE_NAME[1], self.DEFAULT_SENSOR_REPORT_FILE_NAME[2])
+
+    def getLampRegisterFileName(self):
+        return self.get(self.DEFAULT_LAMP_REGISTER_FILE_NAME[0], self.DEFAULT_LAMP_REGISTER_FILE_NAME[1], self.DEFAULT_LAMP_REGISTER_FILE_NAME[2])
 
     def getWebFolderName(self):
         return self.get(self.DEFAULT_WEB_FOLDER_NAME[0], self.DEFAULT_WEB_FOLDER_NAME[1], self.DEFAULT_WEB_FOLDER_NAME[2])
@@ -70,11 +75,11 @@ class Config( Property ):
     def getWebSmoothingWindow(self):
         return self.get(self.DEFAULT_WEB_SMOOTHING_WINDOW[0], self.DEFAULT_WEB_SMOOTHING_WINDOW[1], self.DEFAULT_WEB_SMOOTHING_WINDOW[2])
 
-    def getPumpId(self):
-        return int(self.get(self.DEFAULT_PUMP_ID[0], self.DEFAULT_PUMP_ID[1], self.DEFAULT_PUMP_ID[2]))
-
-    def getPumpGpio(self):
-        return int(self.get(self.DEFAULT_PUMP_GPIO[0], self.DEFAULT_PUMP_GPIO[1], self.DEFAULT_PUMP_GPIO[2]))
+#    def getPumpId(self):
+#        return int(self.get(self.DEFAULT_PUMP_ID[0], self.DEFAULT_PUMP_ID[1], self.DEFAULT_PUMP_ID[2]))
+#
+#    def getPumpGpio(self):
+#        return int(self.get(self.DEFAULT_PUMP_GPIO[0], self.DEFAULT_PUMP_GPIO[1], self.DEFAULT_PUMP_GPIO[2]))
 
 # ---
 
@@ -90,8 +95,11 @@ class Config( Property ):
     def setLogFolderName(self, logFolderName):
         self.update(self.DEFAULT_LOG_FILE_NAME[0], self.DEFAULT_LOG_FILE_NAME[1], logFolderName)
 
-    def setReportFileName(self, reportFileName):
-        self.update(self.DEFAULT_REPORT_FILE_NAME[0], self.DEFAULT_REPORT_FILE_NAME[1], reportFileName)
+    def setSensorReportFileName(self, reportFileName):
+        self.update(self.DEFAULT_SENSOR_REPORT_FILE_NAME[0], self.DEFAULT_SENSOR_REPORT_FILE_NAME[1], reportFileName)
+
+    def setLampRegisterFileName(self, registerFileName):
+        self.update(self.DEFAULT_LAMP_REGISTER_FILE_NAME[0], self.DEFAULT_LAMP_REGISTER_FILE_NAME[1], registerFileName)
 
     def setWebFolderName(self, webFolderName):
         self.update(self.DEFAULT_WEB_FOLDER_NAME[0], self.DEFAULT_WEB_FOLDER_NAME[1], webFolderName)
@@ -102,11 +110,11 @@ class Config( Property ):
     def setWebSmoothingWindow(self, webSmoothingWindow):
         self.update(self.DEFAULT_WEB_SMOOTHING_WINDOW[0], self.DEFAULT_WEB_SMOOTHING_WINDOW[1], webSmoothingWindow)
 
-    def setPumpId(self, actuatorId):
-        self.update(self.DEFAULT_PUMP_ID[0], self.DEFAULT_PUMP_ID[1], actuatorId)
-
-    def setPumpGpio(self, gpio):
-        self.update(self.DEFAULT_PUMP_GPIO[0], self.DEFAULT_PUMP_GPIO[1], gpio)
+#    def setPumpId(self, actuatorId):
+#        self.update(self.DEFAULT_PUMP_ID[0], self.DEFAULT_PUMP_ID[1], actuatorId)
+#
+#    def setPumpGpio(self, gpio):
+#        self.update(self.DEFAULT_PUMP_GPIO[0], self.DEFAULT_PUMP_GPIO[1], gpio)
 
 # ---
 # ---
@@ -121,14 +129,16 @@ def getConfig():
     config["log-file-name"] = cb.getLogFileName()
     config["log-folder-name"] = cb.getLogFolderName()
 
-    config["report-file-name"] = cb.getReportFileName()
+    config["sensor-report-file-name"] = cb.getSensorReportFileName()
+
+    config["lamp-register-file-name"] = cb.getLampRegisterFileName()
 
     config["web-folder-name"] = cb.getWebFolderName()
     config["web-path-name-graph"] = cb.getWebPathNameGraph()
     config["web-smoothing-window"] = cb.getWebSmoothingWindow()
 
-    config["pump-id"] = cb.getPumpId()
-    config["pump-gpio"] = cb.getPumpGpio()
+#    config["pump-id"] = cb.getPumpId()
+#    config["pump-gpio"] = cb.getPumpGpio()
 
     return config
 
@@ -147,8 +157,11 @@ def setConfig(config):
     if "log-folder-name" in config:
         cb.setLogFolderName(config["log-folder-name"])
 
-    if "report-file-name" in config:
-        cb.setReportFileName(config["report-file-name"])
+    if "sensor-report-file-name" in config:
+        cb.setSensorReportFileName(config["sensor-report-file-name"])
+
+    if "lamp-register-file-name" in config:
+        cb.setLampRegisterFileName(config["lamp-register-file-name"])
 
     if "web-folder-name" in config:
         cb.setWebFolderName(config["web-folder-name"])
@@ -159,9 +172,9 @@ def setConfig(config):
     if "web-smoothing-window" in config:
         cb.setWebSmoothingWindow(config["web-smoothing-window"])
 
-    if "pump-id" in config:
-        cb.setPumpId(config["pump-id"])
-
-    if "pump-gpio" in config:
-        cb.setPumpGpio(config["pump-gpio"])
+#    if "pump-id" in config:
+#        cb.setPumpId(config["pump-id"])
+#
+#    if "pump-gpio" in config:
+#        cb.setPumpGpio(config["pump-gpio"])
 
