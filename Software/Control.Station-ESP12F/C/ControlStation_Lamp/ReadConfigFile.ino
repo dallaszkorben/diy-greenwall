@@ -2,20 +2,21 @@
 #define BUFF_SIZE 1024
 
 // --- Config file ---
-String essid;
-String password;
-String webserver_ip;
-String webserver_path_info_timestamp;
-String webserver_path_lamp_register;
-String webserver_path_pump_register;
-
-String lamp_id;
-int lamp_gpio;
-int pump_gpio;
-int led_status_gpio;
-int led_status_inverse;
-int register_interval_sec;
-int reset_hours;
+//String essid;
+//String password;
+//String webserver_ip;
+//String webserver_path_info_timestamp;
+//String webserver_path_lamp_register;
+//String webserver_path_pump_register;
+//String webserver_path_info_is_alive;
+//
+//String lamp_id;
+//int lamp_gpio;
+//int pump_gpio;
+//int led_status_gpio;
+//int led_status_inverse;
+//int register_interval_sec;
+//int reset_hours;
 // -------------------
 
 bool loadConfig(){
@@ -52,6 +53,7 @@ bool loadConfig(){
   webserver_path_info_timestamp = String(json["central-ap"]["webserver-path-info-timestamp"]);
   webserver_path_lamp_register = String(json["central-ap"]["webserver-path-lamp-register"]);
   webserver_path_pump_register = String(json["central-ap"]["webserver-path-pump-register"]);
+  webserver_path_info_is_alive = String(json["central-ap"]["webserver-path-info-is-alive"]);
   
   lamp_id = String(json["control-sta"]["lamp-id"]);
   lamp_gpio = json["control-sta"]["lamp-gpio"];
@@ -80,6 +82,9 @@ bool loadConfig(){
   
   Serial.print("central-ap.webserver-path-pump-register = ");
   Serial.println(webserver_path_pump_register);
+
+  Serial.print("central-ap.webserver-path-info-is-alive = ");
+  Serial.println(webserver_path_info_is_alive);
 
   Serial.print("control-sta.lamp-id = ");
   Serial.println(lamp_id);

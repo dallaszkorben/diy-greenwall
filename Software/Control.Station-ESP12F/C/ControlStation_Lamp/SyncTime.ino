@@ -1,5 +1,3 @@
-WiFiClient wifiClient;
-
 void syncTime(){
   connectToWiFiIfNotConnected();
 

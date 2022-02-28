@@ -37,6 +37,28 @@ Printed frames needed for
 ### 3D
 
 ### ESP-12F
+
+There are 2 type of Stations:
+- Sensor Station
+  Written in MicroPython
+  To flash: Use ampy
+  it reports the result of its measure into the Centra AP  
+- Control Station
+  Written in C
+  To flash: Use Arduino
+  It starts a WEB server
+  It register itself into the Central AP
+  Web Server waits for commands from the Central AP
+
+
+### Configure Arduino
+File > Preferences > Additional Board Manager: https://dl.espressif.com/dl/package_esp32_index.json, http://arduino.esp8266.com/stable/package_esp8266com_index.json
+Tools > Board > Board Manager
+    Install ESP32
+    Install ESP8266
+
+
+
 #### Install SW on ESP-12F
 
 * Find the codes for ESP-12F: <b>Software/Level.Station.ESP-12F/power-supply/</b>  

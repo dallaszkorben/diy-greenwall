@@ -50,8 +50,8 @@ void handleLampOn() {
   server.send(200, "application/json", message);
 }
 
-void handleRoot() {
-  server.send(200, "text/plain", "hello from esp8266!\r\n");
+void handleIsAlive() {
+  server.send(200, "text/plain", "Alive\r\n");
 }
 
 void setup() {
@@ -75,8 +75,7 @@ void setup() {
   // WEB server
   //
 
-  server.on("/", handleRoot);
-
+  server.on("/isAlive", handleIsAlive);
   server.on("/lamp/on", HTTP_POST, handleLampOn);
   
   server.onNotFound(handleNotFound);

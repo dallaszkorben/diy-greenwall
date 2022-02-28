@@ -1,10 +1,31 @@
+
+Add user to "dialout" usergroup - otherwise you will have permission deny error when it tries to reach ttyS
+    # sudo usermod -a -G dialout $USER
+
+Erase Module:
+    #  esptool.py --port /dev/ttyUSB0 erase_flash
+
+Arduiono settings for ESP8266:
+    File -> Preferences -> Additional Board Manager URLs: https://arduino.esp8266.com/stable/package_esp8266com_index.json
+    Tools -> Board: Generic ESP8266 Module	(It must be installed before using the "Boards Manager" menu)
+    Tools -> Upload Speed: 115200
+    Tools -> Flash Size: 1M (FS:64KB OTA:~470KB)
+    Tools -> Flash Mode: DIO
+
+Arduino settings for ESP32:
+                                                          https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
+    File -> Preferences -> Additional Board Manager URLs: https://dl.espressif.com/dl/package_esp32_index.json
+    Tools -> Board: ESP32 Wrover Module		(It must be installed before using the "Boards Manager" menu)
+
+
+
 Needed libraries in Arduino UI needed to be installed:
 
     Time                            Info: https://github.com/PaulStoffregen/Time
     ArduinoJson                     v5.13.5
     StreamUtils
 
-SPIFFS - File system to stor config file
+SPIFFS - File system to store config file
     https://www.instructables.com/Using-ESP8266-SPIFFS/
 
     1. ESP8266FS library
