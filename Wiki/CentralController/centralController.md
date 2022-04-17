@@ -1,186 +1,28 @@
-# diy-greenwall
+# Central Controller unit
 
-Basically the Green wall project consists of 3 main parts:
-* Green wall with plants and irrigation system placed into plastic balconera
-* "Station"s which are placed to right next to the plants attached to the balconera. Ideally you install as many "Station" as many balconera you have, but it could be less.
-  * It works as Client
-  * ESP-12F microcontroller does the job for the "Station"
-  * Different sensors can be connected to the microcontroller: Water level measure, Temperature/Humidity measure, Camera ...
-  * The microcontroller sends the status of the sensors to the "Central station" periodically
-* "Central station"
-  * It works as Server. Two servers work on the "Central station"
-    * Web server (Apache2) to provide web page about the status of the "Station"s
-    * Flask server to receive data from the "Stations"s
-  * The software runs on a Raspberry Pi Zero/W
-  * The Server receives signals from the "Station"s
-  * On the Raspberry, runs a Webserver to allow to see the statuses/graphs of the sensors through a web browser
-  * A control box (LCD display and Rotary encoder) is connected to the "Central station":
-    * shows values of the sensors 
-    * shows alarms
-    * allows you to control activators manually
-      * water pump
-      * lamp
-
-Besides the green wall, the HW and the SW, there are 3D printed accessories as well. 
-Printed frames needed for 
-* the "Station" to keep the microcontroller and the sensors in a stable and safe position
-* the water hose from the pump to keep it in a stable position
-* the "Central station" to keep the microcontroller, the LCD display, the Rotary encoder and the transformer in one closed block
-
----
-## Green wall
----
-
----
-## "Station"
----
-### 3D
-
-### ESP-12F
-
-There are 2 type of Stations:
-- Sensor Station
-  Written in MicroPython
-  To flash: Use ampy
-  it reports the result of its measure into the Centra AP  
-- Control Station
-  Written in C
-  To flash: Use Arduino
-  It starts a WEB server
-  It register itself into the Central AP
-  Web Server waits for commands from the Central AP
-
-
-### Configure Arduino
-File > Preferences > Additional Board Manager: https://dl.espressif.com/dl/package_esp32_index.json, http://arduino.esp8266.com/stable/package_esp8266com_index.json
-Tools > Board > Board Manager
-    Install ESP32
-    Install ESP8266
-
-
-
-#### Install SW on ESP-12F
-
-* Find the codes for ESP-12F: <b>Software/Level.Station.ESP-12F/power-supply/</b>  
-boot.py  
-config.py  
-control.py  
-level.config.json  
-level.py  
-read.me  
-ultrasonic_sensor.py*  
-water_level_sensor.py*  
-wifi_level.py  
-
-
-* Do the settings in the config file: <b>level.config.json</b>
-  ```json
-  {
-    "central-ap":{
-        "essid": "Central-Station-001",                  # [Modify it according to the Raspberry Access Point]
-        "password": "****"                               # [Modify it according to the Raspberry Access Point]
-        "webserver-ip": "192.168.50.3:5000",             # [Modify it according to the Raspberry node]
-        "webserver-path-level-report": "level/add"       # [Leave it]
-    },
-    "level-sta":{
-        "analog-pin": 0,                                 # [Leave it]
-        "trigger-pin": 5,                                # [Leave it]
-        "echo-pin": 4,                                   # [Leave it]
-        "led-status-pin": 2,                             # [Leave it]
-        "led-status-inverse": true,                      # [Leave it]
-        "report-interval-sec": 50                        # [Leave it]
-    },
-    "level-sensor":{
-        "zero-level": 59,                                # [Leave it]
-        "linear-m": 0.11,                                # [Leave it]
-        "linear-b": -35,                                 # [Leave it]
-        "sample-number": 100,                            # [Leave it]
-        "maximum-variance": 0.1                          # [Leave it]
-    }
-  }
-  ```  
-* Connect your ESP-12F to your Linux machine through USB
-* Check which USB dev used for that
-  ```
-  username@machine:~$ dmesg
-
-  ...
-  
-  [1204048.025087] usb 4-1: USB disconnect, device number 25
-  [1204048.025326] ch341-uart ttyUSB0: ch341-uart converter now disconnected from ttyUSB0
-  [1204048.025351] ch341 4-1:1.0: device disconnected
-  [1204050.213052] usb 4-1: new full-speed USB device number 26 using uhci_hcd
-  [1204050.400070] usb 4-1: New USB device found, idVendor=1a86, idProduct=7523, bcdDevice= 2.54
-  [1204050.400074] usb 4-1: New USB device strings: Mfr=0, Product=2, SerialNumber=0
-  [1204050.400076] usb 4-1: Product: USB2.0-Ser!
-  [1204050.403128] ch341 4-1:1.0: ch341-uart converter detected
-  [1204050.410111] usb 4-1: ch341-uart converter now attached to ttyUSB0
-
-  ```
-* Copy the files, one by one, into the ESP-12F through <span style="color:green">/dev/ttyUSB0</span> - in our case - using the ampy app.
-  ```sh
-  username@machine:~$ ampy -p /dev/ttyUSB0 put ./level.py
-  ```
-* Reset your ESP-12F pushing the "Reset" button
-* Now you can disconnect the ESP-12F from your machine and use it alone providing power supply  
-You can see the onboard blue led blinking. If it is ON just a short time and then 1 sec OFF for 10 seconds and then ON about 1-2 seconds, it means the ESP-12F found the server, successfully connected and sent data.
-
-
-You can check what the code is doing if you plugin the ESP-12F again into your Linux machine, and you connect tho the ESP-12F through serial port using the picocom app.
-  ```python
-  username@machine:~$ picocom /dev/ttyUSB0 -b115200
-  picocom v3.1
-
-  port is        : /dev/ttyUSB0
-  flowcontrol    : none
-  baudrate is    : 115200
-  parity is      : none
-  databits are   : 8
-  stopbits are   : 1
-  escape is      : C-a
-  local echo is  : no
-  noinit is      : no
-  noreset is     : no
-  hangup is      : no
-  nolock is      : no
-  send_cmd is    : sz -vv
-  receive_cmd is : rz -vv -E
-  imap is        : 
-  omap is        : 
-  emap is        : crcrlf,delbs,
-  logfile is     : none
-  initstring     : none
-  exit_after is  : not set
-  exit is        : no
-
-  Type [C-a] [C-h] to see available commands
-  Terminal ready
-  �������������������
-  ```
-stop it by [Ctrl]c
-and then restart again by [Ctrl]d
-  
-  ```python  
-  �������������������
-  KeyboardInterrupt: 
-
-  MicroPython v1.14 on 2021-02-02; ESP module with ESP8266
-  Type "help()" for more information.
-  >>> 
-  MPY: soft reboot
-
-  connecting to network \
-  ip:  192.168.50.112 - POST http://192.168.50.3:5000/reportlevel/set: 200
-  ip:  192.168.50.112 - POST http://192.168.50.3:5000/reportlevel/set: 200
-  ...
+```ditaa
+    +--------+   +-------+    +-------+
+    |        | --+ ditaa +--> |       |
+    |  Text  |   +-------+    |diagram|
+    |Document|   |!magic!|    |       |
+    |     {d}|   |       |    |       |
+    +---+----+   +-------+    +-------+
+        :                         ^
+        |       Lots of work      |
+        +-------------------------+
 ```
 
----
-## "Central station"
----
-### 3D
+```mermaid
+graph LR
+A --> B
+B --> C
+C --> A
+  ```
 
-### Raspberry PI Zero W
+
+
+
+## Raspberry PI Zero W
 
 ##### Install Python packages in Raspberry Pi
 
