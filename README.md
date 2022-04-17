@@ -1,6 +1,6 @@
 # diy-greenwall
 
-![Alt text](Wiki/GreenWall.jpg?raw=true "Green Wall")
+![Green Wall image](Wiki/GreenWall.jpg "Green Wall")
 
 The Green Wall consist of many elements:
 * Plants in the Balcony Planter Box mounted on the wall
