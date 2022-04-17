@@ -1,16 +1,19 @@
 # Central Controller unit
 
+## Configurations
 ```ditaa
-    +-----------------------------------------+      +------------------------+    +-------+
-    |  root crontab                           |      |    hostapdstart.sh     |       |
-    +-----------------------------------------+      +------------------------+    |diagram|
-    |                                         |      |                        |
-    |  @reboot /usr/local/bin/hostapdstart.sh | ---> | ifup/ifdown interfaces |
-    |                                         |      |                        |    |       |
-    +-----------------------------------------+      | restart hostapd        |
-                                                     |         dnsmasq        |
-						     |         dhcp           |
-						     +------------------------+    +-------+
+    +-----------------------------------------+      +------------------------+     +-------------------------+
+    |  root crontab                           |      |    hostapdstart.sh     |     | /etc/network/interfaces |
+    +-----------------------------------------+      +------------------------+     |-------------------------|
+    |                                         |      |                        |     |                         |
+    |  @reboot /usr/local/bin/hostapdstart.sh | ---> | ifup/ifdown interfaces |     | iface uap               |
+    |                                         |      |                        |     |       address           |
+    +-----------------------------------------+      | restart hostapd        |     |       netmask           |
+                                                     |         dnsmasq        |     |       hostapd           |
+						     |         dhcp           |     |                         |
+						     +------------------------+     | iface wlan0             |
+						                                    |       wpa-roam /etc/wpa_supplicant/wpa_supplicant.conf
+						     +-------+
         :                         ^
         |       Lots of work      |
         +-------------------------+
