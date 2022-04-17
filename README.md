@@ -9,7 +9,7 @@ The Green Wall consist of many elements:
 * Irrigation system
 * Sensor units for measuring water level, temperature, humidity
 * Controller units for light, water pump
-* [Central controller unit](CentralController/centralController.md)
+* [Central controller unit](Wiki/CentralController/centralController.md)
 * 3D printed accessories
 			
 </td>
