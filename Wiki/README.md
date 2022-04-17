@@ -1,16 +1,31 @@
 # diy-greenwall
 
-![Alt text](Wiki/GreenWall.jpg?raw=true "Green Wall")
+Basically the Green wall project consists of 3 main parts:
+* Green wall with plants and irrigation system placed into plastic balconera
+* "Station"s which are placed to right next to the plants attached to the balconera. Ideally you install as many "Station" as many balconera you have, but it could be less.
+  * It works as Client
+  * ESP-12F microcontroller does the job for the "Station"
+  * Different sensors can be connected to the microcontroller: Water level measure, Temperature/Humidity measure, Camera ...
+  * The microcontroller sends the status of the sensors to the "Central station" periodically
+* "Central station"
+  * It works as Server. Two servers work on the "Central station"
+    * Web server (Apache2) to provide web page about the status of the "Station"s
+    * Flask server to receive data from the "Stations"s
+  * The software runs on a Raspberry Pi Zero/W
+  * The Server receives signals from the "Station"s
+  * On the Raspberry, runs a Webserver to allow to see the statuses/graphs of the sensors through a web browser
+  * A control box (LCD display and Rotary encoder) is connected to the "Central station":
+    * shows values of the sensors 
+    * shows alarms
+    * allows you to control activators manually
+      * water pump
+      * lamp
 
-The Green Wall consist of many elements:
-* Plants in the Balcony Planter Box mounted on the wall
-* Irrigation system
-* Sensor units for measuring water level, temperature, humidity
-* Controller units for light, water pump
-* Central controller unit
-* 3D printed accessories
-
-=============
+Besides the green wall, the HW and the SW, there are 3D printed accessories as well. 
+Printed frames needed for 
+* the "Station" to keep the microcontroller and the sensors in a stable and safe position
+* the water hose from the pump to keep it in a stable position
+* the "Central station" to keep the microcontroller, the LCD display, the Rotary encoder and the transformer in one closed block
 
 ---
 ## Green wall
