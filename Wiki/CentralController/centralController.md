@@ -228,7 +228,7 @@ graph LR
 
   ```
 
-
+---
 ## Controller software
 
 ### Install prerequisites
@@ -410,10 +410,11 @@ Under the **python** folder, you can see the following hierarchy of the python c
     ```
 
 
-##### ky040 - rotary encoder
+---
+## ky040 - rotary encoder
   
   To enable/configure the rotary-encoder device tree overlay, simply put something like the following into **/boot/config.txt** (with the encoder connected to pins **5** and **6** on the Raspberry Pi)
-  While you’re at it, you might also want to add the middle button as a key (mine is connected to pin 13):
+  While you’re at it, you might also want to add the middle button as a key (mine is connected to pin **13**):
 
   * enable rotary encoder
     ```sh       
@@ -424,7 +425,7 @@ Under the **python** folder, you can see the following hierarchy of the python c
   After a reboot you’ll have a new device in **/dev/input/** for the rotary encoder. You can use the **evtest** tool (as in evtest /dev/input/event0) to look at the events it generates and confirm that it reacts perfectly to every turn of the encoder, without missing a movement or confusing the direction.
 
   * Here is an example, shows how to read the output of the rotary encoder.
-    ```sh
+    ```python
     from __future__ import print_function
     import evdev
     import select
@@ -447,8 +448,9 @@ Under the **python** folder, you can see the following hierarchy of the python c
                     if event.keycode == "KEY_ENTER" and event.keystate == event.key_up:
 		        print("Enter")
     ```
-  
-##### 2x16 LCD display
+
+---
+## 2x16 LCD display
   
   * In the Raspberry Pi run the "Raspberry Pi Configuration" application and undert the "Interfaces" tab, **Enable** the I2C
   * Connect the pins of LCD display to the corresponding pins of RP
