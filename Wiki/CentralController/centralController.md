@@ -1,29 +1,20 @@
 # Central Controller unit
 
-## Configurations
-```ditaa
-    +-----------------------------------------+      +------------------------+     +-------------------------+
-    |  root crontab                           |      |    hostapdstart.sh     |     | /etc/network/interfaces |
-    +-----------------------------------------+      +------------------------+     |-------------------------|
-    |                                         |      |                        |     |                         |
-    |  @reboot /usr/local/bin/hostapdstart.sh | ---> | ifup/ifdown interfaces |     | iface uap               |
-    |                                         |      |                        |     |       address           |
-    +-----------------------------------------+      | restart hostapd        |     |       netmask           |
-                                                     |         dnsmasq        |     |       hostapd           |
-						     |         dhcp           |     |                         |
-						     +------------------------+     | iface wlan0             |
-						                                    |       wpa-roam /etc/wpa_supplicant/wpa_supplicant.conf
-						     +-------+
-        :                         ^
-        |       Lots of work      |
-        +-------------------------+
-```
+## Configuration hierarchy
 
 ```mermaid
 graph LR
-A --> B
-B --> C
-C --> A
+/var/spool/cron/crontabs/root --> /home/pi/Projects/diy-greenwall/Software/Central.AccessPoint-RaspberryPi/python/start
+/var/spool/cron/crontabs/root --> /usr/local/bin/hostapdstart.sh
+
+/usr/local/bin/hostapdstart.sh --> /etc/dnsmasq.conf
+/usr/local/bin/hostapdstart.sh --> /etc/network/interfaces
+
+/etc/network/interfaces --> /etc/hostapd/hostapd.conf
+/etc/network/interfaces --> /etc/wpa_supplicant/wpa_supplicant.conf
+
+
+
   ```
 
 
