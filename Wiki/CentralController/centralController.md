@@ -244,9 +244,21 @@ graph LR
   $ pip3 install flask-classful
   ```
 ### Clone the diy-greenwall  
-Here is the file hierarchy which was installed under /home/pi/Projects
 
-* Find the codes for Raspberry Pi: <b>Software/Central.RaspberryPi/python</b>  
+First you should clone the diy-greenwall.
+ ```sh
+  $ cd
+  $ mkdir Projects
+  $ git clone https://github.com/dallaszkorben/diy-greenwall.git
+ ```
+As you need only the hierarcy under the **diy-greenwall/Software/Central.AccessPoint-RaspberryPi** folder, on the Rasberry Pi, you can filter out the not necesary parts. But it is not mandatory to do
+
+```sh
+  $ cd diy-greenwall
+  $ git  filter-branch -f --subdirectory-filter Software/Central.AccessPoint-RaspberryPi 
+```
+
+Under the **python** folder, you can see the following hierarchy of the python code:
   ```sh
   .
   ├── config
@@ -325,12 +337,10 @@ Here is the file hierarchy which was installed under /home/pi/Projects
   ```
   
 
-    ```
+### Install Web server on Raspberry Pi
+  Apache2 server should be installed and configured to allow browsers to connect and see the statuses of Sensors
 
-##### Install Web server on Raspberry Pi
-  Apache2 server should be installed and configured to allow browsers to connect and see the statuses of "Stations"s
-
-  * Find the codes <b>Software/Central.RaspberryPi/web-location/greenwall/</b>  
+  * Find the codes under **web-location/greenwall/** folder
     ```sh
     .
     └── greenwall
@@ -358,13 +368,15 @@ Here is the file hierarchy which was installed under /home/pi/Projects
                 ├── LICENSE.txt
                 └── package.json
     ```
-  * Copy the home page to /var/www folder
+  * Copy the the whole folder to /var/www folder
   
     ```sh
-    pi@raspberrypi:~$ cp -r greenwall /var/www/
+    pi@raspberrypi:~$ cd web-location
+    pi@raspberrypi:web-location$ cp -r greenwall /var/www/
     ```
 
-  * Configure available Apach2 config file
+  * Configure available Apach2 config file  
+    Alternativaly you can copy the **green-wall.conf** file, found under the **web-config** folder to the **/etc/apache2/conf-available** folder on the Raspberry pi
     ```sh
     pi@raspberrypi:~$ touch /etc/apache2/conf-available/green-wall.conf
      
