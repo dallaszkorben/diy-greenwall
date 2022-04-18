@@ -49,6 +49,17 @@ class Controlbox:
         lampMenu_off_10sec = LcdSubElement( " Lamp Off 30 sec", self.turnLampOff30sec )
         controlMenu_lamp.addLcdMenu(lampMenu_off_10sec)
 
+# ------ Pump -------
+
+        pumpMenu_on_5sec = LcdSubElement( " Pump On 5 sec", self.turnPumpOn5sec )
+        controlMenu_pump.addLcdMenu(pumpMenu_on_5sec)
+
+        pumpMenu_on_10sec = LcdSubElement( " Pump On 30 sec", self.turnPumpOn30sec )
+        controlMenu_pump.addLcdMenu(pumpMenu_on_10sec)
+
+        pumpMenu_off = LcdSubElement( " Pump Off", self.turnPumpOff )
+        controlMenu_pump.addLcdMenu(pumpMenu_off)
+
 # ------ PI Box menu -------
 
         interfacesMenu = LcdSubMenu( "Interfaces" )
@@ -245,3 +256,18 @@ class Controlbox:
 
     def turnLampOff30sec(self):
         self.webGadget.lamp.turnLampOff(30)
+
+# ---
+
+    def turnPumpOn5sec(self):
+        self.webGadget.pump.turnPumpOn(5)
+
+    def turnPumpOn10sec(self):
+        self.webGadget.pump.turnPumpOn(10)
+
+    def turnPumpOn30sec(self):
+        self.webGadget.pump.turnPumpOn(30)
+
+    def turnPumpOff(self):
+        self.webGadget.pump.turnPumpOff()
+

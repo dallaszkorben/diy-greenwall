@@ -13,6 +13,7 @@ from restserver.endpoints.ep_info_functions import EPInfoFunctions
 #from restserver.endpoints.ep_info_level import EPInfoLevel
 from restserver.endpoints.ep_info_graph import EPInfoGraph
 from restserver.endpoints.ep_info_timestamp import EPInfoTimeStamp
+from restserver.endpoints.ep_info_is_alive import EPInfoIsAlive
 
 # -----------------------------------
 #
@@ -33,6 +34,7 @@ class InfoView(FlaskView):
 #        self.epInfoLevel = EPInfoLevel(web_gadget)
         self.epInfoGraph = EPInfoGraph(web_gadget)
         self.epInfoTimeStamp = EPInfoTimeStamp(web_gadget)
+        self.epInfoIsAlive = EPInfoIsAlive(web_gadget)
 
     #
     # GET http://localhost:5000/info/
@@ -201,5 +203,34 @@ class InfoView(FlaskView):
     def infoTimeStampWithParameter(self, epocDate):
 
         out = self.epInfoTimeStamp.executeByParameters(epocDate)
+        return out
+
+
+# === GET /info/isAlive ===
+
+    #
+    # Get actual timestamp by the epoc - with payload
+    #
+    # curl  --header "Content-Type: application/json" --request GET http://localhost:5000/info/ready
+    #
+    # GET http://localhost:5000/info/ready
+    #
+    #@route('/ready', methods=['GET'])
+    @route(EPInfoIsAlive.PATH_PAR_PAYLOAD, methods=[EPInfoIsAlive.METHOD])
+    def infoIsAlive(self):
+
+#        # WEB
+#        if request.form:
+#            json_data = request.form
+#
+#        # CURL
+#        elif request.json:
+#            json_data = request.json
+#
+#        else:
+#            return "Not valid request", EP.CODE_BAD_REQUEST
+
+        json_data = {}
+        out = self.epInfoIsAlive.executeByPayload(json_data)
         return out
 

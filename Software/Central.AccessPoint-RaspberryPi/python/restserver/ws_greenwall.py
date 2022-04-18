@@ -3,6 +3,7 @@ import logging
 
 from controlbox.controlbox import Controlbox
 from lamp.lamp import Lamp
+from pump.pump import Pump
 
 from logging.handlers import RotatingFileHandler
 from dateutil import parser
@@ -19,13 +20,16 @@ from flask_cors import CORS
 
 from restserver.view_info import InfoView
 from restserver.view_sensor import SensorView
+from restserver.view_cam import CamView
 from restserver.view_lamp import LampView
+from restserver.view_pump import PumpView
 
 from config.config import getConfig
 from config.ini_location import IniLocation
 
 from utilities.report_sensor import ReportSensor
 from utilities.register_lamp import RegisterLamp
+from utilities.register_pump import RegisterPump
 
 class WSGreenWall(Flask):
 #class WSGreenWall():
@@ -45,6 +49,7 @@ class WSGreenWall(Flask):
 
         sensorReportFileName = cg["sensor-report-file-name"]
         lampRegisterFileName = cg["lamp-register-file-name"]
+        pumpRegisterFileName = cg["pump-register-file-name"]
 
         self.webFolderName = cg["web-folder-name"]
         self.webPathNameGraph = cg["web-path-name-graph"]
@@ -65,17 +70,21 @@ class WSGreenWall(Flask):
         reportFolder = IniLocation.get_path_to_config_folder()
         self.reportPath = os.path.join(reportFolder, sensorReportFileName)
         self.lampRegisterPath = os.path.join(reportFolder, lampRegisterFileName)
+        self.pumpRegisterPath = os.path.join(reportFolder, pumpRegisterFileName)
 
         # This will enable CORS for all routes
         CORS(self.app)
 
         self.reportSensor = ReportSensor(self.reportPath)
         self.registerLamp = RegisterLamp(self.lampRegisterPath)
+        self.registerPump = RegisterPump(self.pumpRegisterPath)
 
         # register the end-points
         InfoView.register(self.app, init_argument=self)
         SensorView.register(self.app, init_argument=self)
+        CamView.register(self.app, init_argument=self)
         LampView.register(self.app, init_argument=self)
+        PumpView.register(self.app, init_argument=self)
 
         self.controlBox = Controlbox(self.app)
 
@@ -83,6 +92,9 @@ class WSGreenWall(Flask):
         self.lamp = Lamp(self.app)
 
         # PUMP
+        self.pump = Pump(self.app)
+
+        # 
         #self.pump = Pump(self.app)
 
     def getThreadControllerStatus(self):
