@@ -19,6 +19,7 @@ from restserver.endpoints.ep_cam_add import EPCamAdd
 
 from restserver.endpoints.ep import EP
 
+from PIL import Image
 
 # -----------------------------------
 #
@@ -53,21 +54,21 @@ class CamView(FlaskView):
     # curl  --header "Content-Type: img/jpeg" --request POST --data '...' http://localhost:5000/cam/add/camId/5/timestamp/2022.11.23T11:22:12
     #
     #@route('/add/camId/<camId>/timestamp/<timestamp>', methods=['POST'])
-    @route(EPCamAdd.PATH_PAR_PAYLOAD, methods=[EPCamAdd.METHOD])
-    def setWithPayload(self):
-
-        # WEB
-        if request.form:
-            json_data = request.form
-
-        # CURL
-        elif request.json:
-            json_data = request.json
-
-        else:
-            return "Not valid request", EP.CODE_BAD_REQUEST
-
-        out = self.epCamAdd.executeByPayload(json_data)
+#    @route(EPCamAdd.PATH_PAR_PAYLOAD, methods=[EPCamAdd.METHOD])
+#    def setWithPayload(self):
+#
+#        # WEB
+#        if request.form:
+#            json_data = request.form
+#
+#        # CURL
+#        elif request.json:
+#            json_data = request.json
+#
+#        else:
+#            return "Not valid request", EP.CODE_BAD_REQUEST
+#
+#        out = self.epCamAdd.executeByPayload(json_data)
         return out
 
     #
@@ -79,18 +80,29 @@ class CamView(FlaskView):
     @route(EPCamAdd.PATH_PAR_URL, methods=[EPCamAdd.METHOD])
     def setWithParameter(self, camId, timestamp):
 
-        from pprint import pprint
-        print("!!! Request !!!")
+#        from pprint import pprint
+#        print("!!! Request !!!")
 
-        pprint(request.headers)
-        pprint(request.data)
-        pprint(request.args)
-        pprint(request.form)
-        pprint(request.endpoint)
-        pprint(request.method)
-        pprint(request.remote_addr)
-        pprint(request.json)
-        pprint(request.files)
+#        pprint(request.headers)
+#        pprint(request.data)
+#        pprint(request.args)
+#        pprint(request.form)
+#        pprint(request.endpoint)
+#        pprint(request.method)
+#        pprint(request.remote_addr)
+#        pprint(request.json)
+#        pprint(request.files)
+
+
+        image = request.files["imageFile"];
+        if image:
+            img = Image.open(image)
+            img.save("output.jpg")
+
+            print("output.jpg file saved")
+        else:
+            print("!!! No file was saved")
+
 
         out = self.epCamAdd.executeByParameters(camId=camId, timestamp=timestamp)
         return out
