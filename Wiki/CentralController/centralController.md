@@ -243,7 +243,7 @@ graph LR
   $ pip3 install -U flask-cors
   $ pip3 install flask-classful
   
-  $ pip3 install numpy --upgrade
+  $ sudo pip install numpy --upgrade --ignore-installed
   $ pip3 install opencv-python
   ```
 ### Clone the diy-greenwall  
