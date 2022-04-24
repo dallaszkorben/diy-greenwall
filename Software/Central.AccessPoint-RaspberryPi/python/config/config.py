@@ -24,6 +24,7 @@ class Config( Property ):
 
     DEFAULT_WEB_FOLDER_NAME = ("web", "folder-name-graph", "/var/www/greenwall")
     DEFAULT_WEB_PATH_NAME_GRAPH = ("web", "path-name-graph", "graph-images")
+    DEFAULT_WEB_PATH_NAME_CAM = ("web", "path-name-cam", "cam-images")
     DEFAULT_WEB_SMOOTHING_WINDOW = ("web", "smoothing-window", 15)
 
 #    DEFAULT_PUMP_ID = ("pump", "id", 1)
@@ -76,6 +77,9 @@ class Config( Property ):
     def getWebPathNameGraph(self):
         return self.get(self.DEFAULT_WEB_PATH_NAME_GRAPH[0], self.DEFAULT_WEB_PATH_NAME_GRAPH[1], self.DEFAULT_WEB_PATH_NAME_GRAPH[2])
 
+    def getWebPathNameCam(self):
+        return self.get(self.DEFAULT_WEB_PATH_NAME_CAM[0], self.DEFAULT_WEB_PATH_NAME_CAM[1], self.DEFAULT_WEB_PATH_NAME_CAM[2])
+
     def getWebSmoothingWindow(self):
         return self.get(self.DEFAULT_WEB_SMOOTHING_WINDOW[0], self.DEFAULT_WEB_SMOOTHING_WINDOW[1], self.DEFAULT_WEB_SMOOTHING_WINDOW[2])
 
@@ -114,6 +118,9 @@ class Config( Property ):
     def setWebPathNameGraph(self, webPathNameGraph):
         self.update(self.DEFAULT_WEB_PATH_NAME_GRAPH[0], self.DEFAULT_WEB_PATH_NAME_GRAPH[1], webPathNameGraph)
 
+    def setWebPathNameCam(self, webPathNameCam):
+        self.update(self.DEFAULT_WEB_PATH_NAME_CAM[0], self.DEFAULT_WEB_PATH_NAME_CAM[1], webPathNameCam)
+
     def setWebSmoothingWindow(self, webSmoothingWindow):
         self.update(self.DEFAULT_WEB_SMOOTHING_WINDOW[0], self.DEFAULT_WEB_SMOOTHING_WINDOW[1], webSmoothingWindow)
 
@@ -143,6 +150,7 @@ def getConfig():
 
     config["web-folder-name"] = cb.getWebFolderName()
     config["web-path-name-graph"] = cb.getWebPathNameGraph()
+    config["web-path-name-cam"] = cb.getWebPathNameCam()
     config["web-smoothing-window"] = cb.getWebSmoothingWindow()
 
 #    config["pump-id"] = cb.getPumpId()
@@ -179,6 +187,9 @@ def setConfig(config):
 
     if "web-path-name-graph" in config:
         cb.setWebPathNameGraph(config["web-path-name-graph"])
+
+    if "web-path-name-cam" in config:
+        cb.setWebPathNameCam(config["web-path-name-cam"])
 
     if "web-smoothing-window" in config:
         cb.setWebSmoothingWindow(config["web-smoothing-window"])

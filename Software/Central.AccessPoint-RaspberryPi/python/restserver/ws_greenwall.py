@@ -53,6 +53,7 @@ class WSGreenWall(Flask):
 
         self.webFolderName = cg["web-folder-name"]
         self.webPathNameGraph = cg["web-path-name-graph"]
+        self.webPathNameCam = cg["web-path-name-cam"]
         self.webSmoothingWindow = int(cg["web-smoothing-window"])
 
 #        self.pumpGpio = cg["pump-gpio"]

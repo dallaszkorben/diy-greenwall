@@ -19,7 +19,11 @@ from restserver.endpoints.ep_cam_add import EPCamAdd
 
 from restserver.endpoints.ep import EP
 
+<<<<<<< Updated upstream
 from PIL import Image
+=======
+#from PIL import Image
+>>>>>>> Stashed changes
 
 # -----------------------------------
 #
@@ -69,7 +73,13 @@ class CamView(FlaskView):
 #            return "Not valid request", EP.CODE_BAD_REQUEST
 #
 #        out = self.epCamAdd.executeByPayload(json_data)
+<<<<<<< Updated upstream
         return out
+=======
+#        return out
+
+
+>>>>>>> Stashed changes
 
     #
     # Read the sensor - with parameters
@@ -94,6 +104,7 @@ class CamView(FlaskView):
 #        pprint(request.files)
 
 
+<<<<<<< Updated upstream
         image = request.files["imageFile"];
         if image:
             img = Image.open(image)
@@ -102,9 +113,19 @@ class CamView(FlaskView):
             print("output.jpg file saved")
         else:
             print("!!! No file was saved")
+=======
+#        image = request.files["imageFile"];
+#        if image:
+#            img = Image.open(image)
+#            img.save("output.jpg")
+#
+#            print("output.jpg file saved")
+#        else:
+#            print("!!! No file was saved")
+>>>>>>> Stashed changes
 
 
-        out = self.epCamAdd.executeByParameters(camId=camId, timestamp=timestamp)
+        out = self.epCamAdd.executeByParameters(camId=camId, timestamp=timestamp, image=request.files["imageFile"])
         return out
 
 
