@@ -1,3 +1,14 @@
+/*
+  Rui Santos
+  Complete project details at https://RandomNerdTutorials.com/esp32-cam-post-image-photo-server/
+  
+  Permission is hereby granted, free of charge, to any person obtaining a copy
+  of this software and associated documentation files.
+  
+  The above copyright notice and this permission notice shall be included in all
+  copies or substantial portions of the Software.
+*/
+
 #include <Arduino.h>
 #include <WiFi.h>
 #include "soc/soc.h"
@@ -8,101 +19,51 @@ const char* ssid = "Central-Station-006";
 const char* password = "viragfal";
 
 String serverName = "192.168.50.3";   // REPLACE WITH YOUR Raspberry Pi IP ADDRESS
-//String serverName = "example.com";   // OR REPLACE WITH YOUR DOMAIN NAME
 
-String serverPath = "cam/add/camId/5/timestamp/2022.03.06T18:24:44";     // The default serverPath should be upload.php
+
+String serverPath = "cam/add/camId/5/timestamp/2022-04-27T21:18:16+01:00";     // The default serverPath should be upload.php
 
 const int serverPort = 5000;
 
 WiFiClient client;
 
 // CAMERA_MODEL_AI_THINKER
-#define PWDN_GPIO_NUM     32
-#define RESET_GPIO_NUM    -1
-#define XCLK_GPIO_NUM      0
-#define SIOD_GPIO_NUM     26
-#define SIOC_GPIO_NUM     27
+#define ONBOARD_LED      2
 
-#define Y9_GPIO_NUM       35
-#define Y8_GPIO_NUM       34
-#define Y7_GPIO_NUM       39
-#define Y6_GPIO_NUM       36
-#define Y5_GPIO_NUM       21
-#define Y4_GPIO_NUM       19
-#define Y3_GPIO_NUM       18
-#define Y2_GPIO_NUM        5
-#define VSYNC_GPIO_NUM    25
-#define HREF_GPIO_NUM     23
-#define PCLK_GPIO_NUM     22
+#define PWDN_GPIO_NUM    -1
+#define RESET_GPIO_NUM   -1
+#define XCLK_GPIO_NUM    21
+#define SIOD_GPIO_NUM    26
+#define SIOC_GPIO_NUM    27
 
-const int timerInterval = 30000;    // time between each HTTP POST image
+#define Y9_GPIO_NUM      35
+#define Y8_GPIO_NUM      34
+#define Y7_GPIO_NUM      39
+#define Y6_GPIO_NUM      36
+#define Y5_GPIO_NUM      19
+#define Y4_GPIO_NUM      18
+#define Y3_GPIO_NUM       5
+#define Y2_GPIO_NUM       4
+#define VSYNC_GPIO_NUM   25
+#define HREF_GPIO_NUM    23
+#define PCLK_GPIO_NUM    22
+
+const int timerInterval = 10000;    // time between each HTTP POST image
 unsigned long previousMillis = 0;   // last time image was sent
 
 void setup() {
-  WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, 0);
+  WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, 0); 
   Serial.begin(115200);
 
   WiFi.mode(WIFI_STA);
-
-
-
-
-/*
-    Serial.println("scan start");
-    // WiFi.scanNetworks will return the number of networks found
-    WiFi.disconnect();
-    delay(100);
-    int n = WiFi.scanNetworks();
-    Serial.println("scan done");
-    if (n == 0) {
-        Serial.println("no networks found");
-    } else {
-        Serial.print(n);
-        Serial.println(" networks found");
-        for (int i = 0; i < n; ++i) {
-            // Print SSID and RSSI for each network found
-            Serial.print(i + 1);
-            Serial.print(": ");
-            Serial.print(WiFi.SSID(i));
-            Serial.print(" (");
-            Serial.print(WiFi.RSSI(i));
-            Serial.print(")");
-            Serial.println((WiFi.encryptionType(i) == WIFI_AUTH_OPEN)?" ":"*");
-            delay(10);
-        }
-    }
-*/
-
-
-
-
-
-
-
-
-
-
-  
   Serial.println();
   Serial.print("Connecting to ");
   Serial.println(ssid);
-  WiFi.begin(ssid, password);
-  int status = -1;
-  //WL_IDLE_STATUS      = 0,
-  //WL_NO_SSID_AVAIL    = 1,
-  //WL_SCAN_COMPLETED   = 2,
-  //WL_CONNECTED        = 3,
-  //WL_CONNECT_FAILED   = 4,
-  //WL_CONNECTION_LOST  = 5,
-  //WL_DISCONNECTED     = 6
-
-
-
-
+  WiFi.begin(ssid, password);  
   while (WiFi.status() != WL_CONNECTED) {
-        delay(500);
-        Serial.print(".");
-   }
+    Serial.print(".");
+    delay(1000);
+  }
   Serial.println();
   Serial.print("ESP32-CAM IP Address: ");
   Serial.println(WiFi.localIP());
@@ -130,7 +91,7 @@ void setup() {
   config.pixel_format = PIXFORMAT_JPEG;
 
   // init with high specs to pre-allocate larger buffers
-  if (psramFound()) {
+  if(psramFound()){
     config.frame_size = FRAMESIZE_SVGA;
     config.jpeg_quality = 10;  //0-63 lower number means higher quality
     config.fb_count = 2;
@@ -139,7 +100,7 @@ void setup() {
     config.jpeg_quality = 12;  //0-63 lower number means higher quality
     config.fb_count = 1;
   }
-
+  
   // camera init
   esp_err_t err = esp_camera_init(&config);
   if (err != ESP_OK) {
@@ -148,13 +109,33 @@ void setup() {
     ESP.restart();
   }
 
-  sendPhoto();
+//  sendPhoto(); 
 }
 
 void loop() {
   unsigned long currentMillis = millis();
   if (currentMillis - previousMillis >= timerInterval) {
+
+    if (WiFi.status() != WL_CONNECTED){
+    // Tries to connect to the AP 10 times. If it was not successfull, restarts the module
+    int loop = 0;
+    WiFi.begin(ssid, password);
+    while (WiFi.status() != WL_CONNECTED && loop <= 10) {
+        delay(1000);
+        Serial.print(";");
+        loop++;
+    }
+    Serial.println();
+    if(loop > 10){
+      Serial.println("   !!! Connection failed -> reboot");
+      ESP.restart();
+    }
+  }
+  
+    
     sendPhoto();
+    
+    
     previousMillis = currentMillis;
   }
 }
@@ -163,85 +144,72 @@ String sendPhoto() {
   String getAll;
   String getBody;
 
-  Serial.println("===");
-  
   camera_fb_t * fb = NULL;
   fb = esp_camera_fb_get();
-  if (!fb) {
-    Serial.println("!!! Camera capture failed");
-    delay(1000);
+  if(!fb) {
+    Serial.println("Camera capture failed");
+//    delay(1000);
     ESP.restart();
-  }else{
-    Serial.println("Camera capture successful");
   }
-
+  
   Serial.println("Connecting to server: " + serverName);
 
-  client.flush();
-  client.stop();
-
   if (client.connect(serverName.c_str(), serverPort)) {
-    Serial.println("Connection successful!");
+    Serial.println("Connection successful!");    
     String head = "--RandomNerdTutorials\r\nContent-Disposition: form-data; name=\"imageFile\"; filename=\"esp32-cam.jpg\"\r\nContent-Type: image/jpeg\r\n\r\n";
     String tail = "\r\n--RandomNerdTutorials--\r\n";
 
-    uint16_t imageLen = fb->len;
-    uint16_t extraLen = head.length() + tail.length();
-    uint16_t totalLen = imageLen + extraLen;
-
+    uint32_t imageLen = fb->len;
+    uint32_t extraLen = head.length() + tail.length();
+    uint32_t totalLen = imageLen + extraLen;
+  
     client.println("POST " + serverPath + " HTTP/1.1");
     client.println("Host: " + serverName);
     client.println("Content-Length: " + String(totalLen));
     client.println("Content-Type: multipart/form-data; boundary=RandomNerdTutorials");
     client.println();
     client.print(head);
-
+  
     uint8_t *fbBuf = fb->buf;
     size_t fbLen = fb->len;
-    for (size_t n = 0; n < fbLen; n = n + 1024) {
-      if (n + 1024 < fbLen) {
+    Serial.print("file length: ");
+    Serial.println(fbLen);
+    
+    for (size_t n=0; n<fbLen; n=n+1024) {
+      if (n+1024 < fbLen) {
         client.write(fbBuf, 1024);
         fbBuf += 1024;
       }
-      else if (fbLen % 1024 > 0) {
-        size_t remainder = fbLen % 1024;
+      else if (fbLen%1024>0) {
+        size_t remainder = fbLen%1024;
         client.write(fbBuf, remainder);
       }
-    }
+    }   
     client.print(tail);
-
+    
     esp_camera_fb_return(fb);
-
-    int timoutTimer = 60000;
+    
+    int timoutTimer = 10000;
     long startTimer = millis();
     boolean state = false;
-
+    
     while ((startTimer + timoutTimer) > millis()) {
-      Serial.print(",");
-      delay(1000);
+      Serial.print("+");
+      delay(100);      
       while (client.available()) {
         char c = client.read();
         if (c == '\n') {
-          if (getAll.length() == 0) {
-            state = true;
-          }
+          if (getAll.length()==0) { state=true; }
           getAll = "";
         }
-        else if (c != '\r') {
-          getAll += String(c);
-        }
-        if (state == true) {
-          getBody += String(c);
-        }
+        else if (c != '\r') { getAll += String(c); }
+        if (state==true) { getBody += String(c); }
         startTimer = millis();
       }
-      if (getBody.length() > 0) {
-        break;
-      }
+      if (getBody.length()>0) { break; }
     }
     Serial.println();
     client.stop();
-    Serial.print("Body: ");
     Serial.println(getBody);
   }
   else {

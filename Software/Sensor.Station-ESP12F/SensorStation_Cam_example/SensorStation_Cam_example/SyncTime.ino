@@ -1,5 +1,5 @@
 bool syncTime(){
-  connectToWiFiIfNotConnected();
+/*  connectToWiFiIfNotConnected();
 
   Serial.println("Try to sync Time ...");
 
@@ -44,10 +44,12 @@ bool syncTime(){
   Serial.println("\n\n\n");
   http.end();   //Close connection
   return result;
+*/  
+return true;
 }
-
-String getOffsetDateString(){
+/*String getOffsetDateString(){
   char date[26]; //19 + 6 digits plus the null char
   sprintf(date, "%4d-%02d-%02dT%02d:%02d:%02d+01:00", year(), month(), day(), hour(), minute(), second());
   return String(date);
 }
+*/

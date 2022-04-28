@@ -56,7 +56,7 @@ bool syncTime(){
     Serial.println("   !!! No GET response !!!");
     return false;
   }
-  Serial.println("\n\n\n");
+//  Serial.println("\n\n\n");
   http.end();   //Close connection
 
   return true;
