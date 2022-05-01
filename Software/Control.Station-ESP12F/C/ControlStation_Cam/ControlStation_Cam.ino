@@ -18,9 +18,27 @@
 //#define CAMERA_MODEL_TTGO_T_JOURNAL   // No PSRAM
 #include "camera_pins.h"
 
-const char* ssid = "blabla2.4";
-const char* password = "Elmebetegek Almaiban";
+const char* ssid = "Central-Station-006";
+const char* password = "viragfal";
+const String serverIp = "192.168.50.3";                         // REPLACE WITH YOUR Raspberry Pi IP ADDRESS
+const int serverPort = 5000;
+const String serverPathToCamAdd = "cam/add/camId/5/timestamp/"; // The default serverPath should be upload.php
+const String serverPathToCamRegister = "cam/register";
+const String serverPathToInfoTimestamp = "info/timeStamp";
 
+const String streamId = "1";
+const String serverPathToCamStreamRegister = "cam/stream/register";
+
+//const char* ssid = "blabla2.4";
+//const char* password = "Elmebetegek Almaiban";
+
+
+#include <HTTPClient.h>
+HTTPClient http;
+WiFiClient wifiClient;
+
+
+  
 void startCameraServer();
 
 void setup() {
@@ -114,18 +132,32 @@ void setup() {
   s->set_hmirror(s, 1);
 #endif
 
+  Serial.println();
   Serial.print("MAC: ");
   Serial.println(WiFi.macAddress());
 
-  Serial.printf("Try to connect to Access Point %s ", ssid);
-  WiFi.begin(ssid, password);
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
-  }
-  Serial.println("");
-  Serial.println("    WiFi connected");
+//  Serial.printf("Try to connect to Access Point %s ", ssid);
 
+  // --- Connect to Access Point --- //  
+  if (!connectToApIfNotConnected()){
+    Serial.println("    !!! Connection failed -> reboot !!!");
+    //delay(10000);
+    ESP.restart();
+  }
+/*
+  // --- Sync Time --- //
+  if( !syncTime() ){
+    Serial.println("    !!! Sync Time failed -> reboot !!!");   
+    ESP.restart();
+  }
+
+  // --- Register Camera Stream --- //
+  if ( !registerCamStream() ){
+    Serial.println("    !!! Cam Stream register failed -> reboot !!!");   
+    ESP.restart();    
+  }
+*/  
+  // --- Start Camera Server --- //
   startCameraServer();
 
   Serial.print("    GET http://");
@@ -140,5 +172,8 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
-  delay(10000);
+  //WiFi.reconnect();
+  //delay(2000);
+  //Serial.println(WiFi.localIP());
+
 }
