@@ -21,6 +21,7 @@ class Config( Property ):
 
     DEFAULT_LAMP_REGISTER_FILE_NAME = ("lamp", "file-name", "lamp_register.log")
     DEFAULT_PUMP_REGISTER_FILE_NAME = ("pump", "file-name", "pump_register.log")
+    DEFAULT_CAM_STREAM_REGISTER_FILE_NAME = ("cam-stream", "file-name", "cam_stream_register.log")
 
     DEFAULT_WEB_FOLDER_NAME = ("web", "folder-name-graph", "/var/www/greenwall")
     DEFAULT_WEB_PATH_NAME_GRAPH = ("web", "path-name-graph", "graph-images")
@@ -71,6 +72,9 @@ class Config( Property ):
     def getPumpRegisterFileName(self):
         return self.get(self.DEFAULT_PUMP_REGISTER_FILE_NAME[0], self.DEFAULT_PUMP_REGISTER_FILE_NAME[1], self.DEFAULT_PUMP_REGISTER_FILE_NAME[2])
 
+    def getCamStreamRegisterFileName(self):
+        return self.get(self.DEFAULT_CAM_STREAM_REGISTER_FILE_NAME[0], self.DEFAULT_CAM_STREAM_REGISTER_FILE_NAME[1], self.DEFAULT_CAM_STREAM_REGISTER_FILE_NAME[2])
+
     def getWebFolderName(self):
         return self.get(self.DEFAULT_WEB_FOLDER_NAME[0], self.DEFAULT_WEB_FOLDER_NAME[1], self.DEFAULT_WEB_FOLDER_NAME[2])
 
@@ -112,6 +116,9 @@ class Config( Property ):
     def setPumpRegisterFileName(self, registerFileName):
         self.update(self.DEFAULT_PUMP_REGISTER_FILE_NAME[0], self.DEFAULT_PUMP_REGISTER_FILE_NAME[1], registerFileName)
 
+    def setCamStreamRegisterFileName(self, registerFileName):
+        self.update(self.DEFAULT_CAM_STREAM_REGISTER_FILE_NAME[0], self.DEFAULT_CAM_STREAM_REGISTER_FILE_NAME[1], registerFileName)
+
     def setWebFolderName(self, webFolderName):
         self.update(self.DEFAULT_WEB_FOLDER_NAME[0], self.DEFAULT_WEB_FOLDER_NAME[1], webFolderName)
 
@@ -147,6 +154,7 @@ def getConfig():
 
     config["lamp-register-file-name"] = cb.getLampRegisterFileName()
     config["pump-register-file-name"] = cb.getPumpRegisterFileName()
+    config["cam-stream-register-file-name"] = cb.getCamStreamRegisterFileName()
 
     config["web-folder-name"] = cb.getWebFolderName()
     config["web-path-name-graph"] = cb.getWebPathNameGraph()
@@ -181,6 +189,9 @@ def setConfig(config):
 
     if "pump-register-file-name" in config:
         cb.setPumpRegisterFileName(config["pump-register-file-name"])
+
+    if "cam-stream-register-file-name" in config:
+        cb.setCamStreamRegisterFileName(config["cam-stream-register-file-name"])
 
     if "web-folder-name" in config:
         cb.setWebFolderName(config["web-folder-name"])

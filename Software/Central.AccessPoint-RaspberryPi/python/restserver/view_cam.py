@@ -15,15 +15,12 @@ from config.config import getConfig
 
 from exceptions.invalid_api_usage import InvalidAPIUsage
 
+from restserver.endpoints.ep_cam_stream_register import EPCamStreamRegister
 from restserver.endpoints.ep_cam_add import EPCamAdd
 
 from restserver.endpoints.ep import EP
 
-<<<<<<< Updated upstream
 from PIL import Image
-=======
-#from PIL import Image
->>>>>>> Stashed changes
 
 # -----------------------------------
 #
@@ -42,13 +39,56 @@ class CamView(FlaskView):
 
         self.web_gadget = web_gadget
 
+        self.epCamStreamRegister = EPCamStreamRegister(web_gadget)
         self.epCamAdd = EPCamAdd(web_gadget)
+
 
     #
     # GET http://localhost:5000/sensor/
     #
     def index(self):
         return {}
+
+
+
+
+# ===
+
+    #
+    # Register Cam Stream with payload
+    #
+    # curl  --header "Content-Type: application/json" --request POST --data '{"id": "5","url":"http://192.168.50.123:81/stream"}' http://localhost:5000/cam/stream/register
+    #
+    # POST http://localhost:5000/cam/stream/register
+    #      body: {
+    #        "id":"5"
+    #        "url": "http://192.168.50.123:81/stream",
+    #      }
+    #
+    #@route('/stream/register', methods=['POST'])
+    @route(EPCamStreamRegister.PATH_PAR_PAYLOAD, methods=[EPCamStreamRegister.METHOD])
+    def setWithPayload(self):
+
+        # WEB
+        if request.form:
+            json_data = request.form
+
+        # CURL
+        elif request.json:
+            json_data = request.json
+
+        else:
+            return "Not valid request", EP.CODE_BAD_REQUEST
+
+        out = self.epCamStreamRegister.executeByPayload(json_data)
+        return out
+
+
+
+
+
+
+
 
 # ===
 
@@ -73,13 +113,10 @@ class CamView(FlaskView):
 #            return "Not valid request", EP.CODE_BAD_REQUEST
 #
 #        out = self.epCamAdd.executeByPayload(json_data)
-<<<<<<< Updated upstream
-        return out
-=======
+
 #        return out
 
 
->>>>>>> Stashed changes
 
     #
     # Read the sensor - with parameters
@@ -88,44 +125,36 @@ class CamView(FlaskView):
     #
     #@route('/add/camId/<camId>/timestamp/<timestamp>', methods=['POST'])
     @route(EPCamAdd.PATH_PAR_URL, methods=[EPCamAdd.METHOD])
-    def setWithParameter(self, camId, timestamp):
+    def addCamCaptureWithParameter(self, camId, timestamp):
 
-#        from pprint import pprint
-#        print("!!! Request !!!")
+        from pprint import pprint
+        print("!!! Request !!!")
 
-#        pprint(request.headers)
-#        pprint(request.data)
-#        pprint(request.args)
-#        pprint(request.form)
-#        pprint(request.endpoint)
-#        pprint(request.method)
-#        pprint(request.remote_addr)
-#        pprint(request.json)
-#        pprint(request.files)
+        pprint(request.headers)
+        pprint(request.data)
+        pprint(request.args)
+        pprint(request.form)
+        pprint(request.endpoint)
+        pprint(request.method)
+        pprint(request.remote_addr)
+        pprint(request.json)
+        pprint(request.files)
 
 
-<<<<<<< Updated upstream
-        image = request.files["imageFile"];
-        if image:
-            img = Image.open(image)
-            img.save("output.jpg")
-
-            print("output.jpg file saved")
-        else:
-            print("!!! No file was saved")
-=======
-#        image = request.files["imageFile"];
-#        if image:
+        if "imageFile" in request.files:
+            image = request.files["imageFile"];
+#            if image:
 #            img = Image.open(image)
 #            img.save("output.jpg")
-#
-#            print("output.jpg file saved")
-#        else:
-#            print("!!! No file was saved")
->>>>>>> Stashed changes
+
+            print("file was received")
 
 
-        out = self.epCamAdd.executeByParameters(camId=camId, timestamp=timestamp, image=request.files["imageFile"])
+        else:
+            image = None
+            print("!!! No file was received")
+
+        out = self.epCamAdd.executeByParameters(camId=camId, timestamp=timestamp, image=image)
         return out
 
 

@@ -30,6 +30,7 @@ from config.ini_location import IniLocation
 from utilities.report_sensor import ReportSensor
 from utilities.register_lamp import RegisterLamp
 from utilities.register_pump import RegisterPump
+from utilities.register_cam_stream import RegisterCamStream
 
 class WSGreenWall(Flask):
 #class WSGreenWall():
@@ -50,6 +51,7 @@ class WSGreenWall(Flask):
         sensorReportFileName = cg["sensor-report-file-name"]
         lampRegisterFileName = cg["lamp-register-file-name"]
         pumpRegisterFileName = cg["pump-register-file-name"]
+        camStreamRegisterFileName = cg["cam-stream-register-file-name"]
 
         self.webFolderName = cg["web-folder-name"]
         self.webPathNameGraph = cg["web-path-name-graph"]
@@ -72,6 +74,7 @@ class WSGreenWall(Flask):
         self.reportPath = os.path.join(reportFolder, sensorReportFileName)
         self.lampRegisterPath = os.path.join(reportFolder, lampRegisterFileName)
         self.pumpRegisterPath = os.path.join(reportFolder, pumpRegisterFileName)
+        self.camStreamRegisterPath = os.path.join(reportFolder, camStreamRegisterFileName)
 
         # This will enable CORS for all routes
         CORS(self.app)
@@ -79,6 +82,7 @@ class WSGreenWall(Flask):
         self.reportSensor = ReportSensor(self.reportPath)
         self.registerLamp = RegisterLamp(self.lampRegisterPath)
         self.registerPump = RegisterPump(self.pumpRegisterPath)
+        self.registerCamStream = RegisterCamStream(self.camStreamRegisterPath)
 
         # register the end-points
         InfoView.register(self.app, init_argument=self)
@@ -95,8 +99,6 @@ class WSGreenWall(Flask):
         # PUMP
         self.pump = Pump(self.app)
 
-        # 
-        #self.pump = Pump(self.app)
 
     def getThreadControllerStatus(self):
         return self.gradualThreadController.getStatus()

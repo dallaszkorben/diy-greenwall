@@ -14,6 +14,7 @@ from restserver.endpoints.ep_info_functions import EPInfoFunctions
 from restserver.endpoints.ep_info_graph import EPInfoGraph
 from restserver.endpoints.ep_info_timestamp import EPInfoTimeStamp
 from restserver.endpoints.ep_info_is_alive import EPInfoIsAlive
+from restserver.endpoints.ep_info_cam_stream_list import EPInfoCamStreamList
 
 # -----------------------------------
 #
@@ -35,6 +36,7 @@ class InfoView(FlaskView):
         self.epInfoGraph = EPInfoGraph(web_gadget)
         self.epInfoTimeStamp = EPInfoTimeStamp(web_gadget)
         self.epInfoIsAlive = EPInfoIsAlive(web_gadget)
+        self.epInfoCamStreamList = EPInfoCamStreamList(web_gadget)
 
     #
     # GET http://localhost:5000/info/
@@ -234,3 +236,20 @@ class InfoView(FlaskView):
         out = self.epInfoIsAlive.executeByPayload(json_data)
         return out
 
+
+# === GET /info/camStreamList ===
+
+    #
+    # Get actual active Camera Streams - with payload
+    #
+    # curl  --header "Content-Type: application/json" --request GET http://localhost:5000/info/camStreamList
+    #
+    # GET http://localhost:5000/info/getStreamList
+    #
+    #@route('/camStreamList', methods=['GET'])
+    @route(EPInfoCamStreamList.PATH_PAR_PAYLOAD, methods=[EPInfoCamStreamList.METHOD])
+    def infoCamStreamList(self):
+
+        json_data = {}
+        out = self.epInfoCamStreamList.executeByPayload(json_data)
+        return out

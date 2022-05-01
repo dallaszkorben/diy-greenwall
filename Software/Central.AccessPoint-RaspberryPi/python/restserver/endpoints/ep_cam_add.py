@@ -65,13 +65,6 @@ class EPCamAdd(EP):
         timestamp = payload[EPCamAdd.ATTR_TIMESTAMP]
         image = payload[EPCamAdd.ATTR_IMAGE]
 
-        logging.debug( "WEB request: {0} {1} ('{2}': {3}, '{4}': {5}, '{6}': {7})".format(
-                    EPCamAdd.METHOD, EPCamAdd.URL,
-                    EPCamAdd.ATTR_CAM_ID, camId,
-                    EPCamAdd.ATTR_TIMESTAMP, timestamp,
-                    EPCamAdd.ATTR_IMAGE, image,
-                    )
-            )
 
         date = parser.parse(timestamp)
         dateString = date.astimezone().isoformat()
@@ -83,7 +76,18 @@ class EPCamAdd(EP):
 
         fileNamePath = f'{webFolderName}/{webPathNameCam}/{fileName}'
 
+
         if image:
+            logging.debug( "WEB request: {0} {1} ('{2}': {3}, '{4}': {5}, '{6}': {7}, '{8}': {9})".format(
+                    EPCamAdd.METHOD, EPCamAdd.URL,
+                    EPCamAdd.ATTR_CAM_ID, camId,
+                    EPCamAdd.ATTR_TIMESTAMP, timestamp,
+                    EPCamAdd.ATTR_IMAGE, image,
+                    "FilenamePath", fileNamePath
+                    )
+            )
+
+
             img = Image.open(image)
 
             # add timestamp to the image
@@ -91,12 +95,28 @@ class EPCamAdd(EP):
             font = ImageFont.truetype("DejaVuSans.ttf", 32)
             draw.text((0,20), dateString, (100,100,100), font=font)
 
+            print('before save')
             img.save(fileNamePath)
+            print('after save')
 
             print(f'{fileNamePath} file saved')
+
+            return output_json( {'result': 'OK'}, EP.CODE_OK)
+
         else:
+
+            logging.debug( "WEB request: {0} {1} ('{2}': {3}, '{4}': {5}, '{6}': {7})".format(
+                    EPCamAdd.METHOD, EPCamAdd.URL,
+                    EPCamAdd.ATTR_CAM_ID, camId,
+                    EPCamAdd.ATTR_TIMESTAMP, timestamp,
+                    EPCamAdd.ATTR_IMAGE, image
+                    )
+            )
+
+
             print("!!! No file was saved")
 
+            return output_json( {'result': 'ERROR'}, EP.CODE_BAD_REQUEST)
 
 # datetime now()
 #  datetime.datetime.now().astimezone()
@@ -114,7 +134,7 @@ class EPCamAdd(EP):
 # datetime from timestamp
 #    datetime.fromtimestamp(timeStamp)
 
-        ip = request.remote_addr
+#        ip = request.remote_addr
 
         # Report Log
 
@@ -124,5 +144,5 @@ class EPCamAdd(EP):
         # print out to LCD
 #        self.web_gadget.controlBox.refreshData(stationId)
 
-        return output_json( {'result': 'OK'}, EP.CODE_OK)
+
 
