@@ -79,15 +79,15 @@ I’ll show it later
        update_config=1 
 
        network={ 
-	       ssid="blabla" 
-	       psk="Elmebetegek Almaiban" 
+	       ssid="****" 
+	       psk="****" 
 	       key_mgmt=WPA-PSK 
 	       id_str="AP1" 
        } 
 
        network={ 
-	       ssid="blabla2.4" 
-	       psk="Elmebetegek Almaiban" 
+	       ssid="****" 
+	       psk="****" 
 	       key_mgmt=WPA-PSK 
 	       id_str="AP2" 
        }
