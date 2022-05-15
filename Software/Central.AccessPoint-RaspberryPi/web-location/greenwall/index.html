@@ -386,11 +386,11 @@ user-scalable=no -disable user zoom on mobile
                     }
 
                     $("#lampSwitch")[0].addEventListener('lcs-on', function(){
-                        $.post( "http://192.168.0.104:5000/lamp/switch", { "status": "on", "lengthInSec": "5" } );
+                        $.post( "http://192.168.0.104:5000/lamp/switch", { "status": "on", "lengthInSec": "10" } );
                     });
 
                     $("#lampSwitch")[0].addEventListener('lcs-off', function(){
-                        $.post( "http://192.168.0.104:5000/lamp/switch", { "status": "off", "lengthInSec": "5" } );
+                        $.post( "http://192.168.0.104:5000/lamp/switch", { "status": "off", "lengthInSec": "10" } );
                     });
 
 
@@ -410,14 +410,14 @@ user-scalable=no -disable user zoom on mobile
                 compact_mode: false
             });
 
-            lcs_disable("#pumpSwitch");
+            ////lcs_disable("#pumpSwitch");
 
             $("#pumpSwitch")[0].addEventListener('lcs-on', function(){
-                $.post( "http://192.168.0.104:5000/pump/switch", { "status": "on", "lengthInSec": "15" } );
+                $.post( "http://192.168.0.104:5000/pump/turnOn", { "lengthInSec": "30" } );
             });
 
             $("#pumpSwitch")[0].addEventListener('lcs-off', function(){
-                $.post( "http://192.168.0.104:5000/pump/switch", { "status": "off", "lengthInSec": "15" } );
+                $.post( "http://192.168.0.104:5000/pump/turnOff" );
             });
 
 
