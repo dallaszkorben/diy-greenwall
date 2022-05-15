@@ -18,9 +18,17 @@
 //#define CAMERA_MODEL_TTGO_T_JOURNAL   // No PSRAM
 #include "camera_pins.h"
 
-const char* ssid = "Central-Station-006";
-const char* password = "viragfal";
-const String serverIp = "192.168.50.3";                         // REPLACE WITH YOUR Raspberry Pi IP ADDRESS
+//const char* ssid = "Central-Station-006";
+//const char* password = "viragfal";
+const char* ssid = "blabla2.4";
+const char* password = "Elmebetegek Almaiban";
+
+
+
+//const String serverIp = "192.168.50.3";                         // REPLACE WITH YOUR Raspberry Pi IP ADDRESS
+const String serverIp = "192.168.0.104";                        // REPLACE WITH YOUR Raspberry Pi IP ADDRESS
+
+
 const int serverPort = 5000;
 const String serverPathToCamAdd = "cam/add/camId/5/timestamp/"; // The default serverPath should be upload.php
 const String serverPathToCamRegister = "cam/register";
@@ -144,7 +152,7 @@ void setup() {
     //delay(10000);
     ESP.restart();
   }
-/*
+
   // --- Sync Time --- //
   if( !syncTime() ){
     Serial.println("    !!! Sync Time failed -> reboot !!!");   
@@ -156,7 +164,7 @@ void setup() {
     Serial.println("    !!! Cam Stream register failed -> reboot !!!");   
     ESP.restart();    
   }
-*/  
+   
   // --- Start Camera Server --- //
   startCameraServer();
 

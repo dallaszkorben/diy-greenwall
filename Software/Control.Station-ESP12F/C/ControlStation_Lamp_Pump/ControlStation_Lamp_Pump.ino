@@ -28,6 +28,8 @@ int register_interval_sec;
 int reset_hours;
 
 bool pumpActive;
+bool lampActive = false;
+
 // -------------------
 
 void setup() {
@@ -77,6 +79,7 @@ void setup() {
 
   // --- Web Server --- //
   server.on("/isAlive", HTTP_GET, handleIsAlive );
+  server.on("/lamp/status", HTTP_GET, handleLampStatus);
   server.on("/lamp/on", HTTP_POST, handleLampOn);
   server.on("/lamp/off", HTTP_POST, handleLampOff);
   server.on("/pump/off", HTTP_POST, handlePumpOff);
@@ -84,6 +87,8 @@ void setup() {
   server.onNotFound(handleNotFound);
   server.begin();
   Serial.println("HTTP server started\n");
+
+  syncLampStatus();
 
   // --- Pump status -- //
   if (!syncPumpStatus()){

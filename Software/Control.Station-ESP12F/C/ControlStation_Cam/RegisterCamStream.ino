@@ -16,7 +16,7 @@ bool registerCamStream() {
   // Construct the payload
   StaticJsonDocument<1024> doc;
   doc["id"] = streamId;
-  doc["url"] = "http://192.168.50.123:81/stream";
+  doc["url"] = "http://" + WiFi.localIP().toString() + ":81/stream";
   doc["dateString"] = getOffsetDateString();
   String requestBody;
   serializeJson(doc, requestBody);
