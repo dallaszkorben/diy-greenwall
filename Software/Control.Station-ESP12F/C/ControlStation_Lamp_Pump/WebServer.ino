@@ -177,9 +177,22 @@ void handleLampStatus(){
     st = "off";
   }
 
-  //String message = "{\"success\": True, \"status\": \"" + st + "\"}";
-  //Serial.println (message);
-  //server.send(200, "application/json", message);  
+  DynamicJsonDocument doc(512);
+  doc["success"] =  true;
+  doc["status"] = st;
+  String buf;
+  serializeJson(doc, buf);
+  server.send(200, "application/json", buf);
+  
+}
+
+void handlePumpStatus(){
+  String st;
+  if(pumpActive){
+    st = "on";
+  }else{
+    st = "off";
+  }
 
   DynamicJsonDocument doc(512);
   doc["success"] =  true;

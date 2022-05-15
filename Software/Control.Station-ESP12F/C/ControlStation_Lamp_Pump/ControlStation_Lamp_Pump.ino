@@ -82,6 +82,7 @@ void setup() {
   server.on("/lamp/status", HTTP_GET, handleLampStatus);
   server.on("/lamp/on", HTTP_POST, handleLampOn);
   server.on("/lamp/off", HTTP_POST, handleLampOff);
+  server.on("/pump/status", HTTP_GET, handlePumpStatus);
   server.on("/pump/off", HTTP_POST, handlePumpOff);
   server.on("/pump/on", HTTP_POST, handlePumpOn);
   server.onNotFound(handleNotFound);
