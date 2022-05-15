@@ -47,3 +47,33 @@ class Lamp:
 
 
 
+    def getLampStatus(self):
+
+        addresses = []
+
+        # TODO later I should handle more lamps. Now works only one
+        for key, value in self.webGadget.registerLamp.lampDict.items():
+
+            addresses.append("http://{url}/lamp/status".format(url=value["ip"]))
+
+        address = addresses[0]
+        try:
+
+            x = requests.get(address, timeout=20)
+            response = x.json()
+
+            logging.debug("StatusCode: {0}".format(x.status_code))
+
+            if x.status_code == 200:
+                logging.debug("Response: {0}".format(x.text))
+                return response.get('status')
+            else:
+                logging.debug("Response: Failed, so the status faked as OFF")
+                return 'off'
+
+
+        # NewConnectionError
+        # ConnectTimeoutError
+        except Exception as e:
+            logging.error("Exception: {0}. Status faked as OFF".format(e))
+            return 'off'
