@@ -95,7 +95,7 @@ user-scalable=no -disable user zoom on mobile
 
         function buildCamStreamWindow(){
 
-            $.ajax({type: "GET", url: "/info/camStreamList", async: true,
+            $.ajax({type: "GET", url: "http://192.168.0.104:5000/info/camStreamList", async: true,
                 success: function(result){
 
                     res = result.result
@@ -190,7 +190,7 @@ user-scalable=no -disable user zoom on mobile
 
             $("#errormessage").html("");
 
-            $.ajax({type: "GET", url: "/info/graph/" + param, async: true,
+            $.ajax({type: "GET", url: "http://192.168.0.104:5000/info/graph/" + param, async: true,
                 success: function(result){
 
                     $("#spinner").hide();
@@ -304,7 +304,7 @@ user-scalable=no -disable user zoom on mobile
         // ================================================
         function checkPumpStatus(){
 
-            $.get( "/pump/status").done(
+            $.get( "http://192.168.0.104:5000/pump/status").done(
                 function( data ) {
 
                     console.log("checking: " + data.status);
@@ -390,7 +390,7 @@ user-scalable=no -disable user zoom on mobile
 
             lcs_disable("#lampSwitch");
 
-            $.get( "/lamp/status").done(
+            $.get( "http://192.168.0.104:5000/lamp/status").done(
                 function( data ) {
                     if (data.status == 'on'){
                         lcs_on("#lampSwitch")
@@ -401,11 +401,11 @@ user-scalable=no -disable user zoom on mobile
                     }
 
                     $("#lampSwitch")[0].addEventListener('lcs-on', function(){
-                        $.post( "/lamp/switch", { "status": "on", "lengthInSec": "10" } );
+                        $.post( "http://192.168.0.104:5000/lamp/switch", { "status": "on", "lengthInSec": "10" } );
                     });
 
                     $("#lampSwitch")[0].addEventListener('lcs-off', function(){
-                        $.post( "/lamp/switch", { "status": "off", "lengthInSec": "10" } );
+                        $.post( "http://192.168.0.104:5000/lamp/switch", { "status": "off", "lengthInSec": "10" } );
                     });
             });
 
@@ -425,7 +425,7 @@ user-scalable=no -disable user zoom on mobile
             lcs_disable("#pumpSwitch");
 
 
-            $.get( "/pump/status").done(
+            $.get( "http://192.168.0.104:5000/pump/status").done(
                 function( data ) {
                     if (data.status == 'on'){
                         lcs_on("#pumpSwitch")
@@ -448,14 +448,14 @@ user-scalable=no -disable user zoom on mobile
 
                         //first check the state of the pump
 
-                        $.get( "/pump/status").done(
+                        $.get( "http://192.168.0.104:5000/pump/status").done(
                             function( data ) {
 
                                 //if the pump is OFF
                                 if (data.status == 'off'){
 
                                     //the the pump can be turn ON
-                                    $.post( "/pump/turnOn", { "lengthInSec": "30" } );
+                                    $.post( "http://192.168.0.104:5000/pump/turnOn", { "lengthInSec": "30" } );
                                 }
                                 intervalId = setInterval(checkPumpStatus, 5000);
 
@@ -470,7 +470,7 @@ user-scalable=no -disable user zoom on mobile
                     });
 
                     $("#pumpSwitch")[0].addEventListener('lcs-off', function(){
-                        $.post( "/pump/turnOff" );
+                        $.post( "http://192.168.0.104:5000/pump/turnOff" );
                         clearInterval(intervalId);
 
                         console.log("end of interval check. intervalid: " +  intervalId);
