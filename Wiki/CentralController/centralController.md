@@ -407,8 +407,15 @@ Under the **python** folder, you can see the following hierarchy of the python c
     ```sh
     pi@raspberrypi:~$ ln -s /etc/apache2/conf-available/green-wall.conf /etc/apache2/conf-enabled/green-wall.conf      
     ```
+  
+  * Install mod_wsgi
+    ```sh
+    pi@raspberrypi:~$ sudo apt-get install libapache2-mod-wsgi      
+    ```
+      
   * Restart Apach2 service
     ```sh
+    ~~pi@raspberrypi:~$ sudo /etc/init.d/apache2 restart~~ 
     pi@raspberrypi:~$ sudo systemctl restart apache2      
     ```
 
