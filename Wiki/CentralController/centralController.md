@@ -410,7 +410,12 @@ Under the **python** folder, you can see the following hierarchy of the python c
   
   * Install mod_wsgi
     ```sh
-    pi@raspberrypi:~$ sudo apt-get install libapache2-mod-wsgi      
+    pi@raspberrypi:~$ sudo apt-get install libapache2-mod-wsgi python-dev
+    ```
+
+  * Enable mod_wsgi
+    ```sh
+    pi@raspberrypi:~$ sudo a2enmod wsgi 
     ```
       
   * Restart Apach2 service
