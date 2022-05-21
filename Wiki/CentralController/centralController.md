@@ -239,6 +239,7 @@ graph LR
   $ pip3 install evdev 
   $ sudo pip3 install rpi_lcd
   $ sudo apt-get install python3-flask  
+  $ sudo apt-get install python-dateutil
   
   $ pip3 install -U flask-cors
   $ pip3 install flask-classful
