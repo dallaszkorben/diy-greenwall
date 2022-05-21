@@ -231,6 +231,21 @@ graph LR
 ---
 ## Controller software
 
+### Create virtual environment for Python
+```sh
+pi@raspberrypi:~ $ sudo apt install python3-venv
+Reading package lists... Done
+Building dependency tree       
+Reading state information... Done
+python3-venv is already the newest version (3.7.3-1).
+python3-venv set to manually installed.
+0 upgraded, 0 newly installed, 0 to remove and 1 not upgraded.
+pi@raspberrypi:~ $ cd /var/www/greenwall/python
+pi@raspberrypi:/var/www/greenwall/python $ python3 -m venv env
+pi@raspberrypi:/var/www/greenwall/python $ source env/bin/activate
+(env) pi@raspberrypi:/var/www/greenwall/python $   
+```
+
 ### Install prerequisites
 
   ```sh
