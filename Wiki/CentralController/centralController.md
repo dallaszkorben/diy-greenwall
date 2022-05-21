@@ -234,12 +234,6 @@ graph LR
 ### Create virtual environment for Python
 ```sh
 pi@raspberrypi:~ $ sudo apt install python3-venv
-Reading package lists... Done
-Building dependency tree       
-Reading state information... Done
-python3-venv is already the newest version (3.7.3-1).
-python3-venv set to manually installed.
-0 upgraded, 0 newly installed, 0 to remove and 1 not upgraded.
 pi@raspberrypi:~ $ cd /var/www/greenwall/python
 pi@raspberrypi:/var/www/greenwall/python $ python3 -m venv env
 pi@raspberrypi:/var/www/greenwall/python $ source env/bin/activate
@@ -249,17 +243,26 @@ pi@raspberrypi:/var/www/greenwall/python $ source env/bin/activate
 ### Install prerequisites
 
   ```sh
+  (env) pi@raspberrypi:/var/www/greenwall/python/env/bin $ pip install requests
+  (env) pi@raspberrypi:/var/www/greenwall/python/env/bin $ pip3 install python-dateutil 
+  (env) pi@raspberrypi:/var/www/greenwall/python/env/bin $ python -m pip install flask
+  (env) pi@raspberrypi:/var/www/greenwall/python/env/bin $ pip3 install flask-classful
+  (env) pi@raspberrypi:/var/www/greenwall/python/env/bin $ pip3 install -U flask-cors
+  (env) pi@raspberrypi:/var/www/greenwall/python/env/bin $ pip3 install rpi_lcd
+  (env) pi@raspberrypi:/var/www/greenwall/python/env/bin $ pip3 install evdev
+  (env) pi@raspberrypi:/var/www/greenwall/python/env/bin $ pip3 install psutil
+  (env) pi@raspberrypi:/var/www/greenwall/python/env/bin $ pip install scipy --no-cache-dir
+  (env) pi@raspberrypi:/var/www/greenwall/python/env/bin $ pip install matplotlib
+  
+  
+  
+  
+  
+  
+  
   $ sudo apt-get install python3-sklearn python3-sklearn-lib  
   $ sudo apt install python3-pandas
-  $ pip3 install evdev 
-  $ sudo pip3 install rpi_lcd
-  $ sudo apt-get install python3-flask  
-  $ sudo apt-get install python-dateutil
-  
-  $ pip3 install -U flask-cors
-  $ pip3 install flask-classful
-  
-  $ sudo pip install numpy --upgrade --ignore-installed
+
   $ pip3 install opencv-python
   ```
 ### Clone the diy-greenwall  
