@@ -246,14 +246,14 @@ pi@raspberrypi:/var/www/greenwall/python $ source env/bin/activate
   (env) pi@raspberrypi:/var/www/greenwall/python/env/bin $ pip install requests
   (env) pi@raspberrypi:/var/www/greenwall/python/env/bin $ pip3 install python-dateutil 
   (env) pi@raspberrypi:/var/www/greenwall/python/env/bin $ python -m pip install flask
-  (env) pi@raspberrypi:/var/www/greenwall/python/env/bin $ pip3 install flask-classful
+  (env) pi@raspberrypi:/var/www/greenwall/python/env/bin $ pip install Flask-Classful==0.15.0b1
   (env) pi@raspberrypi:/var/www/greenwall/python/env/bin $ pip3 install -U flask-cors
   (env) pi@raspberrypi:/var/www/greenwall/python/env/bin $ pip3 install rpi_lcd
   (env) pi@raspberrypi:/var/www/greenwall/python/env/bin $ pip3 install evdev
   (env) pi@raspberrypi:/var/www/greenwall/python/env/bin $ pip3 install psutil
   (env) pi@raspberrypi:/var/www/greenwall/python/env/bin $ pip install scipy --no-cache-dir
   (env) pi@raspberrypi:/var/www/greenwall/python/env/bin $ pip install matplotlib
-  
+  (env) pi@raspberrypi:/var/www/greenwall/python/env/bin $ pip3 install pandas
   
   
   
@@ -261,8 +261,7 @@ pi@raspberrypi:/var/www/greenwall/python $ source env/bin/activate
   
   
   $ sudo apt-get install python3-sklearn python3-sklearn-lib  
-  $ sudo apt install python3-pandas
-
+  
   $ pip3 install opencv-python
   ```
 ### Clone the diy-greenwall  
