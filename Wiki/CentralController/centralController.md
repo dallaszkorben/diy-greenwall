@@ -235,14 +235,15 @@ graph LR
 ```sh
 pi@raspberrypi:~ $ sudo apt install python3-venv
 pi@raspberrypi:~ $ cd /var/www/greenwall/python
-pi@raspberrypi:/var/www/greenwall/python $ python3 -m venv env
-pi@raspberrypi:/var/www/greenwall/python $ source env/bin/activate
-(env) pi@raspberrypi:/var/www/greenwall/python $   
+pi@raspberrypi:/var/www/greenwall/python $ python3 -m venv env  
 ```
 
 ### Install prerequisites
 
   ```sh
+  pi@raspberrypi:~ $ sudo apt-get install libapache2-mod-wsgi-py3
+ 
+  pi@raspberrypi:/var/www/greenwall/python $ source env/bin/activate
   (env) pi@raspberrypi:/var/www/greenwall/python/env/bin $ pip install requests
   (env) pi@raspberrypi:/var/www/greenwall/python/env/bin $ pip3 install python-dateutil 
   (env) pi@raspberrypi:/var/www/greenwall/python/env/bin $ python -m pip install flask
