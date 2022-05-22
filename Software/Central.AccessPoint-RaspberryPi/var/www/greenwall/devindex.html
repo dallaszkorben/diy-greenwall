@@ -1,0 +1,547 @@
+<meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+
+<!--
+user-scalable=no -disable user zoom on mobile
+-->
+<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=0.55">
+
+<html>
+<head>
+
+    <title>Green Wall</title>
+
+    <style>
+
+        * {
+            font-family: "Comic Sans MS", "Comic Sans", cursive;
+            font-size: 18px;
+        }
+    
+        h1 {
+            font-size: 40px;
+        }
+
+        #dateFilter {
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        #errormessage {
+            color: red;
+            font-weight: bold;
+        }
+
+        #labelstationid {
+            white-space: nowrap;
+            font-size: 18pt;
+            font-weight: bold;
+            -moz-transform: rotate(-90deg);
+            -moz-transform-origin: center center;
+            -webkit-transform: rotate(-90deg);
+            -webkit-transform-origin: center center;
+            -ms-transform: rotate(-90deg);
+            -ms-transform-origin: center center;
+            max-width: 2em;
+            display: inline-block;
+        }
+
+        #refreshGraphButton{
+            height: 60px;
+            vertical-align: top;
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    </style>
+
+    <script src="script/jquery/jquery-3.6.0.min.js"></script>
+    <script src="script/jquery-ui/jquery-ui.min.js"></script>
+    <script src="script/switch/lc_switch.js"></script>
+    <link rel="stylesheet" href="script/jquery-ui/jquery-ui.css">
+
+
+    <script>
+
+        function isEmpty(str) {
+            return (!str || str.length === 0 );
+        }
+
+
+
+
+
+
+
+        function buildCamStreamWindow(){
+
+            $.ajax({type: "GET", url: "http://192.168.0.104:5000/info/camStreamList", async: true,
+                success: function(result){
+
+                    res = result.result
+
+                    if(res == "OK"){
+
+                        var tableBody = $("<tbody>");
+
+                        streamList = result.camStreamList;
+
+                        $.map(streamList, function(stream){
+
+                            camStreamId = stream.id;
+                            camStreamIp = stream.ip;
+                            camStreamTimestamp = stream.timeStamp;
+                            camStreamUrl = stream.url;
+    
+                            row = $("<tr>");
+                            rowData = $("<td>");
+                            camStreamField = $('<img width="600px" src="' + camStreamUrl + '">');
+                            rowData.html(camStreamField);
+                            row.append(rowData);
+
+                            tableBody.append(row);
+
+                        });
+
+                        var table = $('<table border="0"></table>').append(tableBody);
+
+                        $('#camStreamDiv').html("");
+                        $('#camStreamDiv').append(table);
+
+
+                    }else{
+                        //$("#value").html("");
+                        //$("#errormessage").html("something went wrong");
+                        //$("#spinner").hide();
+                        a=2
+                    }
+
+//                    $("#errormessage").html("");
+                },
+                error: function(xhr,status,error){
+                    //$("#value").html("");
+//                    $("#errormessage").html(xhr.statusText + " " + xhr.responseText);
+//                    $("#spinner").hide();
+                    a=2
+                }
+            });
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        // ================================================
+        //
+        // refresh the graphs
+        //
+        // ================================================
+        function refreshGraphs(){
+
+            $("#spinner").show();
+
+            // Fetch the date values from the fields
+            startDate = $('#startDatePicker').val();
+            endDate = $('#endDatePicker').val();
+
+            if (!isEmpty(endDate)){
+                // Add 1 more day construct midnight of endDate
+                var date = new Date(endDate);
+                date.setDate(date.getDate() + 1)
+
+                endYear = date.getFullYear()
+                endMonth = date.getMonth() + 1
+                endDay = date.getDate()
+                console.log( endYear + "." + endMonth + "." + endDay);
+            }
+
+            param = "startDate/" + startDate + ( isEmpty(endDate) ? "" : ("/endDate/" + endYear + "-" + endMonth + "-" + endDay))
+
+            $("#errormessage").html("");
+
+            $.ajax({type: "GET", url: "http://192.168.0.104:5000/info/graph/" + param, async: true,
+                success: function(result){
+
+                    $("#spinner").hide();
+
+                    res = result.result
+
+                    if(res == "OK"){
+
+
+                        //
+                        // header line
+                        //
+                        row = $("<tr>");
+
+                        // empty
+                        rowData = $('<th>');
+                        row.append(rowData)
+
+                        // water level
+                        rowData = $("<th>");
+                        rowData.html("Water level")
+                        row.append(rowData)
+
+                        // temperature
+                        rowData = $("<th>");
+                        rowData.html("Temperature [°C]")
+                        row.append(rowData)
+
+                        // humidity
+                        rowData = $("<th>");
+                        rowData.html("Humidity [%]")
+                        row.append(rowData)
+
+                        var tableBody = $("<tbody>");
+                        tableBody.append(row)
+
+                        graphs = result.graphs;
+                        $.map(graphs,function(graph){
+                            stationId = graph.stationId;
+                            levelPath = graph.levelPath;
+                            temperaturePath = graph.temperaturePath;
+                            humidityPath = graph.humidityPath;
+
+                            row = $('<tr>');
+
+                            // StationId
+                            rowData = $('<td>');
+                            stationIdField = $('<dev id="labelstationid">').html('Station ' + stationId);
+                            rowData.html(stationIdField);
+
+                            row.append(rowData);
+
+                            // Level
+                            rowData = $('<td style="padding:1px">');
+                            if(levelPath != null){
+                                // Tricky solution to clean the image cache
+                                rowData = rowData.html('<img src="' + levelPath + '?v=' + (new Date()).getTime() + '" alt="can not find image">');
+                            }
+                            row.append(rowData);
+
+                            // Temperature
+                            rowData = $('<td style="padding:1px">');
+                            if(temperaturePath != null){
+                                // Tricky solution to clean the image cache
+                                rowData = rowData.html('<img src="' + temperaturePath + '?v=' + (new Date()).getTime() + '" alt="can not find image">');
+                            }
+                            row.append(rowData);
+
+                            // Humidity
+                            rowData = $('<td style="padding:1px">');
+                            if(humidityPath != null){
+                                // Tricky solution to clean the image cache
+                                rowData = rowData.html('<img src="' + humidityPath + '?v=' + (new Date()).getTime() + '" alt="can not find image">');
+                            }
+                            row.append(rowData);
+
+                            tableBody.append(row);
+
+
+                            var table = $('<table border="0"></table>').append(tableBody);
+
+                            $('#graphTableDiv').html("");
+                            $('#graphTableDiv').append(table);
+
+                        });
+
+
+                    }else{
+                        //$("#value").html("");
+                        $("#errormessage").html("something went wrong");
+                        $("#spinner").hide();
+                    }
+
+                    $("#errormessage").html("");
+                },
+                error: function(xhr,status,error){
+                    //$("#value").html("");
+                    $("#errormessage").html(xhr.statusText + " " + xhr.responseText);
+                    $("#spinner").hide();
+                }
+            });
+        }
+
+        var intervalId = null;
+
+
+        // ================================================
+        //
+        // check pump status
+        //
+        // ================================================
+        function checkPumpStatus(){
+
+            $.get( "http://192.168.0.104:5000/pump/status").done(
+                function( data ) {
+
+                    console.log("checking: " + data.status);
+
+                    if (data.status == 'off'){
+                        lcs_off("#pumpSwitch");
+                    }
+            });
+        }
+
+        // ================================================
+        //  When the page is loaded
+        // ================================================
+        $(document).ready(function(){
+
+            $("#spinner").hide()
+
+            //-----------------------
+            // Start Date
+            //-----------------------
+            $( "#startDatePicker" ).datepicker({
+                dateFormat: 'yy-mm-dd',
+                changeMonth: true,
+                changeYear: true,
+                changeHour: true,
+        
+//                onSelect: function(datetext){
+//                    console.log(datetext)
+//                }
+            });
+
+            var date = new Date();
+            var weekBefore = new Date(date.getFullYear(), date.getMonth(), date.getDate() - 7);
+            $('#startDatePicker').datepicker('setDate', weekBefore);
+
+            //-----------------------
+            // End Date
+            //-----------------------
+            $( "#endDatePicker" ).datepicker({
+                dateFormat: 'yy-mm-dd',
+                changeMonth: true,
+                changeYear: true,
+                changeHour: true,
+            });
+
+            //-----------------------
+            // Refresh graph Button
+            //-----------------------
+            $("#refreshGraphButton").click(function(){
+//                startDate = $('#startDatePicker').val();
+//                var date = new Date(startDate);
+//                startYear = date.getFullYear()
+//                startMonth = date.getMonth() + 1
+//                startDay = date.getDate()
+//                console.log( startYear + "." + startMonth + "." + startDay);
+
+                $("#spinner").show();
+
+                refreshGraphs();
+            });
+
+            buildCamStreamWindow()
+
+
+            //-----------------------
+            // Refresh graphs
+            //-----------------------
+            //refreshGraphs();
+            setInterval(refreshGraphs, 600000);
+
+
+            //-----------------------
+            // Lamp Switch
+            //-----------------------
+
+            lc_switch("#lampSwitch", {
+
+                on_txt      : 'ON',
+                off_txt     : 'OFF',
+                on_color    : false,
+                compact_mode: false
+            });
+
+            lcs_disable("#lampSwitch");
+
+            $.get( "http://192.168.0.104:5000/lamp/status").done(
+                function( data ) {
+                    if (data.status == 'on'){
+                        lcs_on("#lampSwitch")
+                        lcs_enable("#lampSwitch");
+                    }else{
+                        lcs_off("#lampSwitch")
+                        lcs_enable("#lampSwitch");
+                    }
+
+                    $("#lampSwitch")[0].addEventListener('lcs-on', function(){
+                        $.post( "http://192.168.0.104:5000/lamp/switch", { "status": "on", "lengthInSec": "10" } );
+                    });
+
+                    $("#lampSwitch")[0].addEventListener('lcs-off', function(){
+                        $.post( "http://192.168.0.104:5000/lamp/switch", { "status": "off", "lengthInSec": "10" } );
+                    });
+            });
+
+
+            //-----------------------
+            // Pump Switch
+            //-----------------------
+
+            lc_switch("#pumpSwitch", {
+
+                on_txt      : 'ON',
+                off_txt     : 'OFF',
+                on_color    : false,
+                compact_mode: false
+            });
+
+            lcs_disable("#pumpSwitch");
+
+
+            $.get( "http://192.168.0.104:5000/pump/status").done(
+                function( data ) {
+                    if (data.status == 'on'){
+                        lcs_on("#pumpSwitch")
+                        lcs_enable("#pumpSwitch");
+
+                        // 5 sec
+                        intervalId = setInterval(checkPumpStatus, 5000);
+                        console.log("initial intervalId: " + intervalId);
+
+                    }else{
+                        lcs_off("#pumpSwitch")
+                        lcs_enable("#pumpSwitch");
+                    }
+
+
+
+                    $("#pumpSwitch")[0].addEventListener('lcs-on', function(){
+
+                        lcs_disable("#pumpSwitch");
+
+                        //first check the state of the pump
+
+                        $.get( "http://192.168.0.104:5000/pump/status").done(
+                            function( data ) {
+
+                                //if the pump is OFF
+                                if (data.status == 'off'){
+
+                                    //the the pump can be turn ON
+                                    $.post( "http://192.168.0.104:5000/pump/turnOn", { "lengthInSec": "30" } );
+                                }
+                                intervalId = setInterval(checkPumpStatus, 5000);
+
+                                console.log("intervalId: " + intervalId);
+
+                                lcs_enable("#pumpSwitch");
+
+                            }
+
+                        );
+
+                    });
+
+                    $("#pumpSwitch")[0].addEventListener('lcs-off', function(){
+                        $.post( "http://192.168.0.104:5000/pump/turnOff" );
+                        clearInterval(intervalId);
+
+                        console.log("end of interval check. intervalid: " +  intervalId);
+                        console.log(" ");
+
+                    });
+
+
+
+            });
+
+
+        });
+
+    </script>
+
+</head>
+
+<body style="background-color:DarkGrey;">
+    <center><h1>Green Wall</h1></center> 
+
+    <hr>
+
+
+
+    <table id="controller" border="0" class="switchh">
+        <tr>
+            <td valign="top" >Lamp:</td>
+            <td >
+                <form>
+                   <input type="checkbox" name="lampSwitch" value="1" class="lcs_check" id="lampSwitch"/>
+                </form>
+            </td>
+        </tr>
+
+        <tr>
+            <td valign="top" >Pump:</td>
+            <td >
+                <form>
+                   <input type="checkbox" name="pumpSwitch" value="1" class="lcs_check" id="pumpSwitch"/>
+                </form>
+            </td>
+        </tr>
+
+    </table>
+
+    <hr>
+
+    <table id="dateFilter" border="0">
+        <tr>
+            <td> Start date:</td>
+            <td><input type="text" id="startDatePicker" size="8"> </td>
+            <td rowspan="2"><button id="refreshGraphButton">Refresh</button></td>
+            <td rowspan="2" width="60px"><img id="spinner" src="spinner.gif" width="60"></td>
+            <td rowspan="2" ><div id="errormessage"></div></td>
+        </tr>
+        <tr>
+            <td> End date:</td>
+            <td><input type="text" id="endDatePicker" size="8"> </td>
+        </tr>
+    </table>
+
+ 
+    <div id="graphTableDiv"></div>
+
+    <hr>
+
+    <div id="camStreamDiv"></div>
+
+<!--    <div id="value"></div> -->
+
+
+</body>
+</html>
