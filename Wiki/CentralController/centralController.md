@@ -231,19 +231,38 @@ graph LR
 ---
 ## Controller software
 
+### Create virtual environment for Python
+```sh
+pi@raspberrypi:~ $ sudo apt install python3-venv
+pi@raspberrypi:~ $ cd /var/www/greenwall/python
+pi@raspberrypi:/var/www/greenwall/python $ python3 -m venv env  
+```
+
 ### Install prerequisites
 
   ```sh
+  pi@raspberrypi:~ $ sudo apt-get install libapache2-mod-wsgi-py3
+ 
+  pi@raspberrypi:/var/www/greenwall/python $ source env/bin/activate
+  (env) pi@raspberrypi:/var/www/greenwall/python/env/bin $ pip install requests
+  (env) pi@raspberrypi:/var/www/greenwall/python/env/bin $ pip3 install python-dateutil 
+  (env) pi@raspberrypi:/var/www/greenwall/python/env/bin $ python -m pip install flask
+  (env) pi@raspberrypi:/var/www/greenwall/python/env/bin $ pip install Flask-Classful==0.15.0b1
+  (env) pi@raspberrypi:/var/www/greenwall/python/env/bin $ pip3 install -U flask-cors
+  (env) pi@raspberrypi:/var/www/greenwall/python/env/bin $ pip3 install rpi_lcd
+  (env) pi@raspberrypi:/var/www/greenwall/python/env/bin $ pip3 install evdev
+  (env) pi@raspberrypi:/var/www/greenwall/python/env/bin $ pip3 install psutil
+  (env) pi@raspberrypi:/var/www/greenwall/python/env/bin $ pip install scipy --no-cache-dir
+  (env) pi@raspberrypi:/var/www/greenwall/python/env/bin $ pip install matplotlib
+  (env) pi@raspberrypi:/var/www/greenwall/python/env/bin $ pip3 install pandas
+  
+  
+  
+  
+  
+  
   $ sudo apt-get install python3-sklearn python3-sklearn-lib  
-  $ sudo apt install python3-pandas
-  $ pip3 install evdev 
-  $ sudo pip3 install rpi_lcd
-  $ sudo apt-get install python3-flask  
   
-  $ pip3 install -U flask-cors
-  $ pip3 install flask-classful
-  
-  $ sudo pip install numpy --upgrade --ignore-installed
   $ pip3 install opencv-python
   ```
 ### Clone the diy-greenwall  
@@ -407,8 +426,20 @@ Under the **python** folder, you can see the following hierarchy of the python c
     ```sh
     pi@raspberrypi:~$ ln -s /etc/apache2/conf-available/green-wall.conf /etc/apache2/conf-enabled/green-wall.conf      
     ```
+  
+  * Install mod_wsgi
+    ```sh
+    pi@raspberrypi:~$ sudo apt-get install libapache2-mod-wsgi python-dev
+    ```
+
+  * Enable mod_wsgi
+    ```sh
+    pi@raspberrypi:~$ sudo a2enmod wsgi 
+    ```
+      
   * Restart Apach2 service
     ```sh
+    ~~pi@raspberrypi:~$ sudo /etc/init.d/apache2 restart~~ 
     pi@raspberrypi:~$ sudo systemctl restart apache2      
     ```
 
