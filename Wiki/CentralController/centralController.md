@@ -478,6 +478,22 @@ The firewall should look like this:
 
 
 Unfortunatelly this settings will disappear after a reset, so you have to make it persistent.
+```sh
+    root@raspberrypi:~# /sbin/iptables-save > /etc/iptables/rules.v4
+    root@raspberrypi:~# cat /etc/iptables/rules.v4
+    
+    # iptables-persisten was already installed
+    # make sure the service is enabled
+    root@raspberrypi:~# sudo systemctl is-enabled netfilter-persistent.service
+    enabled
+    
+    # if it is not, then enable it
+    root@raspberrypi:~# sudo systemctl enable netfilter-persistent.service
+    
+    # get status
+    sudo systemctl status netfilter-persistent.service
+
+```
 
 
 
