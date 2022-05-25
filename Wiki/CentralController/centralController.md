@@ -241,6 +241,8 @@ pi@raspberrypi:/var/www/greenwall/python $ python3 -m venv env
 ### Install prerequisites
 
   ```sh
+  pi@raspberrypi:~ $ sudo apt-get install iptables-persistent
+
   pi@raspberrypi:~ $ sudo apt-get install libapache2-mod-wsgi-py3
  
   pi@raspberrypi:/var/www/greenwall/python $ source env/bin/activate
@@ -262,7 +264,6 @@ pi@raspberrypi:/var/www/greenwall/python $ python3 -m venv env
   
   
   $ sudo apt-get install python3-sklearn python3-sklearn-lib  
-  
   $ pip3 install opencv-python
   ```
 ### Clone the diy-greenwall  
