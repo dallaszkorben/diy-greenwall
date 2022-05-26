@@ -1,5 +1,7 @@
 import requests
 import logging
+from datetime import datetime
+
 
 class Pump:
 
@@ -45,6 +47,22 @@ class Pump:
 
 
 
+# datetime now()
+#  datetime.datetime.now().astimezone()
+#
+# String now()
+#  datetime.now().astimezone().isoformat()
+#
+# datetime from String
+#    date = parser.parse(dateString)
+#
+# timestamp from datetime
+#    timeStamp = date.timestamp()
+#    timeStamp = datetime.timestamp(date)
+#
+# datetime from timestamp
+#    datetime.fromtimestamp(timeStamp)
+
     def getPumpStatus(self):
 
         addresses = []
@@ -52,10 +70,18 @@ class Pump:
         # TODO later I should handle more lamps. Now works only one
         for key, value in self.webGadget.registerPump.pumpDict.items():
 
-            addresses.append("http://{url}/pump/status".format(url=value["ip"]))
+            actDateTime = datetime.now().astimezone()
+            actTimeStamp = datetime.timestamp(actDateTime)
+            regTimeStamp = value["timeStamp"]
+            diffSec = (actTimeStamp - regTimeStamp)
 
-        address = addresses[0]
+            # if less than 120 seconds was re-registering
+            if diffSec < 120:
+                addresses.append("http://{url}/pump/status".format(url=value["ip"]))
+        
         try:
+
+            address = addresses[0]
 
             x = requests.get(address, timeout=20)
             response = x.json()
@@ -66,11 +92,11 @@ class Pump:
                 logging.debug("Response: {0}".format(x.text))
                 return response.get('status')
             else:
-                logging.debug("Response: Failed, so the status faked as OFF")
-                return 'off'
+                logging.debug("Response: Failed. Status is n/a")
+                return 'n/a'
 
         # NewConnectionError
         # ConnectTimeoutError
         except Exception as e:
-            logging.error("Exception: {0}. Status faked as OFF".format(e))
-            return 'off'
+            logging.error("Exception: {0}. Status is n/a".format(e))
+            return 'n/a'
