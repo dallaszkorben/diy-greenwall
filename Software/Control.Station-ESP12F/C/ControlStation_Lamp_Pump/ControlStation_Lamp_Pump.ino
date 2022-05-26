@@ -30,12 +30,23 @@ int reset_hours;
 bool pumpActive;
 bool lampActive = false;
 
+#define LED_INITIATE 0
+#define LED_COMMUNICATE 1
+#define LED_HEALTHY 2
+#define LED_ERROR 3
+
+int ledStatus = LED_INITIATE;
+
 // -------------------
 
 void setup() {
   Serial.begin(115200);
   Serial.println("\n");
   delay(2000);
+
+  pinMode(LED_BUILTIN, OUTPUT);  
+
+  ledSignalInitiate();
   
   // --- Config --- //
   Serial.println("========== Setup ==========");
@@ -62,6 +73,7 @@ void setup() {
 
   // --- Sync Time --- //
   if( !syncTime() ){
+    ledSignalNetworkError();
     Serial.println("!!! Wait 1 minute and then restart !!!");
     delay(60000);
     ESP.restart();
@@ -72,6 +84,7 @@ void setup() {
   pinMode(pump_gpio, OUTPUT);
 
   if( !registerLamp() || !registerPump() ){
+    ledSignalNetworkError();
     Serial.println("!!! Wait 1 minute and then restart !!!");
     delay(60000);
     ESP.restart();
@@ -89,27 +102,73 @@ void setup() {
   server.begin();
   Serial.println("HTTP server started\n");
 
-  syncLampStatus();
-
-  // --- Pump status -- //
-  if (!syncPumpStatus()){
+  // --- Sync Pump adn Lamp statuses -- //
+  if (!syncLampStatus() || !syncPumpStatus()){
+    ledSignalNetworkError();
     Serial.println("!!! Wait 1 minute and then restart !!!");
     delay(60000);
     ESP.restart();
   }
 
   Serial.println("===========================\n");
+
+  ledSignalHealthy();
 }
 
-long timestamp = 0;
+bool healthy = true;
+long syncTimestamp = 0;
+long regTimestamp = 0;
 void loop() {
 
   server.handleClient();
-
-  if (pumpActive && timestamp != now()){
-    timestamp = now();
-    if(timestamp%10 == 0){
+  
+  // in every seconds
+  if (syncTimestamp != now()){
+    syncTimestamp = now();  
+    
+    // If the pump is ON, in every 10 seconds it tries to sync it.
+    if(pumpActive && syncTimestamp%1 == 0){      
       syncPumpStatus();
     }
   }
+
+  // in every seconds
+  if (regTimestamp != now()){
+
+    //healthy = true;
+    
+    // If there is WiFi connection
+    if( WiFi.localIP().isSet() and WiFi.isConnected() ){
+
+      regTimestamp = now();  
+
+      // in every 10 seconds it tries to register
+      if( regTimestamp%30 == 0 ){
+        if( !registerLamp() || !registerPump()){
+          healthy = false;
+        }else{
+          healthy = true;
+        }
+      }
+    }else{
+      //healthy = false;
+    }
+  }
+
+  if( healthy && ledStatus == LED_ERROR){
+    Serial.print("changed to HEALTHY - healthy: ");
+    Serial.print(healthy);
+    Serial.print(" ledStatus: ");
+    Serial.println(ledStatus);
+    
+    ledSignalHealthy();
+  }else if(!healthy && ledStatus == LED_HEALTHY){
+    Serial.print("changed to ERROR - healthy: ");
+    Serial.print(healthy);
+    Serial.print(" ledStatus: ");
+    Serial.println(ledStatus);
+
+    ledSignalNetworkError();
+  }
+  
 }

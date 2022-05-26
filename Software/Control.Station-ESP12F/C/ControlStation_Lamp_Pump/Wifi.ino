@@ -2,10 +2,13 @@
 bool connectToWiFi() {
   WiFi.begin(essid, password);
 
+  WiFi.setAutoReconnect(true);
+  WiFi.persistent(true);
+
   Serial.println();
-  Serial.print("Connecting to WiFi ");
+  Serial.print("Connecting to WiFi First time");
   while (WiFi.status() != WL_CONNECTED){
-    delay(1000);
+    delay(10000);
     Serial.print(".");
   }
 
@@ -17,7 +20,7 @@ bool connectToWiFi() {
 }
 
 void connectToWiFiIfNotConnected(){
-  Serial.print("Connection ");
+  Serial.print("\nReconnecting to WiFi ");
   while ( !WiFi.localIP().isSet() || !WiFi.isConnected() ){
 
     //Serial.print(WiFi.localIP());

@@ -171,8 +171,7 @@ bool syncPumpStatus(){
       serializeJsonPretty(doc, statusFileToWrite);
       statusFileToWrite.close();
 
-      turnPump(LOW);  
-      
+      turnPump(LOW);        
     }      
   }
 

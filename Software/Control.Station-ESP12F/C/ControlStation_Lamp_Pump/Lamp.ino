@@ -16,7 +16,7 @@ double getPowByPerc(double perc){
 
 
 
-void syncLampStatus(){
+bool syncLampStatus(){
 
   Serial.println("Sync Lamp status");
   
@@ -24,14 +24,14 @@ void syncLampStatus(){
   File statusFile = SPIFFS.open(LAMP_STATUS_FILE_NAME, "r");
   if( !statusFile){
     Serial.println("Failed to open Lamp status file for reading");
-    return;
+    return result;
   }
 
   size_t size = statusFile.size();
   if(size > MAX_STATUS_SIZE){
     statusFile.close();
     Serial.println("Lamp sttus file size is too large");
-    return;
+    return result;
   }
 
   Serial.print("  Config file size: ");
@@ -47,7 +47,7 @@ void syncLampStatus(){
   if(error){
     Serial.print("Failed to parse lamp status file: ");
     Serial.println(error.c_str());
-    return;
+    return result;
   }
 
   statusFile.close();
@@ -56,12 +56,15 @@ void syncLampStatus(){
 
   lampActive = active;
   if(active){
-    Serial.println("The lamp should be ON...");
+    Serial.println("The lamp should be ON so it will be turn ON...");
     turnLampOn(10);
   }else{
-    Serial.println("The lamp should be OFF...");
+    Serial.println("The lamp should be OFF so it will be turn OFF...");
     //turnLampOff(0);
   }
+
+  result = true;
+  return result;
 }
 
 
