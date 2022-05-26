@@ -1,5 +1,6 @@
 import requests
 import logging
+from datetime import datetime
 
 class Lamp:
 
@@ -11,12 +12,8 @@ class Lamp:
 
         for key, value in self.webGadget.registerLamp.lampDict.items():
 
-            #dateString = datetime.fromtimestamp(value['timeStamp']).astimezone().isoformat()
-
             address = "http://{url}/lamp/on?lengthInSec={lengthInSec}".format(url=value["ip"], lengthInSec=lengthInSec)
             data = {'lengthInSec': lengthInSec}
-
-#            logging.debug("Request: {0}".format(address))
 
             try:
                 x = requests.post(address, timeout=20)
@@ -31,12 +28,8 @@ class Lamp:
 
         for key, value in self.webGadget.registerLamp.lampDict.items():
 
-            #dateString = datetime.fromtimestamp(value['timeStamp']).astimezone().isoformat()
-
             address = "http://{url}/lamp/off?lengthInSec={lengthInSec}".format(url=value["ip"], lengthInSec=lengthInSec)
             data = {'lengthInSec': lengthInSec}
-
-#            logging.debug("Request: {0}".format(address))
 
             try:
                 x = requests.post(address, timeout=20)
@@ -45,8 +38,6 @@ class Lamp:
             except Exception as e:
                 logging.error("Exception: {0}".format(e))
 
-
-
     def getLampStatus(self):
 
         addresses = []
@@ -54,10 +45,18 @@ class Lamp:
         # TODO later I should handle more lamps. Now works only one
         for key, value in self.webGadget.registerLamp.lampDict.items():
 
-            addresses.append("http://{url}/lamp/status".format(url=value["ip"]))
+            actDateTime = datetime.now().astimezone()
+            actTimeStamp = datetime.timestamp(actDateTime)
+            regTimeStamp = value["timeStamp"]
+            diffSec = (actTimeStamp - regTimeStamp)
 
-        address = addresses[0]
+            # if less than 120 seconds was re-registering
+            if diffSec < 120:
+                addresses.append("http://{url}/lamp/status".format(url=value["ip"]))
+
         try:
+
+            address = addresses[0]
 
             x = requests.get(address, timeout=20)
             response = x.json()
@@ -68,12 +67,12 @@ class Lamp:
                 logging.debug("Response: {0}".format(x.text))
                 return response.get('status')
             else:
-                logging.debug("Response: Failed, so the status faked as OFF")
-                return 'off'
+                logging.debug("Response: Failed. Status is n/a")
+                return 'n/a'
 
 
         # NewConnectionError
         # ConnectTimeoutError
         except Exception as e:
-            logging.error("Exception: {0}. Status faked as OFF".format(e))
-            return 'off'
+            logging.error("Exception: {0}. Status is n/a".format(e))
+            return 'n/a'

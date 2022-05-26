@@ -241,6 +241,8 @@ pi@raspberrypi:/var/www/greenwall/python $ python3 -m venv env
 ### Install prerequisites
 
   ```sh
+  pi@raspberrypi:~ $ sudo apt-get install iptables-persistent
+
   pi@raspberrypi:~ $ sudo apt-get install libapache2-mod-wsgi-py3
  
   pi@raspberrypi:/var/www/greenwall/python $ source env/bin/activate
@@ -262,7 +264,6 @@ pi@raspberrypi:/var/www/greenwall/python $ python3 -m venv env
   
   
   $ sudo apt-get install python3-sklearn python3-sklearn-lib  
-  
   $ pip3 install opencv-python
   ```
 ### Clone the diy-greenwall  
@@ -442,6 +443,60 @@ Under the **python** folder, you can see the following hierarchy of the python c
     ~~pi@raspberrypi:~$ sudo /etc/init.d/apache2 restart~~ 
     pi@raspberrypi:~$ sudo systemctl restart apache2      
     ```
+
+### Port forwarding
+  Why do we need it?
+  Because in  development/test phase I use the stand alone WSGI server to receive REST requests from the Sensor Stations and Control Stations. The stand alone WSGI server uses port 5000.
+  
+  But later, I use the integrated WSGI in the Apache server, instead of the stand alone WSGI. That means, the port changes to 80. But I do not want to change the code all the time in the Station modules, when I change the WSGI. 
+To make it work in both case I have to do a port forwarding. If the Central Controler Unit receive a rest request to port 5000, it should be mapped to port 80 instead.
+
+```sh
+    root@raspberrypi:~# echo "1" /proc/sys/net/ipv4/ip_forward
+    root@raspberrypi:~# iptables -t nat -A PREROUTING -p tcp -d 192.168.50.3 --dport 5000 -j DNAT --to-destination 192.168.50.3:80
+    root@raspberrypi:~# iptables -t nat -A POSTROUTING -j MASQUERADE
+```
+
+The firewall should look like this:
+
+```sh
+    root@raspberrypi:~# iptables -t nat -L --line-numbers
+    Chain PREROUTING (policy ACCEPT)
+    num  target     prot opt source               destination         
+    1    DNAT       tcp  --  anywhere             192.168.50.3         tcp dpt:5000 to:192.168.50.3:80
+
+    Chain INPUT (policy ACCEPT)
+    num  target     prot opt source               destination         
+
+    Chain POSTROUTING (policy ACCEPT)
+    num  target     prot opt source               destination         
+    1    MASQUERADE  all  --  anywhere             anywhere            
+
+    Chain OUTPUT (policy ACCEPT)
+    num  target     prot opt source               destination         
+```
+
+
+Unfortunatelly this settings will disappear after a reset, so you have to make it persistent.
+```sh
+    root@raspberrypi:~# /sbin/iptables-save > /etc/iptables/rules.v4
+    root@raspberrypi:~# cat /etc/iptables/rules.v4
+    
+    # iptables-persisten was already installed
+    # make sure the service is enabled
+    root@raspberrypi:~# sudo systemctl is-enabled netfilter-persistent.service
+    enabled
+    
+    # if it is not, then enable it
+    root@raspberrypi:~# sudo systemctl enable netfilter-persistent.service
+    
+    # get status
+    sudo systemctl status netfilter-persistent.service
+
+```
+
+
+
 
 
 ---
