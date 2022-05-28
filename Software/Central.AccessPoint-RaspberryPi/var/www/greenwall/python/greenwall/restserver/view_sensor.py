@@ -14,7 +14,9 @@ from greenwall.config.config import getConfig
 from greenwall.exceptions.invalid_api_usage import InvalidAPIUsage
 
 from greenwall.restserver.representations import output_json
+
 from greenwall.restserver.endpoints.ep_sensor_add import EPSensorAdd
+from greenwall.restserver.endpoints.ep_sensor_data_list import EPSensorDataList
 from greenwall.restserver.endpoints.ep import EP
 
 
@@ -37,6 +39,7 @@ class SensorView(FlaskView):
         self.web_gadget = web_gadget
 
         self.epSensorAdd = EPSensorAdd(web_gadget)
+        self.epSensorDataList = EPSensorDataList(web_gadget)
 
     #
     # GET http://localhost:5000/sensor/
@@ -47,7 +50,7 @@ class SensorView(FlaskView):
 # ===
 
     #
-    # Set the sensor with payload
+    # Add sensor data to list with payload
     #
     # curl  --header "Content-Type: application/json" --request POST --data '{"stationId": "5", "dateString": "2021.12.03T11:34", "levelValue":23.4, "sensorVariance":0.0 "temperatureValue": 12, "humidityValue": 20}' http://localhost:5000/sensor/add
     #
@@ -80,7 +83,7 @@ class SensorView(FlaskView):
         return out
 
     #
-    # Read the sensor - with parameters
+    # Add sensor data to list - with parameters
     #
     # curl  --header "Content-Type: application/json" --request POST http://localhost:5000/sensor/add/stationId/5/dateString/2021.12.03T11:34/levelValue/23.4/sensorVariance/0.0/temperatureValue/12/humidityValue/2
     #
@@ -146,4 +149,37 @@ class SensorView(FlaskView):
 
 
 # ===
+
+
+
+
+
+    #
+    # Fetch sensor data - with parameters
+    #
+    # curl  --header "Content-Type: application/json" --request GET http://localhost:5000/sensor/data/list/startDate/2021.11.07T20:15:123+01:00
+    #
+    # READ http://localhost:5000/sensor/data/list/startDate/2021.11.07T20:15:123+01:00
+    #
+    #@route('/data/list/startDate/<startDate>', methods=['GET'])
+    @route(EPSensorDataList.PATH_PAR_1_URL, methods=[EPSensorDataList.METHOD])
+    def dataListWith1Parameter(self, startDate):
+
+        out = self.epSensorDataList.executeByParameters(startDate=startDate)
+        return out
+
+    #
+    # Fetch sensor data - with parameters
+    #
+    # curl  --header "Content-Type: application/json" --request GET http://localhost:5000/sensor/data/list/startDate/2021.11.07T20:15:123+01:00/endDate/2021.11.08T20:15:123+01:00
+    #
+    # READ http://localhost:5000/sensor/data/list/startDate/2021.11.07T20:15:123+01:00
+    #
+    #@route('/data/list/startDate/<startDate>/endDate/<endDate>', methods=['GET'])
+    @route(EPSensorDataList.PATH_PAR_2_URL, methods=[EPSensorDataList.METHOD])
+    def dataListWith2Parameters(self, startDate, endDate):
+
+        out = self.epSensorDataList.executeByParameters(startDate=startDate, endDate=endDate)
+        return out
+
 
