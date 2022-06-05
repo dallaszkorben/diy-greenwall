@@ -1,4 +1,5 @@
 import logging
+import math
 
 from greenwall.exceptions.invalid_api_usage import InvalidAPIUsage
 from greenwall.restserver.endpoints.ep import EP
@@ -96,8 +97,16 @@ class EPSensorAdd(EP):
             temperatureValue = float(payload[EPSensorAdd.ATTR_TEMPERATURE_VALUE])
             humidityValue = float(payload[EPSensorAdd.ATTR_HUMIDITY_VALUE])
         except:
+
+#            print("!!!! None temp and huim")
+
             temperatureValue = None
             humidityValue = None
+
+#        levelVariance = self.getOnlyNumber(levelVariance)
+#        levelValue = self.getOnlyNumber(levelValue)
+#        temperatureValue = self.getOnlyNumber(temperatureValue)
+#        humidityValue = self.getOnlyNumber(humidityValue)
 
         logging.debug( "WEB request: {0} {1} ('{2}': {3}, '{4}': {5}, '{6}': {7}, '{8}':'{9}', '{10}':'{11}', '{12}':'{13}')".format(
                     EPSensorAdd.METHOD, EPSensorAdd.URL,
@@ -149,4 +158,9 @@ class EPSensorAdd(EP):
         self.web_gadget.controlBox.refreshData(stationId)
 
         return output_json( {'result': 'OK'}, EP.CODE_OK)
+
+
+#    def getOnlyNumber(self, value):
+#        return None if not value or math.isnan(value) else value
+
 

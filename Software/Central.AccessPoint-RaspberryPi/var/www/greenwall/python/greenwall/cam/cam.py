@@ -1,44 +1,50 @@
+import os
 import requests
 import logging
 from datetime import datetime
 
-class Lamp:
+class Cam:
 
     def __init__(self, web_gadget):
 
         self.webGadget = web_gadget
 
-    def turnLampOn(self, lengthInSec=0):
+    # TODO Have to fix the selection of camera. Now selects the first 
+    def getCapture(self, camId):
 
-        for key, value in self.webGadget.registerLamp.lampDict.items():
+        webRootPath = self.webGadget.webRootPath
+        webCamCaptureFolder = self.webGadget.webCamCaptureFolder
+        webCamCaptureFile = self.webGadget.webCamCaptureFile.format(camId)
+        fileName = os.path.join(webRootPath, webCamCaptureFolder, webCamCaptureFile)
 
-            address = "http://{url}/lamp/on?lengthInSec={lengthInSec}".format(url=value["ip"], lengthInSec=lengthInSec)
-            data = {'lengthInSec': lengthInSec}
+        for key, value in self.webGadget.registerCam.camDict.items():
 
-            try:
-                x = requests.post(address, timeout=20)
-                logging.debug("StatusCode: {0}".format(x.status_code))
-
-            # NewConnectionError
-            # ConnectTimeoutError
-            except Exception as e:
-                logging.error("Exception: {0}".format(e))
-
-    def turnLampOff(self, lengthInSec=0):
-
-        for key, value in self.webGadget.registerLamp.lampDict.items():
-
-            address = "http://{url}/lamp/off?lengthInSec={lengthInSec}".format(url=value["ip"], lengthInSec=lengthInSec)
-            data = {'lengthInSec': lengthInSec}
+            address = value["captureUrl"]
+            data = {}
 
             try:
-                x = requests.post(address, timeout=20)
-                logging.debug("StatusCode: {0}".format(x.status_code))
+
+                #with requests.get(address, timeout=20, stream=True) as r:
+                #    logging.debug("Downloaded Frame's StatusCode: {0}".format(x.status_code))
+                #
+                #    r.raise_for_status()
+                #    with open( fileName 'wb') as f:
+                #        for chunk in r.iter_content(chunk_size=8192):
+                #            f.write(chunk)
+
+                logging.debug("cam.py Sends request: GET {0}".format(address))
+                response = requests.get(address, timeout=20)
+                logging.debug("Downloaded Frame's StatusCode: {0}".format(response.status_code))
+
+                open(fileName, "wb").write(response.content)
 
             except Exception as e:
-                logging.error("Exception: {0}".format(e))
 
-    def getLampStatus(self):
+                logging.error("Exception while fetch the frame from the camera: {0}.".format(e))
+
+        return fileName
+                
+    def getCamStatus(self):
 
         addresses = []
 

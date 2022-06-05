@@ -13,8 +13,10 @@ from greenwall.config.permanent_data import getPermanentData
 from greenwall.config.permanent_data import setPermanentData
 from greenwall.config.config import getConfig
 
-from greenwall.restserver.endpoints.ep_cam_stream_register import EPCamStreamRegister
-from greenwall.restserver.endpoints.ep_cam_add import EPCamAdd
+from greenwall.restserver.endpoints.ep_cam_register import EPCamRegister
+from greenwall.restserver.endpoints.ep_cam_frame_save import EPCamFrameSave
+from greenwall.restserver.endpoints.ep_cam_capture_url import EPCamCaptureUrl
+from greenwall.restserver.endpoints.ep_cam_capturelist import EPCamCaptureList
 
 from greenwall.restserver.endpoints.ep import EP
 
@@ -25,9 +27,6 @@ from PIL import Image
 
 # -----------------------------------
 #
-# POST Contorl the sensor of the light
-#
-# curl  --header "Content-Type: img/jpeg" --request POST --data '...' http://localhost:5000/cam/add/camId/5
 #
 # -----------------------------------
 #
@@ -40,8 +39,10 @@ class CamView(FlaskView):
 
         self.web_gadget = web_gadget
 
-        self.epCamStreamRegister = EPCamStreamRegister(web_gadget)
-        self.epCamAdd = EPCamAdd(web_gadget)
+        self.epCamRegister = EPCamRegister(web_gadget)
+        self.epCamFrameSave = EPCamFrameSave(web_gadget)
+        self.epCamCaptureUrl = EPCamCaptureUrl(web_gadget)
+        self.epCamCaptureList = EPCamCaptureList(web_gadget)
 
 
     #
@@ -53,22 +54,23 @@ class CamView(FlaskView):
 
 
 
-# ===
+# === POST /stream ===
 
     #
     # Register Cam Stream with payload
     #
-    # curl  --header "Content-Type: application/json" --request POST --data '{"id": "5","url":"http://192.168.50.123:81/stream"}' http://localhost:5000/cam/stream/register
+    # curl  --header "Content-Type: application/json" --request POST --data '{"camId": "5","streamUrl":"http://192.168.50.123:81/stream", "captureUrl": "http://192.168.50.123:80/capture" }' http://localhost:5000/cam/register
     #
     # POST http://localhost:5000/cam/stream/register
     #      body: {
-    #        "id":"5"
-    #        "url": "http://192.168.50.123:81/stream",
+    #        "camId":"5"
+    #        "streamUrl": "http://192.168.50.123:81/stream",
+    #        "captureUrl": "http://192.168.50.123:80/capture",
     #      }
     #
-    #@route('/stream/register', methods=['POST'])
-    @route(EPCamStreamRegister.PATH_PAR_PAYLOAD, methods=[EPCamStreamRegister.METHOD])
-    def setWithPayload(self):
+    #@route('/register', methods=['POST'])
+    @route(EPCamRegister.PATH_PAR_PAYLOAD, methods=[EPCamRegister.METHOD])
+    def registerCamWithPayload(self):
 
         # WEB
         if request.form:
@@ -81,52 +83,21 @@ class CamView(FlaskView):
         else:
             return "Not valid request", EP.CODE_BAD_REQUEST
 
-        out = self.epCamStreamRegister.executeByPayload(json_data)
+        out = self.epCamRegister.executeByPayload(json_data)
         return out
 
 
 
-
-
-
-
-
-# ===
+# === POST /cam/frame/save/ ===
 
     #
-    # Set the sensor with payload
+    # Save frame - with parameters
     #
-    # curl  --header "Content-Type: img/jpeg" --request POST --data '...' http://localhost:5000/cam/add/camId/5/timestamp/2022.11.23T11:22:12
+    # curl  --header "Content-Type: img/jpeg" --request POST --data '...' http://localhost:5000/cam/frame/save/camId/5/timestamp/2022.11.23T11:22:12
     #
-    #@route('/add/camId/<camId>/timestamp/<timestamp>', methods=['POST'])
-#    @route(EPCamAdd.PATH_PAR_PAYLOAD, methods=[EPCamAdd.METHOD])
-#    def setWithPayload(self):
-#
-#        # WEB
-#        if request.form:
-#            json_data = request.form
-#
-#        # CURL
-#        elif request.json:
-#            json_data = request.json
-#
-#        else:
-#            return "Not valid request", EP.CODE_BAD_REQUEST
-#
-#        out = self.epCamAdd.executeByPayload(json_data)
-
-#        return out
-
-
-
-    #
-    # Read the sensor - with parameters
-    #
-    # curl  --header "Content-Type: img/jpeg" --request POST --data '...' http://localhost:5000/cam/add/camId/5/timestamp/2022.11.23T11:22:12
-    #
-    #@route('/add/camId/<camId>/timestamp/<timestamp>', methods=['POST'])
-    @route(EPCamAdd.PATH_PAR_URL, methods=[EPCamAdd.METHOD])
-    def addCamCaptureWithParameter(self, camId, timestamp):
+    #@route('/frame/save/camId/<camId>/timestamp/<timestamp>', methods=['POST'])
+    @route(EPCamFrameSave.PATH_PAR_URL, methods=[EPCamFrameSave.METHOD])
+    def saveCamFrameWithParameter(self, camId, timestamp):
 
         from pprint import pprint
         print("!!! Request !!!")
@@ -142,24 +113,52 @@ class CamView(FlaskView):
         pprint(request.files)
 
 
-        if "imageFile" in request.files:
-            image = request.files["imageFile"];
+        if "frameFile" in request.files:
+            image = request.files["frameFile"];
 #            if image:
 #            img = Image.open(image)
 #            img.save("output.jpg")
 
             print("file was received")
 
-
         else:
             image = None
             print("!!! No file was received")
 
-        out = self.epCamAdd.executeByParameters(camId=camId, timestamp=timestamp, image=image)
+        out = self.epCamFrameSave.executeByParameters(camId=camId, image=image, timestamp=timestamp)
+        return out
+
+
+# === GET /cam/capture/url/camId/5 ===
+
+    #
+    # Take photo and give back the saved file's url - with parameters
+    #
+    # curl  --header "Content-Type: img/jpeg" --request GET --data  http://localhost:5000/cam/capture/url/camId/5
+    #
+    #@route('/capture/url', methods=['GET'])
+    @route(EPCamCaptureUrl.PATH_PAR_URL, methods=[EPCamCaptureUrl.METHOD])
+    def takePhotoGetUrlWithParameter(self, camId):
+
+        out = self.epCamCaptureUrl.executeByParameters(camId=camId)
         return out
 
 
 
+# === GET /cam/captureList ===
 
+    #
+    # Get the list of the URLs of Capture Cameras - with payload
+    #
+    # curl  --header "Content-Type: application/json" --request GET http://localhost:5000/cam/captureList
+    #
+    # GET http://localhost:5000/cam/captureList
+    #
+    #@route('/captureList', methods=['GET'])
+    @route(EPCamCaptureList.PATH_PAR_PAYLOAD, methods=[EPCamCaptureList.METHOD])
+    def getListOfCaptureCamUrlList(self):
+
+        out = self.epCamCaptureList.executeByParameters()
+        return out
 
 

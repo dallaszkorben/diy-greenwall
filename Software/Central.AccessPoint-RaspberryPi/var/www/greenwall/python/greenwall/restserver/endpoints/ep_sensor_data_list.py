@@ -89,12 +89,7 @@ class EPSensorDataList(EP):
         window = 15
         reportCopy = self.web_gadget.reportSensor.getRawReportCopy()
         GraphLevel.filterReportCopy(reportCopy, startDateStamp, endDateStamp)
-        GraphLevel.smoothReportCopy(reportCopy, window=window)
-
-        #webFolderName = self.web_gadget.webFolderName
-        #webPathNameGraph = self.web_gadget.webPathNameGraph
-        #webSmoothingWindow = self.web_gadget.webSmoothingWindow
-        #graphs = GraphLevel.getGraphs(reportCopy, startDateStamp, endDateStamp=endDateStamp, window=webSmoothingWindow, webFolderName=webFolderName, webPathNameGraph=webPathNameGraph)
+#        GraphLevel.smoothReportCopy(reportCopy, window=window)
 
         ret = {'result': 'OK', 'data': reportCopy}
         header = {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'}

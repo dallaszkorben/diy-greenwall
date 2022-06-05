@@ -2,6 +2,7 @@
 
 import sys,os
 
+print("\n\n===================================")
 print("The greenwall app started: %s" % (__file__))
 
 sys.path.insert(0, os.path.realpath(os.path.dirname(__file__)))

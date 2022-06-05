@@ -17,19 +17,17 @@ class Config( Property ):
     DEFAULT_LOG_FILE_NAME = ("log", "file-name", "greenwall.log")
     DEFAULT_LOG_FOLDER_NAME = ("log", "folder-name", "DEBUG")
 
+    DEFAULT_LOG_REGISTER_LAMP_FILE_NAME = ("log.register", "lamp-file-name", "lamp_register.log")
+    DEFAULT_LOG_REGISTER_PUMP_FILE_NAME = ("log.register", "pump-file-name", "pump_register.log")
+    DEFAULT_LOG_REGISTER_CAM_FILE_NAME = ("log.register", "cam-file-name", "cam_register.log")
+
     DEFAULT_SENSOR_REPORT_FILE_NAME = ("sensor-report", "file-name", "sensor_report.log")
 
-    DEFAULT_LAMP_REGISTER_FILE_NAME = ("lamp", "file-name", "lamp_register.log")
-    DEFAULT_PUMP_REGISTER_FILE_NAME = ("pump", "file-name", "pump_register.log")
-    DEFAULT_CAM_STREAM_REGISTER_FILE_NAME = ("cam-stream", "file-name", "cam_stream_register.log")
-
-    DEFAULT_WEB_FOLDER_NAME = ("web", "folder-name-graph", "/var/www/greenwall")
-    DEFAULT_WEB_PATH_NAME_GRAPH = ("web", "path-name-graph", "graph-images")
-    DEFAULT_WEB_PATH_NAME_CAM = ("web", "path-name-cam", "cam-images")
+    DEFAULT_WEB_ROOT_PATH = ("web", "root-path", "/var/www/greenwall")
+    DEFAULT_WEB_CAM_FRAME_FOLDER = ("web", "cam-frame-folder", "cam-frame")
+    DEFAULT_WEB_CAM_CAPTURE_FOLDER = ("web", "cam-capture-folder", "cam-capture")
+    DEFAULT_WEB_CAM_CAPTURE_FILE = ("web", "cam-capture-file", "capture.jpg")
     DEFAULT_WEB_SMOOTHING_WINDOW = ("web", "smoothing-window", 15)
-
-#    DEFAULT_PUMP_ID = ("pump", "id", 1)
-#    DEFAULT_PUMP_GPIO = ("pump", "gpio", 26)
 
     __instance = None
 
@@ -63,26 +61,29 @@ class Config( Property ):
     def getLogFolderName(self):
         return self.get(self.DEFAULT_LOG_FOLDER_NAME[0], self.DEFAULT_LOG_FOLDER_NAME[1], self.DEFAULT_LOG_FOLDER_NAME[2])
 
+    def getLogRegisterLampFileName(self):
+        return self.get(self.DEFAULT_LOG_REGISTER_LAMP_FILE_NAME[0], self.DEFAULT_LOG_REGISTER_LAMP_FILE_NAME[1], self.DEFAULT_LOG_REGISTER_LAMP_FILE_NAME[2])
+
+    def getLogRegisterPumpFileName(self):
+        return self.get(self.DEFAULT_LOG_REGISTER_PUMP_FILE_NAME[0], self.DEFAULT_LOG_REGISTER_PUMP_FILE_NAME[1], self.DEFAULT_LOG_REGISTER_PUMP_FILE_NAME[2])
+
+    def getLogRegisterCamFileName(self):
+        return self.get(self.DEFAULT_LOG_REGISTER_CAM_FILE_NAME[0], self.DEFAULT_LOG_REGISTER_CAM_FILE_NAME[1], self.DEFAULT_LOG_REGISTER_CAM_FILE_NAME[2])
+
     def getSensorReportFileName(self):
         return self.get(self.DEFAULT_SENSOR_REPORT_FILE_NAME[0], self.DEFAULT_SENSOR_REPORT_FILE_NAME[1], self.DEFAULT_SENSOR_REPORT_FILE_NAME[2])
 
-    def getLampRegisterFileName(self):
-        return self.get(self.DEFAULT_LAMP_REGISTER_FILE_NAME[0], self.DEFAULT_LAMP_REGISTER_FILE_NAME[1], self.DEFAULT_LAMP_REGISTER_FILE_NAME[2])
+    def getWebRootPath(self):
+        return self.get(self.DEFAULT_WEB_ROOT_PATH[0], self.DEFAULT_WEB_ROOT_PATH[1], self.DEFAULT_WEB_ROOT_PATH[2])
 
-    def getPumpRegisterFileName(self):
-        return self.get(self.DEFAULT_PUMP_REGISTER_FILE_NAME[0], self.DEFAULT_PUMP_REGISTER_FILE_NAME[1], self.DEFAULT_PUMP_REGISTER_FILE_NAME[2])
+    def getWebCamFrameFolder(self):
+        return self.get(self.DEFAULT_WEB_CAM_FRAME_FOLDER[0], self.DEFAULT_WEB_CAM_FRAME_FOLDER[1], self.DEFAULT_WEB_CAM_FRAME_FOLDER[2])
 
-    def getCamStreamRegisterFileName(self):
-        return self.get(self.DEFAULT_CAM_STREAM_REGISTER_FILE_NAME[0], self.DEFAULT_CAM_STREAM_REGISTER_FILE_NAME[1], self.DEFAULT_CAM_STREAM_REGISTER_FILE_NAME[2])
+    def getWebCamCaptureFolder(self):
+        return self.get(self.DEFAULT_WEB_CAM_CAPTURE_FOLDER[0], self.DEFAULT_WEB_CAM_CAPTURE_FOLDER[1], self.DEFAULT_WEB_CAM_CAPTURE_FOLDER[2])
 
-    def getWebFolderName(self):
-        return self.get(self.DEFAULT_WEB_FOLDER_NAME[0], self.DEFAULT_WEB_FOLDER_NAME[1], self.DEFAULT_WEB_FOLDER_NAME[2])
-
-    def getWebPathNameGraph(self):
-        return self.get(self.DEFAULT_WEB_PATH_NAME_GRAPH[0], self.DEFAULT_WEB_PATH_NAME_GRAPH[1], self.DEFAULT_WEB_PATH_NAME_GRAPH[2])
-
-    def getWebPathNameCam(self):
-        return self.get(self.DEFAULT_WEB_PATH_NAME_CAM[0], self.DEFAULT_WEB_PATH_NAME_CAM[1], self.DEFAULT_WEB_PATH_NAME_CAM[2])
+    def getWebCamCaptureFile(self):
+        return self.get(self.DEFAULT_WEB_CAM_CAPTURE_FILE[0], self.DEFAULT_WEB_CAM_CAPTURE_FILE[1], self.DEFAULT_WEB_CAM_CAPTURE_FILE[2])
 
     def getWebSmoothingWindow(self):
         return self.get(self.DEFAULT_WEB_SMOOTHING_WINDOW[0], self.DEFAULT_WEB_SMOOTHING_WINDOW[1], self.DEFAULT_WEB_SMOOTHING_WINDOW[2])
@@ -102,31 +103,34 @@ class Config( Property ):
         self.updatet(self.DEFAULT_LOG_LEVEL[0], self.DEFAULT_LOG_LEVEL[1], logLevel)
 
     def setLogFileName(self, logFileName):
-        self.update(self.DEFAULT_LOG_LEVEL[0], self.DEFAULT_LOG_LEVEL[1], logFileName)
+        self.update(self.DEFAULT_LOG_FILE_NAME[0], self.DEFAULT_LOG_FILE_NAME[1], logFileName)
 
     def setLogFolderName(self, logFolderName):
-        self.update(self.DEFAULT_LOG_FILE_NAME[0], self.DEFAULT_LOG_FILE_NAME[1], logFolderName)
+        self.update(self.DEFAULT_LOG_FOLDER_NAME[0], self.DEFAULT_LOG_FOLDER_NAME[1], logFolderName)
+
+    def setLogRegisterLampFileName(self, registerFileName):
+        self.update(self.DEFAULT_LOG_REGISTER_LAMP_FILE_NAME[0], self.DEFAULT_LOG_REGISTER_LAMP_FILE_NAME[1], registerFileName)
+
+    def setLogRegisterPumpFileName(self, registerFileName):
+        self.update(self.DEFAULT_LOG_REGISTER_PUMP_FILE_NAME[0], self.DEFAULT_LOG_REGISTER_PUMP_FILE_NAME[1], registerFileName)
+
+    def setLogRegisterCamFileName(self, registerFileName):
+        self.update(self.DEFAULT_LOG_REGISTER_CAM_FILE_NAME[0], self.DEFAULT_LOG_REGISTER_CAM_FILE_NAME[1], registerFileName)
 
     def setSensorReportFileName(self, reportFileName):
         self.update(self.DEFAULT_SENSOR_REPORT_FILE_NAME[0], self.DEFAULT_SENSOR_REPORT_FILE_NAME[1], reportFileName)
 
-    def setLampRegisterFileName(self, registerFileName):
-        self.update(self.DEFAULT_LAMP_REGISTER_FILE_NAME[0], self.DEFAULT_LAMP_REGISTER_FILE_NAME[1], registerFileName)
+    def setWebRootPath(self, webRootPath):
+        self.update(self.DEFAULT_WEB_ROOT_PATH[0], self.DEFAULT_WEB_ROOT_PATH[1], webRoothPath)
 
-    def setPumpRegisterFileName(self, registerFileName):
-        self.update(self.DEFAULT_PUMP_REGISTER_FILE_NAME[0], self.DEFAULT_PUMP_REGISTER_FILE_NAME[1], registerFileName)
+    def setWebCamFrameFolder(self, webCamFrameFolder):
+        self.update(self.DEFAULT_WEB_CAM_FRAME_FOLDER[0], self.DEFAULT_WEB_CAM_FRAME_FOLDER[1], webCamFrameFolder)
 
-    def setCamStreamRegisterFileName(self, registerFileName):
-        self.update(self.DEFAULT_CAM_STREAM_REGISTER_FILE_NAME[0], self.DEFAULT_CAM_STREAM_REGISTER_FILE_NAME[1], registerFileName)
+    def setWebCamCaptureFolder(self, webCamCaptureFolder):
+        self.update(self.DEFAULT_WEB_CAM_CAPTURE_FOLDER[0], self.DEFAULT_WEB_CAM_CAPTURE_FOLDER[1], webCamCaptureFolder)
 
-    def setWebFolderName(self, webFolderName):
-        self.update(self.DEFAULT_WEB_FOLDER_NAME[0], self.DEFAULT_WEB_FOLDER_NAME[1], webFolderName)
-
-    def setWebPathNameGraph(self, webPathNameGraph):
-        self.update(self.DEFAULT_WEB_PATH_NAME_GRAPH[0], self.DEFAULT_WEB_PATH_NAME_GRAPH[1], webPathNameGraph)
-
-    def setWebPathNameCam(self, webPathNameCam):
-        self.update(self.DEFAULT_WEB_PATH_NAME_CAM[0], self.DEFAULT_WEB_PATH_NAME_CAM[1], webPathNameCam)
+    def setWebCamCaptureFile(self, webCamCaptureFile):
+        self.update(self.DEFAULT_WEB_CAM_CAPTURE_FILE[0], self.DEFAULT_WEB_CAM_CAPTURE_FILE[1], webCamCaptureFile)
 
     def setWebSmoothingWindow(self, webSmoothingWindow):
         self.update(self.DEFAULT_WEB_SMOOTHING_WINDOW[0], self.DEFAULT_WEB_SMOOTHING_WINDOW[1], webSmoothingWindow)
@@ -152,13 +156,14 @@ def getConfig():
 
     config["sensor-report-file-name"] = cb.getSensorReportFileName()
 
-    config["lamp-register-file-name"] = cb.getLampRegisterFileName()
-    config["pump-register-file-name"] = cb.getPumpRegisterFileName()
-    config["cam-stream-register-file-name"] = cb.getCamStreamRegisterFileName()
+    config["log-register-lamp-file-name"] = cb.getLogRegisterLampFileName()
+    config["log-register-pump-file-name"] = cb.getLogRegisterPumpFileName()
+    config["log-register-cam-file-name"] = cb.getLogRegisterCamFileName()
 
-    config["web-folder-name"] = cb.getWebFolderName()
-    config["web-path-name-graph"] = cb.getWebPathNameGraph()
-    config["web-path-name-cam"] = cb.getWebPathNameCam()
+    config["web-root-path"] = cb.getWebRootPath()
+    config["web-cam-frame-folder"] = cb.getWebCamFrameFolder()
+    config["web-cam-capture-folder"] = cb.getWebCamCaptureFolder()
+    config["web-cam-capture-file"] = cb.getWebCamCaptureFile()
     config["web-smoothing-window"] = cb.getWebSmoothingWindow()
 
 #    config["pump-id"] = cb.getPumpId()
@@ -184,23 +189,26 @@ def setConfig(config):
     if "sensor-report-file-name" in config:
         cb.setSensorReportFileName(config["sensor-report-file-name"])
 
-    if "lamp-register-file-name" in config:
-        cb.setLampRegisterFileName(config["lamp-register-file-name"])
+    if "log-register-lamp-file-name" in config:
+        cb.setLogRegisterLampFileName(config["log-register-lamp-file-name"])
 
-    if "pump-register-file-name" in config:
-        cb.setPumpRegisterFileName(config["pump-register-file-name"])
+    if "log-register-pump-file-name" in config:
+        cb.setLogRegisterPumpFileName(config["log-register-lamp-file-name"])
 
-    if "cam-stream-register-file-name" in config:
-        cb.setCamStreamRegisterFileName(config["cam-stream-register-file-name"])
+    if "log-register-cam-file-name" in config:
+        cb.setLogRegisterCamFileName(config["log-register-cam-file-name"])
 
-    if "web-folder-name" in config:
-        cb.setWebFolderName(config["web-folder-name"])
+    if "web-root-path" in config:
+        cb.setWebRootPath(config["web-root-path"])
 
-    if "web-path-name-graph" in config:
-        cb.setWebPathNameGraph(config["web-path-name-graph"])
+    if "web-cam-frame-folder" in config:
+        cb.setWebCamFrameFolder(config["web-cam-frame-folder"])
 
-    if "web-path-name-cam" in config:
-        cb.setWebPathNameCam(config["web-path-name-cam"])
+    if "web-cam-capture-folder" in config:
+        cb.setWebCamCaptureFolder(config["web-cam-capture-folder"])
+
+    if "web-cam-capture-file" in config:
+        cb.setWebCamCaptureFile(config["web-cam-capture-file"])
 
     if "web-smoothing-window" in config:
         cb.setWebSmoothingWindow(config["web-smoothing-window"])

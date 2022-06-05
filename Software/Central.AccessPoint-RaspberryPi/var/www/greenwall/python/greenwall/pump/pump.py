@@ -98,5 +98,9 @@ class Pump:
         # NewConnectionError
         # ConnectTimeoutError
         except Exception as e:
-            logging.error("Exception: {0}. Status is n/a".format(e))
+
+            if len(addresses) == 0:
+                logging.debug("No pump registered.")
+            else:
+                logging.error("Exception: {0}. Status is n/a".format(e))
             return 'n/a'

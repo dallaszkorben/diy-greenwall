@@ -39,14 +39,13 @@ from flask import session
 from flask_classful import FlaskView, route, request
 from flask_cors import CORS
 
-
 from greenwall.config.config import getConfig
 from greenwall.config.ini_location import IniLocation
-
 
 from greenwall.controlbox.controlbox import Controlbox
 from greenwall.lamp.lamp import Lamp
 from greenwall.pump.pump import Pump
+from greenwall.cam.cam import Cam
 
 from greenwall.restserver.view_info import InfoView
 from greenwall.restserver.view_sensor import SensorView
@@ -54,15 +53,10 @@ from greenwall.restserver.view_cam import CamView
 from greenwall.restserver.view_lamp import LampView
 from greenwall.restserver.view_pump import PumpView
 
-
 from greenwall.utilities.report_sensor import ReportSensor
 from greenwall.utilities.register_lamp import RegisterLamp
 from greenwall.utilities.register_pump import RegisterPump
-from greenwall.utilities.register_cam_stream import RegisterCamStream
-
-
-
-
+from greenwall.utilities.register_cam import RegisterCam
 
 class WSGreenWall(Flask):
 #class WSGreenWall():
@@ -80,14 +74,16 @@ class WSGreenWall(Flask):
         logLevel = cg["log-level"]
         logFileName = cg["log-file-name"]
 
-        sensorReportFileName = cg["sensor-report-file-name"]
-        lampRegisterFileName = cg["lamp-register-file-name"]
-        pumpRegisterFileName = cg["pump-register-file-name"]
-        camStreamRegisterFileName = cg["cam-stream-register-file-name"]
+        lampRegisterFileName = cg["log-register-lamp-file-name"]
+        pumpRegisterFileName = cg["log-register-pump-file-name"]
+        camRegisterFileName = cg["log-register-cam-file-name"]
 
-        self.webFolderName = cg["web-folder-name"]
-        self.webPathNameGraph = cg["web-path-name-graph"]
-        self.webPathNameCam = cg["web-path-name-cam"]
+        sensorReportFileName = cg["sensor-report-file-name"]
+
+        self.webRootPath = cg["web-root-path"]
+        self.webCamFrameFolder = cg["web-cam-frame-folder"]
+        self.webCamCaptureFolder = cg["web-cam-capture-folder"]
+        self.webCamCaptureFile = cg["web-cam-capture-file"]
         self.webSmoothingWindow = int(cg["web-smoothing-window"])
 
 #        self.pumpGpio = cg["pump-gpio"]
@@ -104,36 +100,21 @@ class WSGreenWall(Flask):
         # REPORT
         reportFolder = IniLocation.get_path_to_config_folder()
         self.reportPath = os.path.join(reportFolder, sensorReportFileName)
-        self.lampRegisterPath = os.path.join(reportFolder, lampRegisterFileName)
-        self.pumpRegisterPath = os.path.join(reportFolder, pumpRegisterFileName)
-        self.camStreamRegisterPath = os.path.join(reportFolder, camStreamRegisterFileName)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        # REGISTER
+        registerFolder = IniLocation.get_path_to_config_folder()
+        self.lampRegisterPath = os.path.join(registerFolder, lampRegisterFileName)
+        self.pumpRegisterPath = os.path.join(registerFolder, pumpRegisterFileName)
+        self.camRegisterPath = os.path.join(registerFolder, camRegisterFileName)
 
         # This will enable CORS for all routes
         CORS(self.app)
 
         self.reportSensor = ReportSensor(self.reportPath)
+
         self.registerLamp = RegisterLamp(self.lampRegisterPath)
         self.registerPump = RegisterPump(self.pumpRegisterPath)
-        self.registerCamStream = RegisterCamStream(self.camStreamRegisterPath)
+        self.registerCam = RegisterCam(self.camRegisterPath)
 
         # register the end-points
         InfoView.register(self.app, init_argument=self)
@@ -141,8 +122,6 @@ class WSGreenWall(Flask):
         CamView.register(self.app, init_argument=self)
         LampView.register(self.app, init_argument=self)
         PumpView.register(self.app, init_argument=self)
-
-
 
         self.controlBox = Controlbox(self.app)
 
@@ -152,6 +131,8 @@ class WSGreenWall(Flask):
         # PUMP
         self.pump = Pump(self.app)
 
+        # CAM
+        self.cam = Cam(self.app)
 
     def getThreadControllerStatus(self):
         return self.gradualThreadController.getStatus()

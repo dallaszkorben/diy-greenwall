@@ -46,7 +46,9 @@ class ReportSensor:
 
         self.separator = ";"
 
-
+        #
+        # Fill up the reportDict
+        #
         # TODO 'r' is not correct because if the file does not exist, an exception will be raised
         # TODO 'w+' does not work either
         #

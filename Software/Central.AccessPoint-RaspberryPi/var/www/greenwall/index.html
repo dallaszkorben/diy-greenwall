@@ -45,57 +45,54 @@ user-scalable=no -disable user zoom on mobile
             display: inline-block;
         }
 
-        #refreshGraphButton{
+        #refreshChartButton{
             height: 60px;
             vertical-align: top;
         }
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     </style>
 
+    <!-- Chart -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.8.0/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/date-fns/1.30.1/date_fns.js"></script>
+    <!-- <script src="http://cdnjs.cloudflare.com/ajax/libs/moment.js/2.13.0/moment.min.js"></script> -->
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+
+    <!-- JQuery -->
     <script src="script/jquery/jquery-3.6.0.min.js"></script>
     <script src="script/jquery-ui/jquery-ui.min.js"></script>
-    <script src="script/switch/lc_switch.js"></script>
     <link rel="stylesheet" href="script/jquery-ui/jquery-ui.css">
 
+    <!-- Switch -->
+    <script src="script/switch/lc_switch.js"></script>
+
+    <!-- favicon -->
+    <link rel="shortcut icon" href="favicon.ico">
 
     <script>
+
+        var levelData = [];
+        var temperatureData = [];
+        var humidityData = [];
+
+        var camCaptureList = [];
+
+        var intervalId = null;
 
         function isEmpty(str) {
             return (!str || str.length === 0 );
         }
 
+        // =============================
+        //
+        // Construct Cam Capture Section
+        //
+        // =============================
+        function constructCamCaptureSection(){
 
-
-
-
-
-
-        function buildCamStreamWindow(){
-
-            $.ajax({type: "GET", url: "/info/camStreamList", async: true,
+            $.ajax({type: "GET", url: "/cam/captureList", async: true,
                 success: function(result){
 
                     res = result.result
@@ -104,19 +101,25 @@ user-scalable=no -disable user zoom on mobile
 
                         var tableBody = $("<tbody>");
 
-                        streamList = result.camStreamList;
+                        $.map(result.camCaptureList, function(camCapture){
 
-                        $.map(streamList, function(stream){
+                            camId = camCapture.camId;
+                            camCaptureUrl = camCapture.captureUrl;
 
-                            camStreamId = stream.id;
-                            camStreamIp = stream.ip;
-                            camStreamTimestamp = stream.timeStamp;
-                            camStreamUrl = stream.url;
+                            cc = {};
+                            cc['camId'] = camId;
+                            cc['camCaptureUrl'] = camCaptureUrl;
+                            camCaptureList.push(cc);
     
                             row = $("<tr>");
                             rowData = $("<td>");
-                            camStreamField = $('<img width="600px" src="' + camStreamUrl + '">');
-                            rowData.html(camStreamField);
+
+                            var img = $('<img id="cam_' + camId + '">');
+                            // Random value after the image name helps to ignore the cache at refresh
+                            img.attr('src', '/greenwall/cam-capture/capture_' + camId + '.jpg?' + Math.random());
+                            img.attr('width', '400px');
+                            img.attr('style', '')
+                            rowData.html(img);
                             row.append(rowData);
 
                             tableBody.append(row);
@@ -125,49 +128,187 @@ user-scalable=no -disable user zoom on mobile
 
                         var table = $('<table border="0"></table>').append(tableBody);
 
-                        $('#camStreamDiv').html("");
-                        $('#camStreamDiv').append(table);
+                        $('#camCaptureDiv').html("");
+                        $('#camCaptureDiv').append(table);
 
 
                     }else{
                         //$("#value").html("");
                         //$("#errormessage").html("something went wrong");
                         //$("#spinner").hide();
-                        a=2
                     }
 
 //                    $("#errormessage").html("");
                 },
                 error: function(xhr,status,error){
-                    //$("#value").html("");
+//                    $("#value").html("");
 //                    $("#errormessage").html(xhr.statusText + " " + xhr.responseText);
 //                    $("#spinner").hide();
-                    a=2
                 }
             });
         }
 
+        // ================================================
+        //
+        // Refresh Cam Capture
+        //
+        // ================================================
+        function refreshCamCapture(){
+
+            $.map(camCaptureList, function(camCapture){
+
+                camId = camCapture.camId;
+                camCaptureUrl = camCapture.captureUrl;
+
+                $.ajax({type: "GET", url: "/cam/capture/url/camId/" + camId, async: true,
+                    success: function(result){
+
+                        res = result.result
+
+                        if(res == "OK"){
+
+                            // Random value after the image name helps to ignore the cache at refresh
+                            $("#cam_" + camId).attr('src', '/greenwall/cam-capture/capture_' + camId + '.jpg?' + Math.random());
+
+                        }else{
+                            console.log("ERROR:" + error);
+                        }
+                    },
+                    error: function(xhr,status,error){
+                        console.log("ERROR:" + error);
+                    }
+                });
+            });
 
 
-
-
-
-
-
-
-
-
-
-
-
-
+        }
 
         // ================================================
         //
-        // refresh the graphs
+        // Construct a Chart Canvas
         //
         // ================================================
-        function refreshGraphs(){
+        function constructChartCanvas(chartCanvasId, title, labelY){
+            var myChart = new Chart(document.getElementById(chartCanvasId), {
+                type: 'scatter',
+                data: {
+                    datasets: [
+                    ]
+                },
+                options: {
+                    aspectRatio:1.5,
+                    plugins:{
+                        title: {
+                            display: true,
+                            text: title
+                        },
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                usePointStyle: true
+                            }
+                        },
+                    },
+                    responsive: true,
+                    scales: {
+                        x: {
+                            grid: {
+                                borderWidth: 2,
+                                borderColor: '#000000',
+                            },
+
+                            type: 'time',
+                            //distribution: 'series',
+                            time: {
+                                //unitStepSize: 10,
+                                //parser: 'yy.MM.dd',
+                                unit: 'day',
+                                tooltipFormat: 'yyyy.MM.dd HH:mmzzz',
+                                displayFormats: {
+                                    'hour': 'HH:mmzzz',
+                                    'day': 'yyyy.MM.dd',
+                                    'week': 'yyyy.MM.dd',
+                                    'month': 'yyyy.MM',
+                                    'quarter': 'yyyy.MM',
+                                    'year': 'yyyy',
+                                },
+                            },
+                            title: {
+                                display: false,
+                                text: 'Date',
+                            },
+                            ticks: {
+
+                                // Bold on Sunday
+                                font:{
+                                    weight: (c) => {
+                                        day = new Date(c.tick.value).getDay()
+                                        return day == 0 ? 'bold' : 'normal';
+                                    }
+                                },
+
+                                display: true,
+                                minRotation: 20,
+                                align: 'center',
+
+                                    //major: {
+                                    //   font: 'bold',
+                                    //   enabled: false,
+                                    //   unit: 'day',
+                                    //   fontColor: 'red',
+                                    //   unitStepSize: 2,
+                                    //   displayFormats: {
+                                    //      'day': 'yyyy.MM.dd',
+                                    //      'hour': 'yyyy'
+                                    //   },
+                                    //},
+
+                                // Red color on Sunday
+                                color: (c) => {
+                                    day = new Date(c.tick.value).getDay()
+                                    return day == 0 ? 'red' : 'black';
+                                }
+
+                                //callback: function(value, index, ticks) {
+                                //   ticks.forEach(t => {
+                                //      const day = new Date(t.value).getDay();
+                                //      t.major = (day == 0 || day == 6);
+                                //   });
+                                //   return '$' + value;
+                                //}
+
+                            },
+                        },
+                        y: {
+                            grid: {
+                                borderWidth: 2,
+                                borderColor: '#000000',
+                                display: true,
+                            },
+
+                            beginAtZero: true,
+                            display: true,
+                            ticks: {
+                                display: true,
+                                //stepSize: 10,
+                            },
+                            title: {
+                                display: true,
+                                text: labelY
+                            },
+                        }
+                    },
+                }
+            });
+            return myChart;
+        }
+
+        // ================================================
+        //
+        // Refresh Charts
+        //
+        // ================================================
+        function refreshCharts(){
 
             $("#spinner").show();
 
@@ -183,14 +324,13 @@ user-scalable=no -disable user zoom on mobile
                 endYear = date.getFullYear()
                 endMonth = date.getMonth() + 1
                 endDay = date.getDate()
-                console.log( endYear + "." + endMonth + "." + endDay);
             }
 
             param = "startDate/" + startDate + ( isEmpty(endDate) ? "" : ("/endDate/" + endYear + "-" + endMonth + "-" + endDay))
 
             $("#errormessage").html("");
 
-            $.ajax({type: "GET", url: "/info/graph/" + param, async: true,
+            $.ajax({type: "GET", url: "/sensor/data/list/" + param, async: true,
                 success: function(result){
 
                     $("#spinner").hide();
@@ -199,84 +339,156 @@ user-scalable=no -disable user zoom on mobile
 
                     if(res == "OK"){
 
-
                         //
                         // header line
                         //
                         row = $("<tr>");
 
-                        // empty
-                        rowData = $('<th>');
+                        // Water level
+                        rowData = $("<th width='33%'>");
+                        rowData.html("Water level [mm]")
                         row.append(rowData)
 
-                        // water level
-                        rowData = $("<th>");
-                        rowData.html("Water level")
-                        row.append(rowData)
-
-                        // temperature
-                        rowData = $("<th>");
+                        // t=Temperature
+                        rowData = $("<th width='33%'>");
                         rowData.html("Temperature [°C]")
                         row.append(rowData)
 
-                        // humidity
-                        rowData = $("<th>");
+                        // Humidity
+                        rowData = $("<th width='33%'>");
                         rowData.html("Humidity [%]")
                         row.append(rowData)
 
                         var tableBody = $("<tbody>");
                         tableBody.append(row)
 
-                        graphs = result.graphs;
-                        $.map(graphs,function(graph){
-                            stationId = graph.stationId;
-                            levelPath = graph.levelPath;
-                            temperaturePath = graph.temperaturePath;
-                            humidityPath = graph.humidityPath;
+                        //
+                        // === construct the canvases === //
+                        //
 
-                            row = $('<tr>');
+                        row = $('<tr>');
 
-                            // StationId
-                            rowData = $('<td>');
-                            stationIdField = $('<dev id="labelstationid">').html('Station ' + stationId);
-                            rowData.html(stationIdField);
+                        var levelCanvasId = "levelCanvas";
+                        var temperatureCanvasId = "temperatureCanvas";
+                        var humidityCanvasId = "humidityCanvas";
 
-                            row.append(rowData);
+                        // Level
+                        rowData = $('<td style="padding:1px">');
+                        //rowData = rowData.html('<canvas id="' + levelCanvasId + '" style="width:700px;max-width:700px;background-color: #98fb98;"></canvas>');
+                        rowData = rowData.html('<canvas id="' + levelCanvasId + '" style="width:33%;background-color: #98fb98;"></canvas>');
+                        row.append(rowData);
 
-                            // Level
-                            rowData = $('<td style="padding:1px">');
-                            if(levelPath != null){
-                                // Tricky solution to clean the image cache
-                                rowData = rowData.html('<img src="' + levelPath + '?v=' + (new Date()).getTime() + '" alt="can not find image">');
-                            }
-                            row.append(rowData);
+                        // Temperature
+                        rowData = $('<td style="padding:1px">');
+                        //rowData = rowData.html('<canvas id="' + temperatureCanvasId + '" style="width:700px;max-width:700px;background-color: #98fb98;"></canvas>');
+                        rowData = rowData.html('<canvas id="' + temperatureCanvasId + '" style="width:33%;background-color: #98fb98;"></canvas>');
+                        row.append(rowData);
 
-                            // Temperature
-                            rowData = $('<td style="padding:1px">');
-                            if(temperaturePath != null){
-                                // Tricky solution to clean the image cache
-                                rowData = rowData.html('<img src="' + temperaturePath + '?v=' + (new Date()).getTime() + '" alt="can not find image">');
-                            }
-                            row.append(rowData);
+                        // Humidity
+                        rowData = $('<td style="padding:1px">');
+                        //rowData = rowData.html('<canvas id="' + humidityCanvasId + '" style="width:700px;max-width:700px;background-color: #98fb98;"></canvas>');
+                        rowData = rowData.html('<canvas id="' + humidityCanvasId + '" style="width:33%;background-color: #98fb98;"></canvas>');
+                        row.append(rowData);
 
-                            // Humidity
-                            rowData = $('<td style="padding:1px">');
-                            if(humidityPath != null){
-                                // Tricky solution to clean the image cache
-                                rowData = rowData.html('<img src="' + humidityPath + '?v=' + (new Date()).getTime() + '" alt="can not find image">');
-                            }
-                            row.append(rowData);
+                        tableBody.append(row);
 
-                            tableBody.append(row);
+                        var table = $('<table border="0" width="100%"></table>').append(tableBody);
 
+                        $('#chartTableDiv').html("");
+                        $('#chartTableDiv').append(table);
 
-                            var table = $('<table border="0"></table>').append(tableBody);
+                        levelChart=constructChartCanvas(levelCanvasId, "Water Level", "Level [mm]");
+                        temperatureChart=constructChartCanvas(temperatureCanvasId, "Temperature", "Temperature [C°]");
+                        humidityChart=constructChartCanvas(humidityCanvasId, "Humidity", "Humidity [%]");
 
-                            $('#graphTableDiv').html("");
-                            $('#graphTableDiv').append(table);
+                        //
+                        // === fill up the data lists for charts === //
+                        //
+
+                        var chartColorList = [
+                            {line: "#0000FF", fill: "rgba(0,0,255, 0.5)" },
+                            {line: "#f542ef", fill: "rgba(245, 66, 239, 0.5)" },
+                            {line: "#f59c42", fill: "rgba(246, 156, 66, 0.5)" },
+                            {line: "#dd42f5", fill: "rgba(221,66,245, 0.5)" },
+                            {line: "#42dbf6", fill: "rgba(66, 219, 246, 0.5)" },
+                        ]
+
+                        colorIndex=0;
+                        charts = result.data;
+                        $.map(charts,function(graph, index){
+    
+                            id=index;
+                            record=graph.record
+
+                            levelDataList = [];
+                            temperatureDataList = [];
+                            humidityDataList = [];
+
+                            $.map(record,function(rec){
+                                record = {}
+                                record.x=new Date(rec.timeStamp*1000);
+                                record.y=rec.levelValue;
+                                levelDataList.push(record);
+
+                                record = {}
+                                record.x=new Date(rec.timeStamp*1000);
+                                record.y=rec.temperatureValue;
+                                temperatureDataList.push(record);
+
+                                record = {}
+                                record.x=new Date(rec.timeStamp*1000);
+                                record.y=rec.humidityValue;
+                                humidityDataList.push(record);
+
+                            });
+
+                            levelData = {
+                                lineTension: 0,
+                                label: id,
+                                showLine: true,
+                                fill: false,
+                                borderColor: chartColorList[colorIndex].line,
+                                backgroundColor: chartColorList[colorIndex].fill,
+                                pointRadius: 2,
+                                pointStyle: 'circle',
+                                data: levelDataList,
+                            };
+
+                            temperatureData = {
+                                lineTension: 0,
+                                label: id,
+                                showLine: true,
+                                fill: false,
+                                borderColor: chartColorList[colorIndex].line,
+                                backgroundColor: chartColorList[colorIndex].fill,
+                                pointRadius: 2,
+                                pointStyle: 'circle',
+                                data: temperatureDataList,
+                            };
+
+                            humidityData = {
+                                lineTension: 0,
+                                label: id,
+                                showLine: true,
+                                fill: false,
+                                borderColor: chartColorList[colorIndex].line,
+                                backgroundColor: chartColorList[colorIndex].fill,
+                                pointRadius: 2,
+                                pointStyle: 'circle',
+                                data: humidityDataList,
+                            };
+
+                            levelChart.data.datasets.push(levelData);
+                            temperatureChart.data.datasets.push(temperatureData);
+                            humidityChart.data.datasets.push(humidityData);
+
+                            colorIndex = (colorIndex + 1) % chartColorList.length;
 
                         });
 
+                        levelChart.update();
+                        temperatureChart.update();
+                        humidityChart.update();
 
                     }else{
                         //$("#value").html("");
@@ -294,7 +506,6 @@ user-scalable=no -disable user zoom on mobile
             });
         }
 
-        var intervalId = null;
 
 
         // ================================================
@@ -307,20 +518,22 @@ user-scalable=no -disable user zoom on mobile
             $.get( "/pump/status").done(
                 function( data ) {
 
-                    console.log("checking: " + data.status);
-
                     if (data.status == 'off'){
                         lcs_off("#pumpSwitch");
-                    }
+                    }            
             });
         }
 
         // ================================================
+        // ================================================
+        //
         //  When the page is loaded
+        //
+        // ================================================
         // ================================================
         $(document).ready(function(){
 
-            $("#spinner").hide()
+            $("#spinner").hide();
 
             //-----------------------
             // Start Date
@@ -330,10 +543,6 @@ user-scalable=no -disable user zoom on mobile
                 changeMonth: true,
                 changeYear: true,
                 changeHour: true,
-        
-//                onSelect: function(datetext){
-//                    console.log(datetext)
-//                }
             });
 
             var date = new Date();
@@ -351,29 +560,32 @@ user-scalable=no -disable user zoom on mobile
             });
 
             //-----------------------
-            // Refresh graph Button
+            // Refresh Chart Button
             //-----------------------
-            $("#refreshGraphButton").click(function(){
-//                startDate = $('#startDatePicker').val();
-//                var date = new Date(startDate);
-//                startYear = date.getFullYear()
-//                startMonth = date.getMonth() + 1
-//                startDay = date.getDate()
-//                console.log( startYear + "." + startMonth + "." + startDay);
+            $("#refreshChartButton").click(function(){
+                //startDate = $('#startDatePicker').val();
+                //var date = new Date(startDate);
+                //startYear = date.getFullYear()
+                //startMonth = date.getMonth() + 1
+                //startDay = date.getDate()
+                //console.log( startYear + "." + startMonth + "." + startDay);
 
                 $("#spinner").show();
 
-                refreshGraphs();
+                refreshCharts();
             });
 
-            buildCamStreamWindow()
-
+            constructCamCaptureSection();
 
             //-----------------------
-            // Refresh graphs
+            // Refresh Charts
             //-----------------------
-            //refreshGraphs();
-            setInterval(refreshGraphs, 600000);
+            setInterval(refreshCharts, 600000);
+
+            //-----------------------
+            // Refresh Cam Capture
+            //-----------------------
+//            setInterval(refreshCamCapture, 1000);
 
 
             //-----------------------
@@ -409,7 +621,6 @@ user-scalable=no -disable user zoom on mobile
                     });
             });
 
-
             //-----------------------
             // Pump Switch
             //-----------------------
@@ -424,7 +635,6 @@ user-scalable=no -disable user zoom on mobile
 
             lcs_disable("#pumpSwitch");
 
-
             $.get( "/pump/status").done(
                 function( data ) {
                     if (data.status == 'on'){
@@ -433,14 +643,12 @@ user-scalable=no -disable user zoom on mobile
 
                         // 5 sec
                         intervalId = setInterval(checkPumpStatus, 5000);
-                        console.log("initial intervalId: " + intervalId);
+                        //console.log("initial intervalId: " + intervalId);
 
                     }else{
                         lcs_off("#pumpSwitch")
                         lcs_enable("#pumpSwitch");
                     }
-
-
 
                     $("#pumpSwitch")[0].addEventListener('lcs-on', function(){
 
@@ -459,30 +667,21 @@ user-scalable=no -disable user zoom on mobile
                                 }
                                 intervalId = setInterval(checkPumpStatus, 5000);
 
-                                console.log("intervalId: " + intervalId);
+                                //console.log("intervalId: " + intervalId);
 
                                 lcs_enable("#pumpSwitch");
-
                             }
-
                         );
-
                     });
 
                     $("#pumpSwitch")[0].addEventListener('lcs-off', function(){
                         $.post( "/pump/turnOff" );
                         clearInterval(intervalId);
 
-                        console.log("end of interval check. intervalid: " +  intervalId);
-                        console.log(" ");
-
+                        //console.log("end of interval check. intervalid: " +  intervalId);
+                        //console.log(" ");
                     });
-
-
-
             });
-
-
         });
 
     </script>
@@ -492,9 +691,7 @@ user-scalable=no -disable user zoom on mobile
 <body style="background-color:DarkGrey;">
     <center><h1>Green Wall</h1></center> 
 
-    <hr>
-
-
+    <hr> <!-- ------------------------ -->
 
     <table id="controller" border="0" class="switchh">
         <tr>
@@ -517,15 +714,14 @@ user-scalable=no -disable user zoom on mobile
 
     </table>
 
-    <hr>
+    <hr> <!-- ------------------------ -->
 
     <table id="dateFilter" border="0">
         <tr>
             <td> Start date:</td>
             <td><input type="text" id="startDatePicker" size="8"> </td>
-            <td rowspan="2"><button id="refreshGraphButton">Refresh</button></td>
-            <td rowspan="2" width="60px"><img id="spinner" src="spinner.gif" width="60"></td>
-            <td rowspan="2" ><div id="errormessage"></div></td>
+            <td rowspan="2"><button id="refreshChartButton">Refresh</button></td>
+            <td rowspan="2" width="60px"><img id="spinner" src="spinner.gif" width="60"></td> 
         </tr>
         <tr>
             <td> End date:</td>
@@ -533,14 +729,13 @@ user-scalable=no -disable user zoom on mobile
         </tr>
     </table>
 
- 
-    <div id="graphTableDiv"></div>
 
-    <hr>
+    <div id="chartTableDiv"></div>
+    <div id="errormessage"></div>
 
-    <div id="camStreamDiv"></div>
+    <hr> <!-- ------------------------ -->
 
-<!--    <div id="value"></div> -->
+    <div id="camCaptureDiv"></div>
 
 
 </body>
