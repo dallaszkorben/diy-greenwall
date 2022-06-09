@@ -394,7 +394,10 @@ user-scalable=no -disable user zoom on mobile
 
                         var table = $('<table border="0" width="100%"></table>').append(tableBody);
 
+                        // Clear the chartTableDiv
                         $('#chartTableDiv').html("");
+
+                        // Build up new Charts
                         $('#chartTableDiv').append(table);
 
                         levelChart=constructChartCanvas(levelCanvasId, "Water Level", "Level [mm]");
@@ -585,7 +588,7 @@ user-scalable=no -disable user zoom on mobile
             //-----------------------
             // Refresh Cam Capture
             //-----------------------
-//            setInterval(refreshCamCapture, 1000);
+            setInterval(refreshCamCapture, 2000);
 
 
             //-----------------------
