@@ -74,8 +74,8 @@ void setup() {
   // --- Sync Time --- //
   if( !syncTime() ){
     ledSignalNetworkError();
-    Serial.println("!!! Wait 1 minute and then restart !!!");
-    delay(60000);
+    Serial.println("!!! Wait 2 seconds and then restart !!!");
+    delay(2000);
     ESP.restart();
   }
 

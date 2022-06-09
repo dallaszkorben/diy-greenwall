@@ -21,7 +21,7 @@ bool syncTime() {
 //  HTTPClient http;
 //  WiFiClient wifiClient;
 
-  String url = "http://" + serverIp + ":" + serverPort + "/" + serverPathToInfoTimestamp + String("/epocDate/1970.01.01 ");
+  String url = "http://" + serverIp + ":" + serverPort + "/" + serverPathToInfoTimestamp + String("/epocDate/1970.01.01");
 
   Serial.println("Try to sync Time ");
   

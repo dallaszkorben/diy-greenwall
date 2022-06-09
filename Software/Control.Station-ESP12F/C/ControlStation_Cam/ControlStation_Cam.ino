@@ -23,28 +23,18 @@
 const char* ssid = "blabla2.4";
 const char* password = "Elmebetegek Almaiban";
 
-
-
 //const String serverIp = "192.168.50.3";                         // REPLACE WITH YOUR Raspberry Pi IP ADDRESS
 const String serverIp = "192.168.0.104";                        // REPLACE WITH YOUR Raspberry Pi IP ADDRESS
 
-
-const int serverPort = 5000;
-const String serverPathToCamAdd = "cam/add/camId/5/timestamp/"; // The default serverPath should be upload.php
+const String camId = "5";
+const int serverPort = 80;
+const String serverPathToCamFrameSave = "cam/frame/save/camId/" + camId + "/timestamp/"; // The default serverPath should be upload.php
 const String serverPathToCamRegister = "cam/register";
 const String serverPathToInfoTimestamp = "info/timeStamp";
-
-const String streamId = "1";
-const String serverPathToCamStreamRegister = "cam/stream/register";
-
-//const char* ssid = "blabla2.4";
-//const char* password = "Elmebetegek Almaiban";
-
 
 #include <HTTPClient.h>
 HTTPClient http;
 WiFiClient wifiClient;
-
 
   
 void startCameraServer();
@@ -160,8 +150,8 @@ void setup() {
   }
 
   // --- Register Camera Stream --- //
-  if ( !registerCamStream() ){
-    Serial.println("    !!! Cam Stream register failed -> reboot !!!");   
+  if ( !registerCam() ){
+    Serial.println("    !!! Cam register failed -> reboot !!!");   
     ESP.restart();    
   }
    
@@ -179,9 +169,14 @@ void setup() {
 }
 
 void loop() {
+/*
+  if(connectToApIfNotConnected()){
+    syncTime();
+  }
+  Serial.println("");
   // put your main code here, to run repeatedly:
   //WiFi.reconnect();
-  //delay(2000);
+  delay(2000);
   //Serial.println(WiFi.localIP());
-
+*/  
 }

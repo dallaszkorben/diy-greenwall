@@ -1,13 +1,13 @@
 #include <ArduinoJson.h>
 
-bool registerCamStream() {
+bool registerCam() {
   //HTTPClient http;
   //WiFiClient wifiClient;
   
   Serial.println("Register Camera Stream ...");
 
   //HTTPClient http;
-  String url = "http://" + serverIp + ":" + serverPort + "/" + serverPathToCamStreamRegister;
+  String url = "http://" + serverIp + ":" + serverPort + "/" + serverPathToCamRegister;
 
   http.begin(wifiClient, url);
   http.setTimeout(20000);
@@ -15,8 +15,9 @@ bool registerCamStream() {
 
   // Construct the payload
   StaticJsonDocument<1024> doc;
-  doc["id"] = streamId;
-  doc["url"] = "http://" + WiFi.localIP().toString() + ":81/stream";
+  doc["camId"] = camId;
+  doc["streamUrl"] = "http://" + WiFi.localIP().toString() + ":81/stream";
+  doc["captureUrl"] = "http://" + WiFi.localIP().toString() + ":80/capture";
   doc["dateString"] = getOffsetDateString();
   String requestBody;
   serializeJson(doc, requestBody);
