@@ -44,7 +44,7 @@ esp_err_t handler_capture(httpd_req_t *req){
   fb = takePhoto();
   
   if (!fb) {
-    Serial.println("!!! Camera capture failed !!!");
+    Serial.println("!!! Camera CAPTUE failed !!!");
     httpd_resp_send_500(req);
     return ESP_FAIL;
   }

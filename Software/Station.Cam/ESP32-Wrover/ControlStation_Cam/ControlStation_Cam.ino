@@ -13,10 +13,24 @@ const int clientPort = 80;
 const String camId = "5";
 const String clientPathToInfoTimestamp = "info/timeStamp";
 const String clientPathToCamRegister = "cam/register";
+const String clientPathToCamFrameSave = "cam/frame/save/camId/" + camId;
+
+unsigned long previousReconnectMillis = 0;
+unsigned long intervalReconnectMillis = 10000;
+
+unsigned long previousRegisterMillis = 0;
+unsigned long intervalRegisterMillis = 60000;
+
+unsigned long previousFrameSaveMillis = 0;
+unsigned long intervalFrameSaveMillis = 30000;
+
+HTTPClient http;
+WiFiClient wifiClient;
 
 void startWebServer();
 void startWebServer();
 void configureCam();
+bool postFrame(WiFiClient wifiClient, String clientIp, int clientPort, String clientPathToCamFrameSave);
 
 void setup() {
   Serial.begin(115200);
@@ -52,25 +66,17 @@ void setup() {
   startWebServer();
 }
 
-unsigned long previousMillis = 0;
-unsigned long intervalMillis = 10000;
-unsigned long previousSecs = 0;
-unsigned long intervalSecs = 32;
-
 int counter = 0;
 IPAddress emptyIP = IPAddress(0, 0, 0, 0);  
 
-HTTPClient http;
-WiFiClient wifiClient;
-
-bool brokenRequest = false;
+bool brokenRegister = false;
 
 void loop() {
 
   unsigned long currentMillis = millis();
 
-  //In every 10 seconds tries to reconnect if necessarry
-  if(currentMillis - previousMillis >= intervalMillis){
+  //In every 10 seconds tries to RECONNECT if necessarry
+  if(currentMillis - previousReconnectMillis >= intervalReconnectMillis){
     //printf("TimeStamp: %u  -  IP: %s\n", currentMillis, WiFi.localIP().toString().c_str());    
 
     if(WiFi.status() != WL_CONNECTED || WiFi.localIP() == emptyIP){
@@ -78,7 +84,31 @@ void loop() {
       WiFi.disconnect();
       WiFi.reconnect();
     }
-    previousMillis = currentMillis;
+    previousReconnectMillis = currentMillis;
+  }
+
+  //In every 60 seconds tries to REGISTER
+  if(currentMillis - previousRegisterMillis >= intervalRegisterMillis){
+
+    if ( registerCam() ){
+      Serial.println("   Camera was registered"); 
+      previousRegisterMillis = currentMillis;      
+    }else{
+      Serial.println("    !!! Cam register failed !!!");   
+    } 
+    Serial.println();   
+  }
+
+  //In every 30 seconds tries to FRAME SAVE
+  else if(currentMillis - previousFrameSaveMillis >= intervalFrameSaveMillis){
+
+    if(postFrame(wifiClient, clientIp, clientPort, clientPathToCamFrameSave)){      
+      Serial.println("   POST /cam/frame/save was sent");      
+      previousFrameSaveMillis = currentMillis;
+    }else{
+      Serial.println("   !!! Camera FRAME/SAVE failed !!!");
+    }
+    Serial.println();    
   }
 
   delay(10);

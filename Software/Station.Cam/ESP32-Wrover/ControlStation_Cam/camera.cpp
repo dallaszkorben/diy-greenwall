@@ -1,6 +1,7 @@
 #include "esp_camera.h"
 #include <WiFi.h>
 
+
 // Select camera model
 #define CAMERA_MODEL_WROVER_KIT         // Has PSRAM
 //#define CAMERA_MODEL_ESP_EYE          // Has PSRAM
@@ -12,6 +13,8 @@
 //#define CAMERA_MODEL_TTGO_T_JOURNAL   // No PSRAM
 
 #include "camera_pins.h"
+
+bool postFrame(camera_fb_t * fb, WiFiClient wifiClient, String clientIp, int clientPort, String clientPathToCamFrameSave);
 
 void configureCam(){
   camera_config_t config;
@@ -64,12 +67,12 @@ void configureCam(){
   //FRAMESIZE_QSXGA,    // 2560x1920
   
   if(psramFound()){
-    config.frame_size = FRAMESIZE_SXGA;
-    config.jpeg_quality = 12;
+    config.frame_size = FRAMESIZE_XGA;
+    config.jpeg_quality = 10;
     config.fb_count = 1;
   } else {
     config.frame_size = FRAMESIZE_HD;
-    config.jpeg_quality = 12;
+    config.jpeg_quality = 10;
     config.fb_count = 1;
   }
 
@@ -116,4 +119,14 @@ camera_fb_t* takePhoto() {
       printf("Failed to takephoto...\n");
     }
     return fb;     
+}
+
+boolean postPhoto(WiFiClient wifiClient, String clientIp, int clientPort, String clientPathToCamFrameSave){
+  camera_fb_t * fb = takePhoto();
+  
+  if (!fb) {
+    return false;
+  }else{
+     return postFrame(fb, wifiClient, clientIp, clientPort, clientPathToCamFrameSave);
+  }    
 }
