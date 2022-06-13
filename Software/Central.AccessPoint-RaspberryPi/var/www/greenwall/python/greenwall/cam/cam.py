@@ -40,7 +40,7 @@ class Cam:
 
             except Exception as e:
 
-                logging.error("Exception while fetch the frame from the camera: {0}.".format(e))
+                logging.error("Exception while fetch the frame 'GET {0}' from the camera: {1}.".format(address, e))
 
         return fileName
                 
