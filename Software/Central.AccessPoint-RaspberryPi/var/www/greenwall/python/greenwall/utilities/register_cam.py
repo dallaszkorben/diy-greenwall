@@ -78,8 +78,8 @@ class RegisterCam:
                     timeStamp = dateTime.timestamp() #datetime.fromtimestamp(value)
                     camId = lineArray[1]
                     camIp = lineArray[2]
-                    streamUrl = lineArray[3]
-                    captureUrl = lineArray[4]
+                    captureUrl = lineArray[3]
+                    streamUrl = lineArray[4]
 
                     self.camDict[camId] = {"ip": camIp, "timeStamp": timeStamp, "streamUrl": streamUrl, "captureUrl": captureUrl}
 
@@ -102,7 +102,7 @@ class RegisterCam:
 
                     dateString = datetime.fromtimestamp(value['timeStamp']).astimezone().isoformat()
 
-                    fileObject.write("{dateString}{sep}{camId}{sep}{camIp}{sep}{streamUrl}{sep}{captureUrl}{sep}\n".format(dateString=dateString, camId=key, camIp=value["ip"], streamUrl=value["streamUrl"], captureUrl=value["captureUrl"], sep=self.separator))
+                    fileObject.write("{dateString}{sep}{camId}{sep}{camIp}{sep}{captureUrl}{sep}{streamUrl}{sep}\n".format(dateString=dateString, camId=key, camIp=value["ip"], streamUrl=value["streamUrl"], captureUrl=value["captureUrl"], sep=self.separator))
 
     def getValueList(self, capture=True, stream=False, camId=None ):
         output = []

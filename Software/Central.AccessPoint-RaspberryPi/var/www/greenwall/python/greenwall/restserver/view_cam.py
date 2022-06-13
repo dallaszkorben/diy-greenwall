@@ -1,3 +1,5 @@
+import logging
+
 import json
 
 #from flask_api import status
@@ -54,14 +56,14 @@ class CamView(FlaskView):
 
 
 
-# === POST /stream ===
+# === POST /register ===
 
     #
-    # Register Cam Stream with payload
+    # Register Cam with payload
     #
     # curl  --header "Content-Type: application/json" --request POST --data '{"camId": "5","streamUrl":"http://192.168.50.123:81/stream", "captureUrl": "http://192.168.50.123:80/capture" }' http://localhost:5000/cam/register
     #
-    # POST http://localhost:5000/cam/stream/register
+    # POST http://localhost:5000/cam/register
     #      body: {
     #        "camId":"5"
     #        "streamUrl": "http://192.168.50.123:81/stream",
@@ -90,42 +92,58 @@ class CamView(FlaskView):
 
 # === POST /cam/frame/save/ ===
 
+
     #
     # Save frame - with parameters
     #
-    # curl  --header "Content-Type: img/jpeg" --request POST --data '...' http://localhost:5000/cam/frame/save/camId/5/timestamp/2022.11.23T11:22:12
+    # curl  --header "Content-Type: img/jpeg" --request POST --data '...' http://localhost:5000/cam/frame/save/camId/5
     #
-    #@route('/frame/save/camId/<camId>/timestamp/<timestamp>', methods=['POST'])
+    #@route('/frame/save/camId/<camId>', methods=['POST'])
     @route(EPCamFrameSave.PATH_PAR_URL, methods=[EPCamFrameSave.METHOD])
-    def saveCamFrameWithParameter(self, camId, timestamp):
+    def saveCamFrameWithParameter(self, camId):
 
-        from pprint import pprint
-        print("!!! Request !!!")
+#        from pprint import pprint
+#        print("!!! Request: !!!")
+#        print(request)
+#        print(vars(request))
+#        if hasattr(request, 'headers'):
+#            pprint(request.headers)
+#        if hasattr(request, 'data'):
+#            pprint(request.data)
+#        if hasattr(request, 'args'):
+#            pprint(request.args)
+#        if hasattr(request, 'form'):
+#            pprint(request.form)
+#        if hasattr(request, 'endpoing'):
+#            pprint(request.endpoint)
+#        if hasattr(request, 'method'):
+#            pprint(request.method)
+#        if hasattr(request, 'remote_addr'):
+#            pprint(request.remote_addr)
+#        if hasattr(request, 'json'):
+#            pprint(request.json)
+#        if hasattr(request, 'files'):
+#            pprint(request.files)
+#        else:
+#            print("NO file was sent")
+#        print()
 
-        pprint(request.headers)
-        pprint(request.data)
-        pprint(request.args)
-        pprint(request.form)
-        pprint(request.endpoint)
-        pprint(request.method)
-        pprint(request.remote_addr)
-        pprint(request.json)
-        pprint(request.files)
+        logging.debug("POST cam/frame/save node was called")
 
+        image = None
+        try:
+            if hasattr(request, 'files') and "frameFile" in request.files:
 
-        if "frameFile" in request.files:
-            image = request.files["frameFile"];
-#            if image:
-#            img = Image.open(image)
-#            img.save("output.jpg")
+#                print(request.files)
 
-            print("file was received")
+                image = request.files["frameFile"];
 
-        else:
-            image = None
-            print("!!! No file was received")
+                logging.debug("   POST cam/frame/save node RECEIVED the image file. Now the image process starts.")
 
-        out = self.epCamFrameSave.executeByParameters(camId=camId, image=image, timestamp=timestamp)
+        except:
+            logging.error("   !!! POST cam/frame/save node DID NOT receive the image file !!!")
+
+        out = self.epCamFrameSave.executeByParameters(camId=camId, image=image)
         return out
 
 

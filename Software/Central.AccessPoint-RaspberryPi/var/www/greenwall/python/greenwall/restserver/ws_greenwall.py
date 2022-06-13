@@ -59,13 +59,11 @@ from greenwall.utilities.register_pump import RegisterPump
 from greenwall.utilities.register_cam import RegisterCam
 
 class WSGreenWall(Flask):
-#class WSGreenWall():
 
     def __init__(self, import_name):
 
         super().__init__(import_name)
 
-#        self.app = Flask(__name__)
         self.app = self
 
         cg = getConfig()
@@ -85,9 +83,6 @@ class WSGreenWall(Flask):
         self.webCamCaptureFolder = cg["web-cam-capture-folder"]
         self.webCamCaptureFile = cg["web-cam-capture-file"]
         self.webSmoothingWindow = int(cg["web-smoothing-window"])
-
-#        self.pumpGpio = cg["pump-gpio"]
-#        self.pumpId = cg["pump-id"]
 
         # LOG 
         logFolder = IniLocation.get_path_to_config_folder()
