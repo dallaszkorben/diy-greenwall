@@ -257,7 +257,8 @@ pi@raspberrypi:/var/www/greenwall/python $ python3 -m venv env
   (env) pi@raspberrypi:/var/www/greenwall/python/env/bin $ pip install scipy --no-cache-dir
   (env) pi@raspberrypi:/var/www/greenwall/python/env/bin $ pip install matplotlib
   (env) pi@raspberrypi:/var/www/greenwall/python/env/bin $ pip3 install pandas
-  
+  (env) pi@raspberrypi:/var/www/greenwall/python/env/bin $ pip3 install natsort
+
   
   
   
