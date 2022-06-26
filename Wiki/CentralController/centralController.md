@@ -455,8 +455,13 @@ Under the **python** folder, you can see the following hierarchy of the python c
 
 ### Services on PI
 #### CAM
-```sequenceDiagram
-Alice->>John: Hello John, how are you?
+```mermaid
+sequenceDiagram
+participant Cam
+participant PI
+participant WEB browser
+Cam->>PI: POST /cam/register
+Cam->>PI: POST /casave/frame/camId/<camId>
 
   ```
 
