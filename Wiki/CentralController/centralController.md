@@ -470,7 +470,7 @@ PI->>Cam: GET /capture
 Cam->>Cam: take photo
 
 WEB browser->>PI: GET /cam/capture/url
-WEB browser->>PI: POST /cam/construct/video
+WEB browser->>PI: POST /cam/construct/video {camId,startDate,endDate,fps}
 PI->>PI: construct the video in the background
 
   ```
