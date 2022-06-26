@@ -404,23 +404,30 @@ Under the **python** folder, you can see the following hierarchy of the python c
     ```sh
     pi@raspberrypi:~$ touch /etc/apache2/conf-available/green-wall.conf
      
+    WSGIRestrictStdout Off
+    WSGIApplicationGroup %{GLOBAL}
     <VirtualHost *:80>
-       ServerAdmin webmaster@greenwallsite.com
-       ServerName www.greenwallsite.com
-       ServerAlias greenwallsite.com
+        ServerAdmin webmaster@greenwall.com
+        ServerName www.greenwallsite.com
+        ServerAlias greenwallsite.com
 
-       ErrorLog /var/www/logs/error.log
-       CustomLog /var/www/logs/access.log combined
+        ErrorLog /var/www/greenwall/logs/error.log
+        CustomLog /var/www/greenwall/logs/access.log combined
 
-       <IfModule dir_module>
-           DirectoryIndex index.html
-       </IfModule>
+        WSGIDaemonProcess greenwall user=pi group=pi threads=5 python-home=/var/www/greenwall/python/env
+        WSGIProcessGroup greenwall
+        WSGIScriptAlias / /var/www/greenwall/python/greenwall.wsgi    
 
-       Alias /greenwall/ /var/www/greenwall/
-       <Directory /var/www/greenwall>
-          Order allow,deny
-          Allow from all
-       </Directory>
+        <IfModule dir_module>
+            DirectoryIndex index.html
+        </IfModule>
+
+        Alias /greenwall/ /var/www/greenwall/
+        <Directory /var/www/greenwall>
+            Order allow,deny
+            Allow from all
+        </Directory>
+
     </VirtualHost>
     ```
 
@@ -444,6 +451,19 @@ Under the **python** folder, you can see the following hierarchy of the python c
     ~~pi@raspberrypi:~$ sudo /etc/init.d/apache2 restart~~ 
     pi@raspberrypi:~$ sudo systemctl restart apache2      
     ```
+
+
+### Services on PI
+#### CAM
+```sequenceDiagram
+Alice->>John: Hello John, how are you?
+
+  ```
+
+
+#### LAMP-PUMP
+#### Sensors
+
 
 ### Port forwarding
   Why do we need it?
