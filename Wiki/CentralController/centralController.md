@@ -461,7 +461,17 @@ participant Cam
 participant PI
 participant WEB browser
 Cam->>PI: POST /cam/register
+PI->>PI: register
+
 Cam->>PI: POST /casave/frame/camId/<camId>
+PI->>PI: save file
+
+PI->Cam: GET /capture
+Cam->>Cam: take photo
+
+WEB browser->>PI: GET /cam/capture/url
+WEB browser->>PI: POST /cam/construct/video
+PI->>PI: construct the video in the background
 
   ```
 
