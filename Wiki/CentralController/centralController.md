@@ -466,7 +466,7 @@ PI->>PI: register
 Cam->>PI: POST /casave/frame/camId/<camId>
 PI->>PI: save file
 
-PI->Cam: GET /capture
+PI->>Cam: GET /capture
 Cam->>Cam: take photo
 
 WEB browser->>PI: GET /cam/capture/url
