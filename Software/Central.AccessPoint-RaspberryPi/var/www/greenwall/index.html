@@ -103,6 +103,8 @@ user-scalable=no -disable user zoom on mobile
 
                         $.map(result.camCaptureList, function(camCapture){
 
+console.log("upload camCapture.camId: " + camCapture.camId);
+
                             camId = camCapture.camId;
                             camCaptureUrl = camCapture.captureUrl;
 
@@ -115,6 +117,7 @@ user-scalable=no -disable user zoom on mobile
                             rowData = $("<td>");
 
                             var img = $('<img id="cam_' + camId + '">');
+
                             // Random value after the image name helps to ignore the cache at refresh
                             img.attr('src', '/greenwall/cam-capture/capture_' + camId + '.jpg?' + Math.random());
                             img.attr('width', '400px');
@@ -160,15 +163,20 @@ user-scalable=no -disable user zoom on mobile
                 camId = camCapture.camId;
                 camCaptureUrl = camCapture.captureUrl;
 
-                $.ajax({type: "GET", url: "/cam/capture/url/camId/" + camId, async: true,
+                $.ajax({type: "GET", url: "/cam/capture/url/camId/" + camId, 
+                    async: true,
+                    indexValue: {camId:camId}, 
                     success: function(result){
 
-                        res = result.result
+                        res = result.result;
 
                         if(res == "OK"){
 
+                            captureUrl = result.captureUrl;
+                            camId = this.indexValue.camId;
+
                             // Random value after the image name helps to ignore the cache at refresh
-                            $("#cam_" + camId).attr('src', '/greenwall/cam-capture/capture_' + camId + '.jpg?' + Math.random());
+                            $("#cam_" + camId).attr('src', captureUrl + "?" + Math.random());
 
                         }else{
                             console.log("ERROR:" + error);
@@ -179,9 +187,8 @@ user-scalable=no -disable user zoom on mobile
                     }
                 });
             });
-
-
         }
+
 
         // ================================================
         //
@@ -588,7 +595,7 @@ user-scalable=no -disable user zoom on mobile
             //-----------------------
             // Refresh Cam Capture
             //-----------------------
-            setInterval(refreshCamCapture, 10000);
+            setInterval(refreshCamCapture, 20000);
 
 
             //-----------------------
@@ -739,6 +746,18 @@ user-scalable=no -disable user zoom on mobile
     <hr> <!-- ------------------------ -->
 
     <div id="camCaptureDiv"></div>
+
+
+    <hr> <!-- ------------------------ -->
+
+
+    <video width="320" height="240" controls>
+
+        <source src="cam-video/video.ogg" type="video/ogg"> 
+
+	    Your browser does not support the video tag.
+    </video> 
+
 
 
 </body>

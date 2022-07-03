@@ -23,11 +23,19 @@ class Config( Property ):
 
     DEFAULT_SENSOR_REPORT_FILE_NAME = ("sensor-report", "file-name", "sensor_report.log")
 
-    DEFAULT_WEB_ROOT_PATH = ("web", "root-path", "/var/www/greenwall")
+    DEFAULT_WEB_ROOT_PATH = ("web", "root-path", "/greenwall")
     DEFAULT_WEB_CAM_FRAME_FOLDER = ("web", "cam-frame-folder", "cam-frame")
+    DEFAULT_WEB_CAM_VIDEO_FOLDER = ("web", "cam-video-folder", "cam-video")
     DEFAULT_WEB_CAM_CAPTURE_FOLDER = ("web", "cam-capture-folder", "cam-capture")
     DEFAULT_WEB_CAM_CAPTURE_FILE = ("web", "cam-capture-file", "capture.jpg")
     DEFAULT_WEB_SMOOTHING_WINDOW = ("web", "smoothing-window", 15)
+
+    DEFAULT_ABSOLUTE_ROOT_PATH = ("absolute", "root-path", "/var/www/greenwall")
+    DEFAULT_ABSOLUTE_CAM_VIDEO_FOLDER = ("absolute", "cam-video-folder", "/var/www/greenwall/cam-video")
+    DEFAULT_ABSOLUTE_CAM_FRAME_FOLDER = ("absolute", "cam-frame-folder", "/var/www/greenwall/cam-frame")
+
+
+    TIMING_CAM_LATE_REGISTER_TIME_LIMIT_SECONDS = ("timing", "cam-late-register-time-limit_seconds", 200)
 
     __instance = None
 
@@ -79,6 +87,9 @@ class Config( Property ):
     def getWebCamFrameFolder(self):
         return self.get(self.DEFAULT_WEB_CAM_FRAME_FOLDER[0], self.DEFAULT_WEB_CAM_FRAME_FOLDER[1], self.DEFAULT_WEB_CAM_FRAME_FOLDER[2])
 
+    def getWebCamVideoFolder(self):
+        return self.get(self.DEFAULT_WEB_CAM_VIDEO_FOLDER[0], self.DEFAULT_WEB_CAM_VIDEO_FOLDER[1], self.DEFAULT_WEB_CAM_VIDEO_FOLDER[2])
+
     def getWebCamCaptureFolder(self):
         return self.get(self.DEFAULT_WEB_CAM_CAPTURE_FOLDER[0], self.DEFAULT_WEB_CAM_CAPTURE_FOLDER[1], self.DEFAULT_WEB_CAM_CAPTURE_FOLDER[2])
 
@@ -87,6 +98,19 @@ class Config( Property ):
 
     def getWebSmoothingWindow(self):
         return self.get(self.DEFAULT_WEB_SMOOTHING_WINDOW[0], self.DEFAULT_WEB_SMOOTHING_WINDOW[1], self.DEFAULT_WEB_SMOOTHING_WINDOW[2])
+
+    def getAbsoluteRootPath(self):
+        return self.get(self.DEFAULT_ABSOLUTE_ROOT_PATH[0], self.DEFAULT_ABSOLUTE_ROOT_PATH[1], self.DEFAULT_ABSOLUTE_ROOT_PATH[2])
+
+    def getAbsoluteCamVideoFolder(self):
+        return self.get(self.DEFAULT_ABSOLUTE_CAM_VIDEO_FOLDER[0], self.DEFAULT_ABSOLUTE_CAM_VIDEO_FOLDER[1], self.DEFAULT_ABSOLUTE_CAM_VIDEO_FOLDER[2])
+
+    def getAbsoluteCamFrameFolder(self):
+        return self.get(self.DEFAULT_ABSOLUTE_CAM_FRAME_FOLDER[0], self.DEFAULT_ABSOLUTE_CAM_FRAME_FOLDER[1], self.DEFAULT_ABSOLUTE_CAM_FRAME_FOLDER[2])
+
+    def getTimingCamLateRegisterTimeLimitSeconds(self):
+        return self.get(self.TIMING_CAM_LATE_REGISTER_TIME_LIMIT_SECONDS[0], self.TIMING_CAM_LATE_REGISTER_TIME_LIMIT_SECONDS[1], self.TIMING_CAM_LATE_REGISTER_TIME_LIMIT_SECONDS[2])
+
 
 #    def getPumpId(self):
 #        return int(self.get(self.DEFAULT_PUMP_ID[0], self.DEFAULT_PUMP_ID[1], self.DEFAULT_PUMP_ID[2]))
@@ -126,6 +150,9 @@ class Config( Property ):
     def setWebCamFrameFolder(self, webCamFrameFolder):
         self.update(self.DEFAULT_WEB_CAM_FRAME_FOLDER[0], self.DEFAULT_WEB_CAM_FRAME_FOLDER[1], webCamFrameFolder)
 
+    def setWebCamVideoFolder(self, webCamVideoFolder):
+        self.update(self.DEFAULT_WEB_CAM_VIDEO_FOLDER[0], self.DEFAULT_WEB_CAM_VIDEO_FOLDER[1], webCamVideoFolder)
+
     def setWebCamCaptureFolder(self, webCamCaptureFolder):
         self.update(self.DEFAULT_WEB_CAM_CAPTURE_FOLDER[0], self.DEFAULT_WEB_CAM_CAPTURE_FOLDER[1], webCamCaptureFolder)
 
@@ -134,6 +161,18 @@ class Config( Property ):
 
     def setWebSmoothingWindow(self, webSmoothingWindow):
         self.update(self.DEFAULT_WEB_SMOOTHING_WINDOW[0], self.DEFAULT_WEB_SMOOTHING_WINDOW[1], webSmoothingWindow)
+
+    def setAbsoluteRootPath(self, absoluteRootPath):
+        self.update(self.DEFAULT_ABSOLUTE_ROOT_PATH[0], self.DEFAULT_ABSOLUTE_ROOT_PATH[1], absoluteRoothPath)
+
+    def setAbsoluteCamVideoFolder(self, absoluteCamVideoFolder):
+        self.update(self.DEFAULT_ABSOLUTE_CAM_VIDEO_FOLDER[0], self.DEFAULT_ABSOLUTE_CAM_VIDEO_FOLDER[1], absoluteCamVideoFolder)
+
+    def setAbsoluteCamFrameFolder(self, absoluteCamFrameFolder):
+        self.update(self.DEFAULT_ABSOLUTE_CAM_FRAME_FOLDER[0], self.DEFAULT_ABSOLUTE_CAM_FRAME_FOLDER[1], absoluteCamFrameFolder)
+
+    def setTimingCamLateRegisterTimeLimitSeconds(self, timeLimit):
+        self.update(self.TIMING_CAM_LATE_REGISTER_TIME_LIMIT_SECONDS[0], self.TIMING_CAM_LATE_REGISTER_TIME_LIMIT_SECONDS[1], timeLimit)
 
 #    def setPumpId(self, actuatorId):
 #        self.update(self.DEFAULT_PUMP_ID[0], self.DEFAULT_PUMP_ID[1], actuatorId)
@@ -162,9 +201,16 @@ def getConfig():
 
     config["web-root-path"] = cb.getWebRootPath()
     config["web-cam-frame-folder"] = cb.getWebCamFrameFolder()
+    config["web-cam-video-folder"] = cb.getWebCamVideoFolder()
     config["web-cam-capture-folder"] = cb.getWebCamCaptureFolder()
     config["web-cam-capture-file"] = cb.getWebCamCaptureFile()
     config["web-smoothing-window"] = cb.getWebSmoothingWindow()
+
+    config["absolute-root-path"] = cb.getAbsoluteRootPath()
+    config["absolute-cam-video-folder"] = cb.getAbsoluteCamVideoFolder()
+    config["absolute-cam-frame-folder"] = cb.getAbsoluteCamFrameFolder()
+
+    config["timing-cam-late-register-time-seconds"] = cb.getTimingCamLateRegisterTimeLimitSeconds()
 
 #    config["pump-id"] = cb.getPumpId()
 #    config["pump-gpio"] = cb.getPumpGpio()
@@ -204,6 +250,9 @@ def setConfig(config):
     if "web-cam-frame-folder" in config:
         cb.setWebCamFrameFolder(config["web-cam-frame-folder"])
 
+    if "web-cam-video-folder" in config:
+        cb.setWebCamVideoFolder(config["web-cam-video-folder"])
+
     if "web-cam-capture-folder" in config:
         cb.setWebCamCaptureFolder(config["web-cam-capture-folder"])
 
@@ -212,6 +261,18 @@ def setConfig(config):
 
     if "web-smoothing-window" in config:
         cb.setWebSmoothingWindow(config["web-smoothing-window"])
+
+    if "absolute-root-path" in config:
+        cb.setAbsoluteRootPath(config["absolute-root-path"])
+
+    if "absolute-cam-video-folder" in config:
+        cb.setAbsoluteCamVideoFolder(config["absolute-cam-video-folder"])
+
+    if "absolute-cam-frame-folder" in config:
+        cb.setAbsoluteCamFrameFolder(config["absolute-cam-frame-folder"])
+
+    if "timing-cam-late-register-time-seconds" in config:
+        cp.setTimingCamLateRegisterTimeLimitSeconds(config["timing-cam-late-register-time-seconds"])
 
 #    if "pump-id" in config:
 #        cb.setPumpId(config["pump-id"])
