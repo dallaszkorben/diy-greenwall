@@ -39,7 +39,7 @@ user-scalable=no -disable user zoom on mobile
             font-family: "Comic Sans MS", "Comic Sans", cursive;
             font-size: 18px;
         }
-    
+
         h1 {
             font-size: 40px;
         }
@@ -136,7 +136,7 @@ user-scalable=no -disable user zoom on mobile
                             newCamCaptureList.push(cc);
                         });
 
-                        newCamCaptureList.sort(function(a, b){return a.camId < b.camId});
+                        newCamCaptureList.sort(function(a, b){return a.camId > b.camId});
 
                         //If the old and new list is the same, does not need to re-build the camCaptureDiv
                         if( newCamCaptureList.length === camCaptureList.length && newCamCaptureList.every(function(value, index) { return value.camId === camCaptureList[index].camId }) ){
@@ -144,14 +144,14 @@ user-scalable=no -disable user zoom on mobile
                         }else{
                             camCaptureList = newCamCaptureList;
                         }
-    
-                        flex=100/camCaptureList.length;
-                        flex=flex.toFixed(2);
-                        flex="flex: " + flex.toString() + "%"
 
+                        size=Math.min(33.33, 100/camCaptureList.length).toFixed(2);
+                        styleFlex="flex: " + size.toString() + "%"
+                        size=100;
+                        styleWidth="width: " + size.toString() + "%; cursor: pointer;"
                         divRow = $('<div class="row"></div>');
 
-                        $.map(result.camCaptureList, function(camCapture){
+                        $.map(camCaptureList, function(camCapture){
 
                             camId = camCapture.camId;
                             camCaptureUrl = camCapture.captureUrl;
@@ -160,8 +160,7 @@ user-scalable=no -disable user zoom on mobile
 
                             // Random value after the image name helps to ignore the cache at refresh
                             img.attr('src', '/greenwall/cam-capture/capture_' + camId + '.jpg?' + Math.random());
-//                            img.attr('width', '200px');
-                            img.attr('style', 'width:100%')
+                            img.attr('style', styleWidth)
 
                             title=$('<div id="imgTitle">');
                             title.html(camId);
@@ -170,17 +169,22 @@ user-scalable=no -disable user zoom on mobile
 
                             divColumn.append(title)
                             divColumn.append(img);
-                            divColumn.attr('style', flex);
-
-
+                            divColumn.attr('style', styleFlex);
 
                             divRow.append(divColumn)
-
                         });
 
                         $('#camCaptureDiv').html("");
                         $('#camCaptureDiv').append(divRow);
 
+                        // Add click event listner to all pictures
+                        $.map(camCaptureList, function(camCapture){
+
+                            camId = camCapture.camId;
+                            $("#cam_" + camId).on("click", function(e){
+                                openWindow(this.id);
+                            });
+                        });
 
                     }else{
                         //$("#value").html("");
@@ -196,6 +200,27 @@ user-scalable=no -disable user zoom on mobile
 //                    $("#spinner").hide();
                 }
             });
+        }
+
+        function openWindow(imgId){
+            var camId = imgId.substring(4);
+            var newWindow = window.open();
+            newWindow.document.write(
+                '<table border="0">' +
+                '   <tr>' +
+                '     <td style="text-align:center; font-weight: bold;">' +
+                camId + 
+                '     </td>' +
+                '   </tr>' +
+                '   <tr>' +
+                '     <td>' +
+                '<img id="cam_' + camId + '" src="/greenwall/cam-capture/capture_' + camId + '.jpg?">'+
+                '     </td>' +
+                '   </tr>' +
+                '</table>'
+            );
+
+
         }
 
         // ================================================
@@ -475,7 +500,7 @@ user-scalable=no -disable user zoom on mobile
                         colorIndex=0;
                         charts = result.data;
                         $.map(charts,function(graph, index){
-    
+
                             id=index;
                             record=graph.record
 
@@ -584,6 +609,102 @@ user-scalable=no -disable user zoom on mobile
         }
 
         // ================================================
+        //
+        // check lamp status
+        //
+        // ================================================
+        function checkLampStatus(){
+/*
+            $.ajax({type: "GET", url: "/lamp/status", 
+                async: false,
+                success: function(result){
+
+                    $("#lampSwitch").off('lcs-on lcs-off');
+
+                    if (result.status == 'off'){
+                        lcs_off("#lampSwitch");
+                    }else{
+                        lcs_on("#lampSwitch");
+                    }
+
+                    $("#lampSwitch").on('lcs-on', lampOnEvent);
+                    $("#lampSwitch").on('lcs-off', lampOffEvent);
+                },
+                error: function(xhr,status,error){
+                }
+            });
+
+*/
+            $.get("/lamp/status").done(
+                function( data ) {
+
+                    $("#lampSwitch").off('lcs-on lcs-off');
+
+                    if (data.status == 'off'){
+                        lcs_off("#lampSwitch");
+                    }else{
+                        lcs_on("#lampSwitch");
+                    }
+
+                    $("#lampSwitch").on('lcs-on', lampOnEvent);
+                    $("#lampSwitch").on('lcs-off', lampOffEvent);
+            });
+
+
+
+        }
+
+        // ================================================
+        //
+        // Lamp ON/OFF Event
+        //
+        // ================================================
+        function lampOnEvent(){
+            $.post( "/lamp/switch", { "status": "on", "lengthInSec": "10" } );
+        }
+
+        function lampOffEvent(){
+            $.post( "/lamp/switch", { "status": "off", "lengthInSec": "10" } );
+        }
+
+        // ================================================
+        //
+        // Pump ON/OFF Event
+        //
+        // ================================================
+        function pumpOnEvent(){
+
+            lcs_disable("#pumpSwitch");
+
+            //first check the state of the pump
+            $.get( "/pump/status").done(
+                function( data ) {
+
+                    //if the pump is OFF
+                    if (data.status == 'off'){
+
+                        //the pump can be turn ON
+                        $.post( "/pump/turnOn", { "lengthInSec": "30" } );
+                    }
+                    intervalId = setInterval(checkPumpStatus, 5000);
+
+                    //console.log("intervalId: " + intervalId);
+
+                    lcs_enable("#pumpSwitch");
+                }
+            );
+        }
+
+        function pumpOffEvent(){
+
+            $.post( "/pump/turnOff" );
+            clearInterval(intervalId);
+
+            //console.log("end of interval check. intervalid: " +  intervalId);
+            //console.log(" ");
+        }
+
+        // ================================================
         // ================================================
         //
         //  When the page is loaded
@@ -646,6 +767,10 @@ user-scalable=no -disable user zoom on mobile
             //-----------------------
             setInterval(refreshCamCapture, 10000);
 
+            //-----------------------
+            // Refresh Lamp Status
+            //-----------------------
+            setInterval(checkLampStatus, 5000);
 
             //-----------------------
             // Lamp Switch
@@ -671,14 +796,10 @@ user-scalable=no -disable user zoom on mobile
                         lcs_enable("#lampSwitch");
                     }
 
-                    $("#lampSwitch")[0].addEventListener('lcs-on', function(){
-                        $.post( "/lamp/switch", { "status": "on", "lengthInSec": "10" } );
-                    });
-
-                    $("#lampSwitch")[0].addEventListener('lcs-off', function(){
-                        $.post( "/lamp/switch", { "status": "off", "lengthInSec": "10" } );
-                    });
-            });
+                    $("#lampSwitch").on('lcs-on', lampOnEvent);
+                    $("#lampSwitch").on('lcs-off', lampOffEvent);
+                }
+            );
 
             //-----------------------
             // Pump Switch
@@ -709,38 +830,10 @@ user-scalable=no -disable user zoom on mobile
                         lcs_enable("#pumpSwitch");
                     }
 
-                    $("#pumpSwitch")[0].addEventListener('lcs-on', function(){
-
-                        lcs_disable("#pumpSwitch");
-
-                        //first check the state of the pump
-
-                        $.get( "/pump/status").done(
-                            function( data ) {
-
-                                //if the pump is OFF
-                                if (data.status == 'off'){
-
-                                    //the pump can be turn ON
-                                    $.post( "/pump/turnOn", { "lengthInSec": "30" } );
-                                }
-                                intervalId = setInterval(checkPumpStatus, 5000);
-
-                                //console.log("intervalId: " + intervalId);
-
-                                lcs_enable("#pumpSwitch");
-                            }
-                        );
-                    });
-
-                    $("#pumpSwitch")[0].addEventListener('lcs-off', function(){
-                        $.post( "/pump/turnOff" );
-                        clearInterval(intervalId);
-
-                        //console.log("end of interval check. intervalid: " +  intervalId);
-                        //console.log(" ");
-                    });
-            });
+                    $("#pumpSwitch").on('lcs-on', pumpOnEvent);
+                    $("#pumpSwitch").on('lcs-off', pumpOffEvent);
+                }
+            );
         });
 
     </script>
@@ -767,6 +860,7 @@ user-scalable=no -disable user zoom on mobile
                     <td valign="top" >Lamp:</td>
                     <td >
                         <form>
+                            <!-- Sliding Toggle Switch -->
                             <input type="checkbox" name="lampSwitch" value="1" class="lcs_check" id="lampSwitch"/>
                         </form>
                     </td>

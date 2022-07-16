@@ -89,10 +89,14 @@ class RegisterCam:
     def cleanRegister(self):
         """
         I delete every recorded cam from the cam_register.log file
-        I delete every record from self.camDict which is older than self.timingCamLateRegisterTimeLimit (200s)
+        I delete every record from self.camDict which is older than self.timingCamLateRegisterTimeLimit (120s) 
+            [timing]
+            cam-late-register-time-limit_seconds = 120
         """
 
         while True:
+            logging.debug("Cam Register Check - Start to check")
+
             with self.lockRegister:
 #                dateTime = parser.parse(dateString).astimezone()
 #                timeStamp = dateTime.timestamp()
@@ -110,19 +114,17 @@ class RegisterCam:
                 # delete every record from cam_register.log
                 with open(self.registerPath, 'w') as fileObject:
 
-                    logging.error("Clear the cam_register.log file")
+                    logging.error("   Clear the cam_register.log file")
 
                     for key, value in self.camDict.copy().items():
                         dateString = datetime.fromtimestamp(value['timeStamp']).astimezone().isoformat()
                         fileObject.write("{dateString}{sep}{camId}{sep}{camIp}{sep}{captureUrl}{sep}{streamUrl}{sep}\n".format(dateString=dateString, camId=key, camIp=value["ip"], streamUrl=value["streamUrl"], captureUrl=value["captureUrl"], sep=self.separator))
 
 
-                        logging.error("Add key to cam_register.log: " + key)
+                        logging.error("   Add key to cam_register.log: " + key)
 
 
-            logging.error("!!!!")
-            logging.error("waiting 70 sec")
-            logging.error("!!!!")
+            logging.debug("Cam Register Check - Waiting 70 sec for the next check")
 
             time.sleep(70)
 

@@ -61,13 +61,13 @@ class Lamp:
             x = requests.get(address, timeout=20)
             response = x.json()
 
-            logging.debug("StatusCode: {0}".format(x.status_code))
+            logging.debug("Lamp StatusCode: {0}".format(x.status_code))
 
             if x.status_code == 200:
-                logging.debug("Response: {0}".format(x.text))
+                logging.debug("Lamp Status Response: {0}".format(x.text))
                 return response.get('status')
             else:
-                logging.debug("Response: Failed. Status is n/a")
+                logging.error("Lamp Status Response: Failed. Status is n/a")
                 return 'n/a'
 
 

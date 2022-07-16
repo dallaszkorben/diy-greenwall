@@ -67,7 +67,7 @@ class Pump:
 
         addresses = []
 
-        # TODO later I should handle more lamps. Now works only one
+        # TODO later I should handle more pumps. Now works only one
         for key, value in self.webGadget.registerPump.pumpDict.items():
 
             actDateTime = datetime.now().astimezone()
@@ -83,6 +83,12 @@ class Pump:
 
             address = addresses[0]
 
+#
+#            logging.error("")
+#            logging.error("!!! {0}".format(address))
+#            logging.error("")
+#
+
             x = requests.get(address, timeout=20)
             response = x.json()
 
@@ -92,7 +98,7 @@ class Pump:
                 logging.debug("Response: {0}".format(x.text))
                 return response.get('status')
             else:
-                logging.debug("Response: Failed. Status is n/a")
+                logging.error("Response: Failed. Status is n/a")
                 return 'n/a'
 
         # NewConnectionError
@@ -100,7 +106,7 @@ class Pump:
         except Exception as e:
 
             if len(addresses) == 0:
-                logging.debug("No pump registered.")
+                logging.error("No pump registered.")
             else:
                 logging.error("Exception: {0}. Status is n/a".format(e))
             return 'n/a'
