@@ -91,8 +91,13 @@ class EPCamSaveFrame(EP):
 
             img = Image.open(image)
 
-            # add timestamp to the image
-            draw = ImageDraw.Draw(img)
+            try:
+                # add timestamp to the image
+                draw = ImageDraw.Draw(img)
+            except Exception as e:
+                logging.debug("      {0} FRAME was NOT saved. ImageDraw FAILE\n{1}".format(fileNamePath,e))
+                return output_json( {'result': 'ERROR'}, EP.CODE_BAD_REQUEST)
+
             font = ImageFont.truetype("DejaVuSans.ttf", 32)
             draw.text((0,20), dateString, (100,100,100), font=font)
 

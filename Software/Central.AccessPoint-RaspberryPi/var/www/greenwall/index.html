@@ -12,6 +12,29 @@ user-scalable=no -disable user zoom on mobile
 
     <style>
 
+        /* camCapture in row */
+        * {
+            box-sizing: border-box;
+        }
+
+        .row {
+            display: flex;
+        }
+
+        /* Create three equal columns that sits next to each other */
+        .column {
+            padding: 5px;
+        }
+
+        /* camCapture title aligned to center */
+        #imgTitle {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+        }
+
+        /* General fonts */
         * {
             font-family: "Comic Sans MS", "Comic Sans", cursive;
             font-size: 18px;
@@ -50,8 +73,6 @@ user-scalable=no -disable user zoom on mobile
             vertical-align: top;
         }
 
-
-
     </style>
 
     <!-- Chart -->
@@ -81,6 +102,10 @@ user-scalable=no -disable user zoom on mobile
 
         var intervalId = null;
 
+        $( function() {
+            $( "#tabs" ).tabs();
+        } );
+
         function isEmpty(str) {
             return (!str || str.length === 0 );
         }
@@ -99,11 +124,8 @@ user-scalable=no -disable user zoom on mobile
 
                     if(res == "OK"){
 
-                        var tableBody = $("<tbody>");
-
+                        newCamCaptureList = [];
                         $.map(result.camCaptureList, function(camCapture){
-
-console.log("upload camCapture.camId: " + camCapture.camId);
 
                             camId = camCapture.camId;
                             camCaptureUrl = camCapture.captureUrl;
@@ -111,28 +133,53 @@ console.log("upload camCapture.camId: " + camCapture.camId);
                             cc = {};
                             cc['camId'] = camId;
                             cc['camCaptureUrl'] = camCaptureUrl;
-                            camCaptureList.push(cc);
+                            newCamCaptureList.push(cc);
+                        });
+
+                        newCamCaptureList.sort(function(a, b){return a.camId < b.camId});
+
+                        //If the old and new list is the same, does not need to re-build the camCaptureDiv
+                        if( newCamCaptureList.length === camCaptureList.length && newCamCaptureList.every(function(value, index) { return value.camId === camCaptureList[index].camId }) ){
+                            return;
+                        }else{
+                            camCaptureList = newCamCaptureList;
+                        }
     
-                            row = $("<tr>");
-                            rowData = $("<td>");
+                        flex=100/camCaptureList.length;
+                        flex=flex.toFixed(2);
+                        flex="flex: " + flex.toString() + "%"
+
+                        divRow = $('<div class="row"></div>');
+
+                        $.map(result.camCaptureList, function(camCapture){
+
+                            camId = camCapture.camId;
+                            camCaptureUrl = camCapture.captureUrl;
 
                             var img = $('<img id="cam_' + camId + '">');
 
                             // Random value after the image name helps to ignore the cache at refresh
                             img.attr('src', '/greenwall/cam-capture/capture_' + camId + '.jpg?' + Math.random());
-                            img.attr('width', '400px');
-                            img.attr('style', '')
-                            rowData.html(img);
-                            row.append(rowData);
+//                            img.attr('width', '200px');
+                            img.attr('style', 'width:100%')
 
-                            tableBody.append(row);
+                            title=$('<div id="imgTitle">');
+                            title.html(camId);
+
+                            divColumn = $('<div class="column" >');
+
+                            divColumn.append(title)
+                            divColumn.append(img);
+                            divColumn.attr('style', flex);
+
+
+
+                            divRow.append(divColumn)
 
                         });
 
-                        var table = $('<table border="0"></table>').append(tableBody);
-
                         $('#camCaptureDiv').html("");
-                        $('#camCaptureDiv').append(table);
+                        $('#camCaptureDiv').append(divRow);
 
 
                     }else{
@@ -157,6 +204,8 @@ console.log("upload camCapture.camId: " + camCapture.camId);
         //
         // ================================================
         function refreshCamCapture(){
+
+            constructCamCaptureSection();
 
             $.map(camCaptureList, function(camCapture){
 
@@ -530,7 +579,7 @@ console.log("upload camCapture.camId: " + camCapture.camId);
 
                     if (data.status == 'off'){
                         lcs_off("#pumpSwitch");
-                    }            
+                    }
             });
         }
 
@@ -595,7 +644,7 @@ console.log("upload camCapture.camId: " + camCapture.camId);
             //-----------------------
             // Refresh Cam Capture
             //-----------------------
-            setInterval(refreshCamCapture, 20000);
+            setInterval(refreshCamCapture, 10000);
 
 
             //-----------------------
@@ -672,7 +721,7 @@ console.log("upload camCapture.camId: " + camCapture.camId);
                                 //if the pump is OFF
                                 if (data.status == 'off'){
 
-                                    //the the pump can be turn ON
+                                    //the pump can be turn ON
                                     $.post( "/pump/turnOn", { "lengthInSec": "30" } );
                                 }
                                 intervalId = setInterval(checkPumpStatus, 5000);
@@ -701,64 +750,74 @@ console.log("upload camCapture.camId: " + camCapture.camId);
 <body style="background-color:DarkGrey;">
     <center><h1>Green Wall</h1></center> 
 
-    <hr> <!-- ------------------------ -->
+    <div id="tabs" style="background: none repeat scroll 0% 0% rgb(204, 204, 204);">
+        <ul>
+            <li><a href="#tabs-control">Control</a></li>
+            <li><a href="#tabs-charts">Charts</a></li>
+            <li><a href="#tabs-cam">Cam</a></li>
+        </ul>
 
-    <table id="controller" border="0" class="switchh">
-        <tr>
-            <td valign="top" >Lamp:</td>
-            <td >
-                <form>
-                   <input type="checkbox" name="lampSwitch" value="1" class="lcs_check" id="lampSwitch"/>
-                </form>
-            </td>
-        </tr>
+        <!--         -->
+        <!-- CONTROL -->
+        <!--         -->
+        <div id="tabs-control">
 
-        <tr>
-            <td valign="top" >Pump:</td>
-            <td >
-                <form>
-                   <input type="checkbox" name="pumpSwitch" value="1" class="lcs_check" id="pumpSwitch"/>
-                </form>
-            </td>
-        </tr>
+            <table id="controller" border="0" class="switchh">
+                <tr>
+                    <td valign="top" >Lamp:</td>
+                    <td >
+                        <form>
+                            <input type="checkbox" name="lampSwitch" value="1" class="lcs_check" id="lampSwitch"/>
+                        </form>
+                    </td>
+                </tr>
 
-    </table>
+                <tr>
+                    <td valign="top" >Pump:</td>
+                    <td >
+                        <form>
+                            <input type="checkbox" name="pumpSwitch" value="1" class="lcs_check" id="pumpSwitch"/>
+                        </form>
+                    </td>
+                </tr>
+            </table>
+        </div>
 
-    <hr> <!-- ------------------------ -->
+        <!--        -->
+        <!-- CHARTS -->
+        <!--        -->
+        <div id="tabs-charts">
 
-    <table id="dateFilter" border="0">
-        <tr>
-            <td> Start date:</td>
-            <td><input type="text" id="startDatePicker" size="8"> </td>
-            <td rowspan="2"><button id="refreshChartButton">Refresh</button></td>
-            <td rowspan="2" width="60px"><img id="spinner" src="spinner.gif" width="60"></td> 
-        </tr>
-        <tr>
-            <td> End date:</td>
-            <td><input type="text" id="endDatePicker" size="8"> </td>
-        </tr>
-    </table>
+            <table id="dateFilter" border="0">
+                <tr>
+                    <td> Start date:</td>
+                    <td><input type="text" id="startDatePicker" size="8"> </td>
+                    <td rowspan="2"><button id="refreshChartButton">Refresh</button></td>
+                    <td rowspan="2" width="60px"><img id="spinner" src="spinner.gif" width="60"></td> 
+                </tr>
+                <tr>
+                    <td> End date:</td>
+                    <td><input type="text" id="endDatePicker" size="8"> </td>
+                </tr>
+            </table>
+            <div id="chartTableDiv"></div>
+            <div id="errormessage"></div>
+        </div>
 
+        <!--     -->
+        <!-- CAM -->
+        <!--     -->
+        <div id="tabs-cam">
 
-    <div id="chartTableDiv"></div>
-    <div id="errormessage"></div>
+            <div id="camCaptureDiv"></div>
 
-    <hr> <!-- ------------------------ -->
+            <video width="320" height="240" controls>
+                <source src="cam-video/video.ogg" type="video/ogg"> 
+            	    Your browser does not support the video tag.
+            </video> 
 
-    <div id="camCaptureDiv"></div>
-
-
-    <hr> <!-- ------------------------ -->
-
-
-    <video width="320" height="240" controls>
-
-        <source src="cam-video/video.ogg" type="video/ogg"> 
-
-	    Your browser does not support the video tag.
-    </video> 
-
-
+        </div>
+    </div>
 
 </body>
 </html>
