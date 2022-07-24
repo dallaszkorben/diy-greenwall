@@ -100,7 +100,10 @@ user-scalable=no -disable user zoom on mobile
 
         var camCaptureList = [];
 
-        var intervalId = null;
+        var chartRefreshIntervalId;
+        var camCaptureRefreshIntervalId;
+        var checkLampStatusRefreshIntervalId;
+        var checkPumpStatusIntervalId = null;
 
         $( function() {
             $( "#tabs" ).tabs();
@@ -229,7 +232,6 @@ user-scalable=no -disable user zoom on mobile
         //
         // ================================================
         function refreshCamCapture(){
-
             constructCamCaptureSection();
 
             $.map(camCaptureList, function(camCapture){
@@ -598,7 +600,6 @@ user-scalable=no -disable user zoom on mobile
         //
         // ================================================
         function checkPumpStatus(){
-
             $.get( "/pump/status").done(
                 function( data ) {
 
@@ -614,30 +615,8 @@ user-scalable=no -disable user zoom on mobile
         //
         // ================================================
         function checkLampStatus(){
-/*
-            $.ajax({type: "GET", url: "/lamp/status", 
-                async: false,
-                success: function(result){
-
-                    $("#lampSwitch").off('lcs-on lcs-off');
-
-                    if (result.status == 'off'){
-                        lcs_off("#lampSwitch");
-                    }else{
-                        lcs_on("#lampSwitch");
-                    }
-
-                    $("#lampSwitch").on('lcs-on', lampOnEvent);
-                    $("#lampSwitch").on('lcs-off', lampOffEvent);
-                },
-                error: function(xhr,status,error){
-                }
-            });
-
-*/
             $.get("/lamp/status").done(
                 function( data ) {
-
                     $("#lampSwitch").off('lcs-on lcs-off');
 
                     if (data.status == 'off'){
@@ -686,9 +665,9 @@ user-scalable=no -disable user zoom on mobile
                         //the pump can be turn ON
                         $.post( "/pump/turnOn", { "lengthInSec": "30" } );
                     }
-                    intervalId = setInterval(checkPumpStatus, 5000);
+                    checkPumpStatusIntervalId = setInterval(checkPumpStatus, 5000);
 
-                    //console.log("intervalId: " + intervalId);
+                    //console.log("checkPumpStatusIntervalId: " + checkPumpStatusIntervalId);
 
                     lcs_enable("#pumpSwitch");
                 }
@@ -698,9 +677,9 @@ user-scalable=no -disable user zoom on mobile
         function pumpOffEvent(){
 
             $.post( "/pump/turnOff" );
-            clearInterval(intervalId);
+            clearInterval(checkPumpStatusIntervalId);
 
-            //console.log("end of interval check. intervalid: " +  intervalId);
+            //console.log("end of interval check. checkPumpStatusIntervalId: " +  checkPumpStatusIntervalId);
             //console.log(" ");
         }
 
@@ -757,20 +736,6 @@ user-scalable=no -disable user zoom on mobile
 
             constructCamCaptureSection();
 
-            //-----------------------
-            // Refresh Charts
-            //-----------------------
-            setInterval(refreshCharts, 600000);
-
-            //-----------------------
-            // Refresh Cam Capture
-            //-----------------------
-            setInterval(refreshCamCapture, 10000);
-
-            //-----------------------
-            // Refresh Lamp Status
-            //-----------------------
-            setInterval(checkLampStatus, 5000);
 
             //-----------------------
             // Lamp Switch
@@ -822,8 +787,8 @@ user-scalable=no -disable user zoom on mobile
                         lcs_enable("#pumpSwitch");
 
                         // 5 sec
-                        intervalId = setInterval(checkPumpStatus, 5000);
-                        //console.log("initial intervalId: " + intervalId);
+                        checkPumpStatusIntervalId = setInterval(checkPumpStatus, 5000);
+                        //console.log("initial checkPumpStatusIntervalId: " + checkPumpStatusIntervalId);
 
                     }else{
                         lcs_off("#pumpSwitch")
@@ -834,7 +799,79 @@ user-scalable=no -disable user zoom on mobile
                     $("#pumpSwitch").on('lcs-off', pumpOffEvent);
                 }
             );
+
+            //-----------------------
+            // Tab
+            //-----------------------
+            $( "#tabs" ).tabs({
+
+                // Initial TAB = Control-Tab
+                active: 0
+
+            });
+
+            //-----------------------
+            // Refresh Lamp Status
+            //-----------------------
+            checkLampStatusRefreshIntervalId = setInterval(checkLampStatus, 5000);
+
+            $( "#tabs" ).tabs({
+               activate: function( event, ui ) {
+
+                    // Leave Control-Tab
+                    if(ui.oldTab.index() == 0){
+
+                        // No more Check Lamp Status request
+                        clearInterval(checkLampStatusRefreshIntervalId);
+
+                    // Leave Chart-Tab
+                    }else if(ui.oldTab.index() == 1){
+
+                        // No more Chart refresh request
+                        clearInterval(chartRefreshIntervalId);
+
+                    // Leave Cam-Tab
+                    }else if( ui.oldTab.index() == 2){
+
+                        // No more Cam Capture request
+                        clearInterval(camCaptureRefreshIntervalId);
+
+                    }
+
+                    //
+                    // Select Control-Tab
+                    //
+                    if(ui.newTab.index() == 0){
+
+                        //-----------------------
+                        // Refresh Lamp Status
+                        //-----------------------
+                        checkLampStatusRefreshIntervalId = setInterval(checkLampStatus, 5000);
+
+                    // Select Chart-Tab
+                    }else if(ui.newTab.index() == 1){
+
+                        //-----------------------
+                        // Refresh Charts
+                        //-----------------------
+                        chartRefreshIntervalId = setInterval(refreshCharts, 600000);
+
+                    // Select Cam-Tab
+                    }else if( ui.newTab.index() == 2){
+
+                        //-----------------------
+                        // Refresh Cam Capture
+                        //-----------------------
+                        camCaptureRefreshIntervalId = setInterval(refreshCamCapture, 10000);
+
+                    }
+
+                }
+            });
+
         });
+
+
 
     </script>
 
