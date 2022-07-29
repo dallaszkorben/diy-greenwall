@@ -1,0 +1,41 @@
+<meta comntent="text/html;charset=utf-8" http-equiv="Content-Type">
+
+<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=0.55">
+
+<html>
+    <head>
+    <script src="script/jquery/jquery-3.6.0.min.js"></script>
+
+    <script>
+
+        function refreshCapture(){
+
+            console.log(camId);
+            // Random value after the image name helps to ignore the cache at refresh
+            $("#cam_" + camId).attr('src', '/greenwall/cam-capture/capture_' + camId + '.jpg?' + Math.random());
+
+        }
+
+
+        $(document).ready(function(){
+            setInterval(refreshCapture, 10000);
+        });
+    </script>
+
+    </head>
+    
+    <body>
+        <table border="0">
+            <tr>
+                <td id="title" style="text-align:center; font-weight: bold;">
+                    camId
+                </td>
+            </tr>
+            <tr>
+                <td id='img'>
+                <!-- <img id="cam_' + camId + '" src="/greenwall/cam-capture/capture_' + camId + '.jpg?"> -->
+                </td>
+            </tr>
+        </table>
+    </body>
+</html>

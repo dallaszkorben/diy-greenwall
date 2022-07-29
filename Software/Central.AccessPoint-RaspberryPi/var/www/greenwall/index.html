@@ -1,4 +1,4 @@
-<meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+<meta comntent="text/html;charset=utf-8" http-equiv="Content-Type">
 
 <!--
 user-scalable=no -disable user zoom on mobile
@@ -68,10 +68,15 @@ user-scalable=no -disable user zoom on mobile
             display: inline-block;
         }
 
-        #refreshChartButton{
+        button{
             height: 60px;
             vertical-align: top;
         }
+
+//        #refreshChartButton{
+//            height: 60px;
+//            vertical-align: top;
+//        }
 
     </style>
 
@@ -100,9 +105,9 @@ user-scalable=no -disable user zoom on mobile
 
         var camCaptureList = [];
 
-        var chartRefreshIntervalId;
-        var camCaptureRefreshIntervalId;
-        var checkLampStatusRefreshIntervalId;
+        var chartRefreshIntervalId = null;
+        var camCaptureRefreshIntervalId = null;
+        var checkLampStatusRefreshIntervalId = null;
         var checkPumpStatusIntervalId = null;
 
         $( function() {
@@ -170,8 +175,12 @@ user-scalable=no -disable user zoom on mobile
 
                             divColumn = $('<div class="column" >');
 
+                            buttonMakeVideo = $('<button id="buttonMakeVideo_' + camId + '">Make video</button>');
+
                             divColumn.append(title)
                             divColumn.append(img);
+                            divColumn.append(buttonMakeVideo);
+
                             divColumn.attr('style', styleFlex);
 
                             divRow.append(divColumn)
@@ -189,6 +198,16 @@ user-scalable=no -disable user zoom on mobile
                             });
                         });
 
+                        // Add click event listner to all buttons
+                        $.map(camCaptureList, function(camCapture){
+
+                            camId = camCapture.camId;
+                            $("#buttonMakeVideo_" + camId).click(function(){
+console.log("click");
+                            });
+                        });
+
+
                     }else{
                         //$("#value").html("");
                         //$("#errormessage").html("something went wrong");
@@ -205,24 +224,38 @@ user-scalable=no -disable user zoom on mobile
             });
         }
 
+
+        //
+        // Open Capture Window
+        //
         function openWindow(imgId){
             var camId = imgId.substring(4);
-            var newWindow = window.open();
-            newWindow.document.write(
-                '<table border="0">' +
-                '   <tr>' +
-                '     <td style="text-align:center; font-weight: bold;">' +
-                camId + 
-                '     </td>' +
-                '   </tr>' +
-                '   <tr>' +
-                '     <td>' +
-                '<img id="cam_' + camId + '" src="/greenwall/cam-capture/capture_' + camId + '.jpg?">'+
-                '     </td>' +
-                '   </tr>' +
-                '</table>'
-            );
+            var newWindow = window.open('capture.html');
 
+
+            //After the page loaded on the opened window, I can dynamically modify it
+            newWindow.onload = function(){
+
+                //
+                // Write camId
+                //
+                $(newWindow.document).find("#title").html(camId);
+
+
+                //
+                // Create <img> node
+                //
+                var img = $('<img id="cam_' + camId + '">');
+
+                // Random value after the image name helps to ignore the cache at refresh
+                img.attr('src', '/greenwall/cam-capture/capture_' + camId + '.jpg?' + Math.random());
+
+                // Add <img> node
+                $(newWindow.document).find("#img").append(img);
+
+                $(newWindow.document.head).append("<script>var camId=" + camId + "; </" + "script>");
+
+            }
 
         }
 
@@ -237,31 +270,34 @@ user-scalable=no -disable user zoom on mobile
             $.map(camCaptureList, function(camCapture){
 
                 camId = camCapture.camId;
-                camCaptureUrl = camCapture.captureUrl;
+                //camCaptureUrl = camCapture.captureUrl;
 
-                $.ajax({type: "GET", url: "/cam/capture/url/camId/" + camId, 
-                    async: true,
-                    indexValue: {camId:camId}, 
-                    success: function(result){
+                // Random value after the image name helps to ignore the cache at refresh
+                $("#cam_" + camId).attr('src', '/greenwall/cam-capture/capture_' + camId + '.jpg?' + Math.random());
 
-                        res = result.result;
-
-                        if(res == "OK"){
-
-                            captureUrl = result.captureUrl;
-                            camId = this.indexValue.camId;
-
-                            // Random value after the image name helps to ignore the cache at refresh
-                            $("#cam_" + camId).attr('src', captureUrl + "?" + Math.random());
-
-                        }else{
-                            console.log("ERROR:" + error);
-                        }
-                    },
-                    error: function(xhr,status,error){
-                        console.log("ERROR:" + error);
-                    }
-                });
+//                $.ajax({type: "GET", url: "/cam/capture/url/camId/" + camId, 
+//                    async: true,
+//                    indexValue: {camId:camId}, 
+//                    success: function(result){
+//
+//                        res = result.result;
+//
+//                        if(res == "OK"){
+//
+//                            captureUrl = result.captureUrl;
+//                            camId = this.indexValue.camId;
+//
+//                            // Random value after the image name helps to ignore the cache at refresh
+//                            $("#cam_" + camId).attr('src', captureUrl + "?" + Math.random());
+//
+//                        }else{
+//                            console.log("ERROR:" + error);
+//                        }
+//                    },
+//                    error: function(xhr,status,error){
+//                        console.log("ERROR:" + error);
+//                    }
+//                });
             });
         }
 
