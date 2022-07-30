@@ -11,16 +11,45 @@
 
     <script>
 
+        var camId;
+
         function refreshCapture(){
 
-            console.log(camId);
             // Random value after the image name helps to ignore the cache at refresh
             $("#cam_" + camId).attr('src', '/greenwall/cam-capture/capture_' + camId + '.jpg?' + Math.random());
-
         }
 
-
         $(document).ready(function(){
+
+            // I get the camId parameter as the window.name - window.open()
+
+            //
+            // Fetch camId
+            //
+            camId = window.name;
+
+            //
+            // Title of new window
+            //
+            $(document).find("title").html(camId);
+
+
+            //
+            // Write camId
+            //
+            $(document).find("#title").html(camId);
+
+            //
+            // Create <img> node
+            //
+            var img = $('<img id="cam_' + camId + '">');
+
+            // Random value after the image name helps to ignore the cache at refresh
+            img.attr('src', '/greenwall/cam-capture/capture_' + camId + '.jpg?' + Math.random());
+
+            // Add <img> node
+            $(document).find("#img").append(img);
+
             setInterval(refreshCapture, 10000);
         });
     </script>

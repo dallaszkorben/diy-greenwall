@@ -195,6 +195,10 @@ user-scalable=no -disable user zoom on mobile
 
                             camId = camCapture.camId;
                             $("#cam_" + camId).on("click", function(e){
+
+                                // Open window - parameter is the camId
+                                // I can not put here simple the camId because it always will be tha latest selected value
+                                // So I just substring it from the <img id>
                                 openWindow(this.id);
                             });
                         });
@@ -230,7 +234,16 @@ console.log("click");
         // Open Capture Window
         //
         // That part if pretty tricky
-        // 
+        // The imgId is the <img id> of the capture image which looks like this: cam_4
+        // So I have to substring it to get the camId
+        //
+        // Then I have to provide this camId to the new window, which I will open
+        // I provide it through the window name
+        // Solving this problem I tried to dynamically construct that page here and put it into the opened page when it is loaded
+        // Unfortunatelly this event listener does not work for Chrome. It worked for Firefox though.
+        //
+        // Plus I had to solve the problem to NOT to open the olready opened cam's window, BUT still have to select it
+        //
         function openWindow(imgId){
             var camId = imgId.substring(4);
             var url = 'capture.html';
@@ -238,39 +251,10 @@ console.log("click");
             var newWindow = window.open('', camId, '');
             if(newWindow.location.href === 'about:blank'){
                 newWindow.location.href = url;
+
             }else{
 
                 newWindow.focus();
-            }
-
-            //After the page loaded on the opened window, I can dynamically modify it
-            newWindow.onload = function(){
-
-                //
-                // Title of new window
-                //
-                $(newWindow.document).find("title").html(camId);
-
-
-                //
-                // Write camId
-                //
-                $(newWindow.document).find("#title").html(camId);
-
-
-                //
-                // Create <img> node
-                //
-                var img = $('<img id="cam_' + camId + '">');
-
-                // Random value after the image name helps to ignore the cache at refresh
-                img.attr('src', '/greenwall/cam-capture/capture_' + camId + '.jpg?' + Math.random());
-
-                // Add <img> node
-                $(newWindow.document).find("#img").append(img);
-
-                $(newWindow.document.head).append("<script>var camId=" + camId + "; </" + "script>");
-
             }
 
         }
