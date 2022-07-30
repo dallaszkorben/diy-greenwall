@@ -228,13 +228,28 @@ console.log("click");
         //
         // Open Capture Window
         //
+        // That part if pretty tricky
+        // 
         function openWindow(imgId){
             var camId = imgId.substring(4);
-            var newWindow = window.open('capture.html');
+            var url = 'capture.html';
 
+            var newWindow = window.open('', camId, '');
+            if(newWindow.location.href === 'about:blank'){
+                newWindow.location.href = url;
+            }else{
+
+                newWindow.focus();
+            }
 
             //After the page loaded on the opened window, I can dynamically modify it
             newWindow.onload = function(){
+
+                //
+                // Title of new window
+                //
+                $(newWindow.document).find("title").html(camId);
+
 
                 //
                 // Write camId
