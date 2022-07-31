@@ -95,6 +95,9 @@ user-scalable=no -disable user zoom on mobile
     <!-- Switch -->
     <script src="script/switch/lc_switch.js"></script>
 
+    <!-- moment -->
+    <script src="script/moment/moment.js"></script>
+
     <!-- favicon -->
     <link rel="shortcut icon" href="favicon.ico">
 
@@ -165,22 +168,46 @@ user-scalable=no -disable user zoom on mobile
                             camId = camCapture.camId;
                             camCaptureUrl = camCapture.captureUrl;
 
+                            //
+                            // IMG
+                            //
                             var img = $('<img id="cam_' + camId + '">');
 
                             // Random value after the image name helps to ignore the cache at refresh
                             img.attr('src', '/greenwall/cam-capture/capture_' + camId + '.jpg?' + Math.random());
                             img.attr('style', styleWidth)
 
-                            title=$('<div id="imgTitle">');
+                            title=$('<div id="imgTitle" style="font-size:1.5em">');
                             title.html(camId);
 
                             divColumn = $('<div class="column" >');
 
-                            buttonMakeVideo = $('<button id="buttonMakeVideo_' + camId + '">Make video</button>');
+                            //
+                            // Create Video BUTTON
+                            //
+                            var buttonMakeVideo = $('<button id="buttonMakeVideo_' + camId + '">Make video</button>');
+
+                            //
+                            // Create DIV
+                            //
+                            var videoDiv = $('<div>');
+
+                            //
+                            // Create Video PLAYER
+                            //
+                            var video = $('<video controls></video>');
+                            video.attr('style', styleWidth)
+                            var sourceVideo = $('<source type="video/webm">');
+                            sourceVideo.attr('src', '/greenwall/cam-video/' + camId + '/video.webm');
+                            sourceVideo.html("Your browser does not support the video tag.");
+                            video.append(sourceVideo);
 
                             divColumn.append(title)
                             divColumn.append(img);
                             divColumn.append(buttonMakeVideo);
+                            divColumn.append(videoDiv);
+                            divColumn.append(video);
+
 
                             divColumn.attr('style', styleFlex);
 
@@ -197,8 +224,10 @@ user-scalable=no -disable user zoom on mobile
                             $("#cam_" + camId).on("click", function(e){
 
                                 // Open window - parameter is the camId
-                                // I can not put here simple the camId because it always will be tha latest selected value
+                                // I can not put here simple the camId because it always will be the latest selected value
                                 // So I just substring it from the <img id>
+                                // The click will be executed on <img> so the 'this' value will refer to the <img>
+                                // In the function I will substring the camId value from the parameter
                                 openWindow(this.id);
                             });
                         });
@@ -207,11 +236,17 @@ user-scalable=no -disable user zoom on mobile
                         $.map(camCaptureList, function(camCapture){
 
                             camId = camCapture.camId;
-                            $("#buttonMakeVideo_" + camId).click(function(){
-console.log("click");
+
+                            $("#buttonMakeVideo_" + camId).on("click", function(e){
+
+                                // Make video - parameter is the camId
+                                // I can not pass here simple the camId because it always will be the latest selected value
+                                // So I just substring it from the <button id>
+                                // The click will be executed on <button> so the 'this' value will refer to the <button>
+                                // In the function I will substring the camId value from the parameter
+                                makeVideo(this.id);
                             });
                         });
-
 
                     }else{
                         //$("#value").html("");
@@ -230,6 +265,7 @@ console.log("click");
         }
 
 
+        // =========================================================================================================================
         //
         // Open Capture Window
         //
@@ -242,8 +278,9 @@ console.log("click");
         // Solving this problem I tried to dynamically construct that page here and put it into the opened page when it is loaded
         // Unfortunatelly this event listener does not work for Chrome. It worked for Firefox though.
         //
-        // Plus I had to solve the problem to NOT to open the olready opened cam's window, BUT still have to select it
+        // Plus I had to solve the problem to NOT to open the already opened cam's window, BUT still have to select it
         //
+        // ========================================================================================================================
         function openWindow(imgId){
             var camId = imgId.substring(4);
             var url = 'capture.html';
@@ -251,13 +288,62 @@ console.log("click");
             var newWindow = window.open('', camId, '');
             if(newWindow.location.href === 'about:blank'){
                 newWindow.location.href = url;
-
             }else{
-
                 newWindow.focus();
             }
-
         }
+
+        // =====================================================================================================
+        //
+        // Make Video
+        //
+        // The parameter if pretty tricky
+        // The buttonId is the <button id> of the 'create video' button which looks like this: buttonMakeVideo_4
+        // So I have to substring it to get the camId
+        //
+        // =====================================================================================================
+        function makeVideo(buttonId){
+
+            var camId = buttonId.substring(16);
+
+            var startDate = moment().subtract(6, 'hour').format("YYYY-MM-DDTHH:mm:ssZ");
+
+            // The saved files have NO miliseconds, so I omit it here as well
+            var endDate = moment().format("YYYY-MM-DDTHH:mm:ssZ");
+            var fps = "25";
+
+            $.ajax({type: "POST", url: "/cam/construct/video", 
+                    async: false,
+                    data: {
+                        "camId": camId,
+                        "startDate": startDate,
+                        "endDate": endDate,
+                        "fps": fps
+                    },
+                    indexValue: {camId:camId}, 
+                    success: function(result){
+
+                        res = result.result;
+
+                        if(res == "OK"){
+
+//                            captureUrl = result.captureUrl;
+//                            camId = this.indexValue.camId;
+
+                            // Random value after the image name helps to ignore the cache at refresh
+//                            $("#cam_" + camId).attr('src', captureUrl + "?" + Math.random());
+
+                        }else{
+                            console.log("Make Video ERROR:" + error);
+                        }
+                    },
+                    error: function(xhr,status,error){
+                        console.log("Make Video ERROR:" + error);
+                    }
+            });
+        }
+
+
 
         // ================================================
         //
@@ -978,10 +1064,11 @@ console.log("click");
 
             <div id="camCaptureDiv"></div>
 
-            <video width="320" height="240" controls>
-                <source src="cam-video/video.ogg" type="video/ogg"> 
+<!--            <video width="320" height="240" controls>
+                <source src="cam-video/5/video.webm" type="video/webm"> 
             	    Your browser does not support the video tag.
             </video> 
+-->
 
         </div>
     </div>

@@ -11,6 +11,7 @@ from flask import request
 
 from dateutil import parser
 from datetime import datetime
+import time
 
 from PIL import Image
 from PIL import ImageFont
@@ -72,7 +73,11 @@ class EPCamSaveFrame(EP):
                 EPCamSaveFrame.ATTR_CAM_ID, camId,
                 EPCamSaveFrame.ATTR_IMAGE, image ))
 
-        dateString = datetime.now().astimezone().isoformat()
+        # 2022-07-29T23:59:55.960950+02:00
+        #dateString = datetime.now().astimezone().isoformat()
+        # 2022-07-29T23:59:55+02:00
+        dateString = time.strftime("%Y-%m-%dT%H:%M:%S%z")
+
         absoluteRootPath = self.web_gadget.absoluteRootPath
 
         # constract the frame-file path to /var/www/greenwall/cam-frame/5
@@ -86,7 +91,6 @@ class EPCamSaveFrame(EP):
         captureFileName = self.web_gadget.webCamCaptureFile.format(camId)
         capturePath = os.path.join(absoluteRootPath, webCamCaptureFolder)
         captureFileNamePath = os.path.join(capturePath, captureFileName)
-
 
         if image:
 
@@ -104,7 +108,16 @@ class EPCamSaveFrame(EP):
                 return output_json( {'result': 'ERROR'}, EP.CODE_BAD_REQUEST)
 
             font = ImageFont.truetype("DejaVuSans.ttf", 32)
-            draw.text((0,20), dateString, (100,100,100), font=font)
+            x=0
+            y=20
+            outlineAmount=3
+            #raw.text((0,20), dateString, (100,100,100), font=font)
+            draw.text((x-1, y), dateString, font=font, fill="white")
+            draw.text((x+1, y), dateString, font=font, fill="white")
+            draw.text((x, y-1), dateString, font=font, fill="white")
+            draw.text((x, y+1), dateString, font=font, fill="white")
+
+            draw.text((x, y), dateString, (100,100,100), font=font)
 
             # ---
 

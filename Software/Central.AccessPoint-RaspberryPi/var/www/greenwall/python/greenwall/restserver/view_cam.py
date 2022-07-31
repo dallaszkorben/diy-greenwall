@@ -157,7 +157,7 @@ class CamView(FlaskView):
     #        "endDate": "2022.06.19T19:21",
     #      }
 
-    #@route('/construct/vide', methods=['POST'])
+    #@route('/construct/video', methods=['POST'])
     @route(EPCamConstructVideo.PATH_PAR_PAYLOAD, methods=[EPCamConstructVideo.METHOD])
     def camConstructVideoWithPayload(self):
 

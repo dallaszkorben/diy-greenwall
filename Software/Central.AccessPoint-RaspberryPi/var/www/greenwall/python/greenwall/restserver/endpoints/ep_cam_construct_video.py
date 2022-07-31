@@ -99,63 +99,38 @@ class EPCamConstructVideo(EP):
 
         return output_json( {'result': 'OK'}, EP.CODE_OK)
 
-
-#        startDate = camId + "-" + startDate
-#        endDate = camId + "-" + endDate
-
-
 # ---
-
-
-##        start = "5-2022-06-18T17:20"
-##        end = "5-2022-06-18T17:50"
-#        start = startDate
-#        end = endDate
-#        print(start, end)
-#
-#        out=cv2.VideoWriter("/var/www/greenwall/cam-video/video.ogg", cv2.VideoWriter.fourcc(*'theo'), 10, (1024,768))
-#        try:
-#            for filename in natsorted(os.listdir('/var/www/greenwall/cam-frame')):
-#                ext = os.path.splitext(filename)[-1].lower()
-#                if ext=='.jpg' and start <= filename <= end:
-#                    print(filename)
-#                    img=cv2.imread('/var/www/greenwall/cam-frame/' + filename)
-#                    out.write(img)
-#
-#        finally:
-#            out.release()
-
-
-
-# ---
-
 
     def constructVideo(self, camId, startDate, endDate, fps):
+        """
+            Construct webm video for the web by the parameters
+        """
 
-        logging.error("!!! Thread Starts !!!")
+        logging.debug("!!! ConstructVideo Thread has started !!!")
 
         absoluteCamFrameFolder = self.web_gadget.absoluteCamFrameFolder
         absoluteCamVideoFolder = self.web_gadget.absoluteCamVideoFolder
         framePath = os.path.join(absoluteCamFrameFolder, camId)
         videoPath = os.path.join(absoluteCamVideoFolder, camId)
-        videoFile = "video.ogg"
+        videoFile = "video.webm"
         videoFilePath = os.path.join(videoPath, videoFile)
+
         # Create the path if it dees not exist
         Path(videoPath).mkdir(parents=True, exist_ok=True)
 
-        camId = int(camId)
+        fps=int(fps)
 
-        logging.error("   Video file: " + videoFilePath)
+        logging.debug("   ConstructVideo - Video file: " + videoFilePath)
 
-        out=cv2.VideoWriter(videoFilePath, cv2.VideoWriter.fourcc(*'theo'), camId, (1024,768))
-        logging.error("   Try to save video")
+        out=cv2.VideoWriter(videoFilePath, cv2.VideoWriter.fourcc(*'VP80'), fps, (800,600))
+        logging.debug("   ConstructVideo - Try to save video")
         try:
             for filename in natsorted(os.listdir(framePath)):
 
                 ext = os.path.splitext(filename)[-1].lower()
                 if ext=='.jpg' and startDate <= filename <= endDate:
 
-                    logging.error("      !!! " + filename + " !!!")
+                    logging.debug("   ConstructVideo - !!! " + filename + " !!!")
 
                     img=cv2.imread(os.path.join(framePath, filename))
                     out.write(img)
@@ -163,8 +138,8 @@ class EPCamConstructVideo(EP):
         finally:
             out.release()
 
-        logging.error("      {0} video was saved".format(videoFile))
-        logging.error("!!! Thread Stops !!!")
+        logging.debug("   ConstructVideo - {0} video was saved".format(videoFile))
+        logging.debug("!!! ConstructVideo Thread Stops !!!")
 
 
 
