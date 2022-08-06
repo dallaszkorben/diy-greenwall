@@ -461,7 +461,7 @@ participant Cam
 participant PI
 participant WEB browser
 
-    loop CamRegister
+    register CamRegister
         Cam->>PI: POST /cam/register
         PI->>PI: register
     end
