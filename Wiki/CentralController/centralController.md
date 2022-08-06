@@ -460,8 +460,10 @@ sequenceDiagram
 participant Cam
 participant PI
 participant WEB browser
-Cam->>PI: POST /cam/register
-PI->>PI: register
+
+    register CamRegister
+        Cam->>PI: POST /cam/register
+        PI->>PI: register
 
 Cam->>PI: POST /cam/save/frame/camId/<camId>
 PI->>PI: save file
