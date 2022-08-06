@@ -461,27 +461,33 @@ participant Cam
 participant PI
 participant WEB browser
 
-    register CamRegister
+    loop CamRegister
         Cam->>PI: POST /cam/register
         PI->>PI: register
     end
 
-Cam->>PI: POST /cam/save/frame/camId/<camId>
-PI->>PI: save file
+    loop AutomaticSaveFrame
+        Cam->>PI: POST /cam/save/frame/camId/<camId>
+        PI->>PI: save file
+    end
 
+    loop GetRegisteredCams
+        WEB browser->>PI: GET /cam/captureList
+        PI->>WEB browser: gives back the registered cams
+    end
 
-WEB browser->>PI: GET /cam/captureList
-PI->>WEB browser: gives back the registered cams
+    loop SaveCaptureByRequest
+        WEB browser->>PI: GET /cam/capture/url
+        PI->>Cam: GET /capture
+        Cam->>Cam: take photo
+        Cam->>PI: send back photo
+        PI->>WEB browser: gives back the url to the photo 
+    end
 
-WEB browser->>PI: GET /cam/capture/url
-PI->>Cam: GET /capture
-Cam->>Cam: take photo
-Cam->>PI: send back photo
-PI->>WEB browser: gives back the url to the photo 
-
-WEB browser->>PI: POST /cam/construct/video {camId,startDate,endDate,fps}
-PI->>PI: construct the video in the background
-
+    loop GenerateVideoFromFrames
+        WEB browser->>PI: POST /cam/construct/video {camId,startDate,endDate,fps}
+        PI->>PI: construct the video in the background
+    end
   ```
 
 
