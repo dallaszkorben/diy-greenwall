@@ -464,6 +464,7 @@ participant WEB browser
     loop CamRegister
         Cam->>PI: POST /cam/register
         PI->>PI: register
+    end
 
 Cam->>PI: POST /cam/save/frame/camId/<camId>
 PI->>PI: save file
