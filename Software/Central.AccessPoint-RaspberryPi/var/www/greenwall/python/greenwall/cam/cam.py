@@ -1,13 +1,28 @@
 import os
 import requests
 import logging
+from pathlib import Path
 from datetime import datetime
+from threading import Lock
+from threading import Thread
+
+import cv2
+import os
+from natsort import natsorted
+
+from PIL import Image
+from PIL import ImageFont
+from PIL import ImageDraw 
 
 class Cam:
 
     def __init__(self, web_gadget):
 
         self.webGadget = web_gadget
+
+        self.lockVideoConstruct = Lock()
+        self.statusVideoConstruct = {}
+        self.setProgressVideoConstruct(False)
 
     def getCapture(self, camId):
         """
@@ -45,8 +60,104 @@ class Cam:
                 logging.error("Exception while fetch the frame 'GET {0}' from the camera: {1}.".format(address, e))
 
         return webFilePath
-                
 
+    def videoConstruct(self, camId, startDate, endDate, fps):
+        """
+            Construct webm video for the web by the parameters and place it into the folder configure in the config.ini:
+
+            [absolute]
+            cam-video-folder
+
+            for example: /var/www/greenwall/cam-video/{camId}
+
+            The process takes lot of time to run so this method is called as a Thread
+            The process is a very resource-intensive task consequently only 1 thread is allowed to run at the time
+        """
+
+        # If I can not lock - an other request already locked
+        if not self.lockVideoConstruct.acquire(False):
+
+            logging.error("!!! New request arrived to constructVideo ({0}) while the previous request is still running !!!".format(camId))
+
+            # then will be not construct video
+            return False
+
+        else:
+
+            x = Thread(target=self.threadVideoConstruct, args=(camId, startDate, endDate, fps))
+            x.start()
+            return True
+
+
+    def threadVideoConstruct(self, camId, startDate, endDate, fps):
+
+        self.setProgressVideoConstruct(True, camId, 0)
+
+        logging.debug("!!! constructVideo ({0}) Thread has started !!!".format(camId))
+
+        absoluteCamFrameFolder = self.webGadget.absoluteCamFrameFolder
+        absoluteCamVideoFolder = self.webGadget.absoluteCamVideoFolder
+        framePath = os.path.join(absoluteCamFrameFolder, camId)
+        videoPath = os.path.join(absoluteCamVideoFolder, camId)
+        videoFile = "video.webm"
+        videoFilePath = os.path.join(videoPath, videoFile)
+
+        # Create the path if it dees not exist
+        Path(videoPath).mkdir(parents=True, exist_ok=True)
+
+        fps=int(fps)
+
+        logging.debug("   constructVideo ({0}) - Video file: ({1})".format(camId, videoFilePath))
+
+        out=cv2.VideoWriter(videoFilePath, cv2.VideoWriter.fourcc(*'VP80'), fps, (800,600))
+        logging.debug("   constructVideo ({0}) - Try to save video".format(camId))
+
+        # count the number of files for video
+        numberOfFiles = 0
+        for filename in natsorted(os.listdir(framePath)):
+                ext = os.path.splitext(filename)[-1].lower()
+                if ext=='.jpg' and startDate <= filename <= endDate:
+                    numberOfFiles += 1
+
+        indexOfFile = 0
+        try:
+            for filename in natsorted(os.listdir(framePath)):
+
+                ext = os.path.splitext(filename)[-1].lower()
+                if ext=='.jpg' and startDate <= filename <= endDate:
+                    indexOfFile += 1
+
+                    logging.debug("   constructVideo ({0}) - !!! {1} !!!".format(camId, filename))
+
+                    progress = indexOfFile / numberOfFiles
+                    self.setProgressVideoConstruct(True, camId, progress)
+
+                    logging.error("            {0}% progress".format(progress))
+
+                    img=cv2.imread(os.path.join(framePath, filename))
+                    out.write(img)
+
+        finally:
+            out.release()
+
+        logging.debug("   ConstructVideo ({0}) - {1} video was saved".format(camId, videoFile))
+        logging.debug("!!! constructVideo ({0}) Thread Stops !!!".format(camId))
+
+        self.setProgressVideoConstruct(False)
+        self.lockVideoConstruct.release()
+
+    def setProgressVideoConstruct(self, inProgress, camId=None, progress=None):
+        if inProgress:
+            self.statusVideoConstruct['inProgress'] = True
+            self.statusVideoConstruct['camId'] = camId
+            self.statusVideoConstruct['progress'] = progress
+        else:
+            self.statusVideoConstruct['inProgress'] = False
+            self.statusVideoConstruct['camId'] = None
+            self.statusVideoConstruct['progress'] = None
+
+    def getProgressVideoConstruct(self):
+        return self.statusVideoConstruct
 
 
 #    def getCamStatus(self):

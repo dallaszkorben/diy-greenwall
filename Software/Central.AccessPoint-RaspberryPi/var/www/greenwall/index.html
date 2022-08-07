@@ -1,4 +1,4 @@
-<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=0.55" charset="UTF-8">
+<meta name="viewport" content="width=deviceOB-width, user-scalable=no, initial-scale=0.55" charset="UTF-8">
 
 <!-- <meta  comntent="text/html;charset=utf-8" http-equiv="Content-Type"> -->
 
@@ -84,7 +84,6 @@ user-scalable=no -disable user zoom on mobile
     <!-- Chart -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.8.0/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/date-fns/1.30.1/date_fns.js"></script>
-    <!-- <script src="http://cdnjs.cloudflare.com/ajax/libs/moment.js/2.13.0/moment.min.js"></script> -->
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
 
     <!-- JQuery -->
@@ -113,6 +112,7 @@ user-scalable=no -disable user zoom on mobile
         var camCaptureRefreshIntervalId = null;
         var checkLampStatusRefreshIntervalId = null;
         var checkPumpStatusIntervalId = null;
+        var checkMakeVideoStatusIntervalId = null;
 
         $( function() {
             $( "#tabs" ).tabs();
@@ -153,9 +153,9 @@ user-scalable=no -disable user zoom on mobile
                         //If the old and new list is the same, does not need to re-build the camCaptureDiv
                         if( newCamCaptureList.length === camCaptureList.length && newCamCaptureList.every(function(value, index) { return value.camId === camCaptureList[index].camId }) ){
                             return;
-                        }else{
-                            camCaptureList = newCamCaptureList;
                         }
+
+                        camCaptureList = newCamCaptureList;
 
                         size=Math.min(33.33, 100/camCaptureList.length).toFixed(2);
                         styleFlex="flex: " + size.toString() + "%"
@@ -183,9 +183,9 @@ user-scalable=no -disable user zoom on mobile
                             divColumn = $('<div class="column" >');
 
                             //
-                            // Create Video BUTTON
+                            // Create Make Video BUTTON
                             //
-                            var buttonMakeVideo = $('<button id="buttonMakeVideo_' + camId + '">Make video</button>');
+                            var buttonMakeVideo = $('<button id="buttonMakeVideo_' + camId + '" disabled>Make video</button>');
 
                             //
                             // Create DIV
@@ -195,10 +195,13 @@ user-scalable=no -disable user zoom on mobile
                             //
                             // Create Video PLAYER
                             //
-                            var video = $('<video controls></video>');
+                            var video = $('<video controls id="videoControl_' + camId + '"></video>');
                             video.attr('style', styleWidth)
-                            var sourceVideo = $('<source type="video/webm">');
-                            sourceVideo.attr('src', '/greenwall/cam-video/' + camId + '/video.webm');
+                            var sourceVideo = $('<source type="video/webm" id="videoSource_' + camId + '">');
+
+                            // To initiate the source is not necessary as the ActivateAllMakeMovie method will set it anyway
+                            //sourceVideo.attr('src', 'cam-video/' + camId + '/video.webm?' + Math.random());
+
                             sourceVideo.html("Your browser does not support the video tag.");
                             video.append(sourceVideo);
 
@@ -208,7 +211,6 @@ user-scalable=no -disable user zoom on mobile
                             divColumn.append(videoDiv);
                             divColumn.append(video);
 
-
                             divColumn.attr('style', styleFlex);
 
                             divRow.append(divColumn)
@@ -217,7 +219,9 @@ user-scalable=no -disable user zoom on mobile
                         $('#camCaptureDiv').html("");
                         $('#camCaptureDiv').append(divRow);
 
+                        //
                         // Add click event listner to all pictures
+                        //
                         $.map(camCaptureList, function(camCapture){
 
                             camId = camCapture.camId;
@@ -232,12 +236,17 @@ user-scalable=no -disable user zoom on mobile
                             });
                         });
 
-                        // Add click event listner to all buttons
+                        //
+                        // Add click event listner to all MakeVideo  buttons
+                        //
                         $.map(camCaptureList, function(camCapture){
 
                             camId = camCapture.camId;
 
                             $("#buttonMakeVideo_" + camId).on("click", function(e){
+
+                                // Incactivate all MakeVideo buttons
+                                inactivateAllMakeVideoButtons();
 
                                 // Make video - parameter is the camId
                                 // I can not pass here simple the camId because it always will be the latest selected value
@@ -293,11 +302,106 @@ user-scalable=no -disable user zoom on mobile
             }
         }
 
+        // ============================================================================
+        //
+        // Inactivate ALL MakeVideo buttons
+        //
+        // Besides of button inactivation, it will setInterval() for checking the status
+        // of the process of the MakeVideo continously.
+        // When the MakeVideo status is NOT IN PROGRESS then it will enable the buttons 
+        // again, stops the check and refresh the video
+        //
+        // ============================================================================
+        function inactivateAllMakeVideoButtons(){
+
+            // Inactivate all MakeVideo buttons
+            $('[id^="buttonMakeVideo_"]').prop('disabled', true);
+
+            // Start to check the status of the process of MakeVideo
+            checkMakeVideoStatusIntervalId = setInterval(checkMakeVideoStatus, 3000);
+        }
+
+        // ============================================================================
+        //
+        // Activate ALL MakeVideo buttons
+        //
+        // Besides of button Activation, it will clearInterval() for checking the status
+        // of the process of the MakeVideo continously.
+        //
+        // ============================================================================
+        function activateAllMakeVideoButtons(){
+
+            // Stop to check the status of the process of MakeVideo
+            clearInterval(checkMakeVideoStatusIntervalId);
+
+            // Activate all MakeVideo buttons
+            $('[id^="buttonMakeVideo_"]').prop('disabled', false);
+
+            // Refresh the video
+            refreshAllVideos();
+
+        }
+
+        // ========================================
+        //
+        // Refressh all videos
+        //
+        // ========================================
+        function refreshAllVideos(){
+
+            videoControlList = $('[id^="videoControl_"]');
+
+            $.each(videoControlList, function( index, videoControl ) {
+
+                videoControlId = videoControl.id;
+                var camId = videoControlId.substring(13);
+
+                // This part is not understandable for me
+                // You have to set the source in the VideoControl <video> element NOT in the <source> element
+                //videoSource = $("#videoSource_" + camId);
+
+                videoSource = videoControl.firstChild;
+                videoSource.src = 'cam-video/' + camId + '/video.webm?' + Math.random();
+
+                //videoControl.src = '/greenwall/cam-video/' + camId + '/video.webm?' + Math.random();
+//                videoControl.src = 'cam-video/' + camId + '/video.webm?' + Math.random();
+
+                videoControl.load();
+            });
+        }
+
+        // ========================================
+        //
+        // Check the status of the MakeVideo
+        //
+        //
+        // If it is NOT IN PROGRESS, then it will 
+        // -stop the check 
+        // -enable the bottons
+        // -refresh the videos
+        //
+        // ========================================
+        function checkMakeVideoStatus(){
+            $.get( "/cam/video/status" ).done(
+                function( data ) {
+
+                    if(data.result == "OK" && data.inProgress){
+
+                        progress = data.progress;
+                        camId = data.camId;
+
+console.log(100*progress);
+                    }else{
+                        activateAllMakeVideoButtons()
+                    }
+            });
+        }
+
         // =====================================================================================================
         //
         // Make Video
         //
-        // The parameter if pretty tricky
+        // The parameter is pretty tricky
         // The buttonId is the <button id> of the 'create video' button which looks like this: buttonMakeVideo_4
         // So I have to substring it to get the camId
         //
@@ -306,13 +410,13 @@ user-scalable=no -disable user zoom on mobile
 
             var camId = buttonId.substring(16);
 
-            var startDate = moment().subtract(6, 'hour').format("YYYY-MM-DDTHH:mm:ssZ");
+            var startDate = moment().subtract(15, 'minute').format("YYYY-MM-DDTHH:mm:ssZ");
 
             // The saved files have NO miliseconds, so I omit it here as well
             var endDate = moment().format("YYYY-MM-DDTHH:mm:ssZ");
-            var fps = "25";
+            var fps = "1";
 
-            $.ajax({type: "POST", url: "/cam/construct/video", 
+            $.ajax({type: "POST", url: "/cam/video/construct", 
                     async: false,
                     data: {
                         "camId": camId,
@@ -857,7 +961,7 @@ user-scalable=no -disable user zoom on mobile
             });
 
             constructCamCaptureSection();
-
+            inactivateAllMakeVideoButtons();
 
             //-----------------------
             // Lamp Switch
@@ -1072,6 +1176,7 @@ user-scalable=no -disable user zoom on mobile
 
         </div>
     </div>
+
 
 </body>
 </html>

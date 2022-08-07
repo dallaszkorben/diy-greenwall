@@ -19,7 +19,8 @@ from greenwall.restserver.endpoints.ep_cam_register import EPCamRegister
 from greenwall.restserver.endpoints.ep_cam_save_frame import EPCamSaveFrame
 from greenwall.restserver.endpoints.ep_cam_capture_url import EPCamCaptureUrl
 from greenwall.restserver.endpoints.ep_cam_capturelist import EPCamCaptureList
-from greenwall.restserver.endpoints.ep_cam_construct_video import EPCamConstructVideo
+from greenwall.restserver.endpoints.ep_cam_video_construct import EPCamVideoConstruct
+from greenwall.restserver.endpoints.ep_cam_video_status import EPCamVideoStatus
 
 from greenwall.restserver.endpoints.ep import EP
 
@@ -43,9 +44,10 @@ class CamView(FlaskView):
 
         self.epCamRegister = EPCamRegister(web_gadget)
         self.epCamSaveFrame = EPCamSaveFrame(web_gadget)
-        self.epCamConstructVideo = EPCamConstructVideo(web_gadget)
+        self.epCamVideoConstruct = EPCamVideoConstruct(web_gadget)
         self.epCamCaptureUrl = EPCamCaptureUrl(web_gadget)
         self.epCamCaptureList = EPCamCaptureList(web_gadget)
+        self.epCamVideoStatus = EPCamVideoStatus(web_gadget)
 
     #
     # GET http://localhost:5000/sensor/
@@ -143,22 +145,22 @@ class CamView(FlaskView):
         return out
 
 
-# === POST /cam/construct/video/ ===
+# === POST /cam/video/construct/ ===
 
     #
     # Save frame - with parameters
     #
-    # curl  --header "Content-Type: img/jpeg" --request POST --data '{"camId": "5","startDate":"", "endDate": "", "fps": "15"}' http://localhost:5000/cam/construct/video/
+    # curl  --header "Content-Type: img/jpeg" --request POST --data '{"camId": "5","startDate":"", "endDate": "", "fps": "15"}' http://localhost:5000/cam/video/construct/
     #
-    # POST http://localhost:5000/cam/construct/video
+    # POST http://localhost:5000/cam/video/construct/
     #      body: {
     #        "camId":"5"
     #        "startDate": "2022.06.18T07:12",
     #        "endDate": "2022.06.19T19:21",
     #      }
 
-    #@route('/construct/video', methods=['POST'])
-    @route(EPCamConstructVideo.PATH_PAR_PAYLOAD, methods=[EPCamConstructVideo.METHOD])
+    #@route('/video/construct', methods=['POST'])
+    @route(EPCamVideoConstruct.PATH_PAR_PAYLOAD, methods=[EPCamVideoConstruct.METHOD])
     def camConstructVideoWithPayload(self):
 
         # WEB
@@ -172,7 +174,7 @@ class CamView(FlaskView):
         else:
             return "Not valid request", EP.CODE_BAD_REQUEST
 
-        out = self.epCamConstructVideo.executeByPayload(json_data)
+        out = self.epCamVideoConstruct.executeByPayload(json_data)
         return out
 
 
@@ -209,5 +211,22 @@ class CamView(FlaskView):
 
         out = self.epCamCaptureList.executeByParameters()
         return out
+
+
+
+# === GET /cam/video/status ===
+
+    #
+    # Get the status of the VideoMake - with parameters
+    #
+    # curl  --header "Content-Type: application/json" --request GET --data  http://localhost:5000/cam/video/status
+    #
+    #@route('/capture/url', methods=['GET'])
+    @route(EPCamVideoStatus.PATH_PAR_URL, methods=[EPCamVideoStatus.METHOD])
+    def getCamVideoStatusWithParameter(self):
+
+        out = self.epCamVideoStatus.executeByParameters()
+        return out
+
 
 
