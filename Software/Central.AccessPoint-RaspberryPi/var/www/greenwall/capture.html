@@ -18,12 +18,11 @@
     <!-- Switch -->
     <script src="script/switch/lc_switch.js"></script>
 
-    <!-- Touch-Punch -->
+    <!-- Touch-Punch - needed for jQuery-slider on android -->
     <script src="script/touch-punch/jquery.ui.touch-punch.min.js"></script>
 
-
     <style>
-        .ui-slider-tick-mark{
+<!--        .ui-slider-tick-mark{
             display:inline-block;
             width:1px;
             background:black;
@@ -32,6 +31,10 @@
             top:16px;
         }
 
+        #progressbar .ui-progressbar-value {
+            background-color: #ccc;
+        }
+-->
     </style>
 
     <script>
@@ -40,6 +43,11 @@
         var refreshCaptureIntervalId = null;
         var fileList = [];
         var currentFileIndex = null;
+
+        var forwardButtonDown = false;
+        var backwardButtonDown = false;
+
+        var slideFramesIntervalId = null;
 
         $(document).ready(function(){
 
@@ -54,7 +62,6 @@
             // Title of new window
             //
             $(document).find("title").html(camId);
-
 
             //
             // Write camId
@@ -72,7 +79,7 @@
             // Add <img> node
             $(document).find("#img").append(img);
 
-            // History slider
+/*            // History slider
             $( "#historySlider" ).slider({
                 min: -10,
                 max: 10,
@@ -86,7 +93,7 @@
 
             });
             $("#historySlider").on('slidechange', slideChangeEvent);
-
+*/
 
             // Live/History switch
             lc_switch("#liveSwitch", {
@@ -102,7 +109,76 @@
 
             lcs_enable("#liveSwitch");
             lcs_on("#liveSwitch");
+
+            // Progerss bar
+            $( "#progressbar" ).progressbar({
+              value: false
+            });
+
+            // Button Forward
+            $("#buttonForward").on( "mousedown", buttonForwardStartEvent );
+            $("#buttonForward").on( "mouseup", buttonForwardStopEvent );
+            $("#buttonForward").on( "mouseleave", buttonForwardStopEvent );
+            $("#buttonForward").hide();
+
+            // Button Backward
+            $("#buttonBackward").on( "mousedown", buttonBackwardStartEvent );
+            $("#buttonBackward").on( "mouseup", buttonBackwardStopEvent );
+            $("#buttonBackward").on( "mouseleave", buttonBackwardStopEvent );
+            $("#buttonBackward").hide();
+
         });
+
+        function buttonForwardStartEvent(){
+            forwardButtonDown = true;
+            console.log("forward START");
+//            selectNextImage(1);
+            slideFramesIntervalId = setInterval(slideFramesForward, 100);
+        }
+
+        function buttonBackwardStartEvent(){
+            backwardButtonDown = true;
+            console.log("backward START");
+//            selectNextImage(-1);
+            slideFramesIntervalId = setInterval(slideFramesBackward, 100);
+        }
+
+        function buttonForwardStopEvent(){
+            if (forwardButtonDown){
+                forwardButtonDown = false;
+                console.log("forward STOP");
+                clearInterval(slideFramesIntervalId);
+            }
+        }
+
+        function buttonBackwardStopEvent(){
+            if (backwardButtonDown){
+                backwardButtonDown = false;
+                console.log("backward STOP");
+                clearInterval(slideFramesIntervalId);
+            }
+        }
+
+        function slideFramesForward(){
+            slideFrames(1);
+        }
+
+        function slideFramesBackward(){
+            slideFrames(-1);
+        }
+
+        function slideFrames(delta){
+console.log("INTERVAL");
+            if( delta < 0 ){
+
+                currentFileIndex = Math.max(0, currentFileIndex + delta);
+            }else if( delta > 0 ){
+
+                currentFileIndex = Math.min(fileList.length - 1, currentFileIndex + delta);
+            }
+            fileName = fileList[currentFileIndex];
+            $("#cam_" + camId).attr('src', 'cam-frame/' + camId + '/' + fileName);
+        }
 
         // ================================================
         //
@@ -120,17 +196,18 @@
         // Set Slider Ticks
         //
         // ================================================
-        function setSliderTicks(el) {
+/*        function setSliderTicks(el) {
             var $slider =  $(el);
-            var max =  $slider.slider("option", "max");    
-            var min =  $slider.slider("option", "min");    
+            var max =  $slider.slider("option", "max");
+            var min =  $slider.slider("option", "min");
             var spacing =  100 / (max - min);
-        
+
             $slider.find('.ui-slider-tick-mark').remove();
             for (var i = 0; i < max-min ; i++) {
                 $('<span class="ui-slider-tick-mark"></span>').css('left', (spacing * i) +  '%').appendTo($slider); 
              }
         }
+*/
 
         // ================================================
         //
@@ -142,7 +219,7 @@
         // Depending on the slider value, fetches the corresponding file name
         //
         // ================================================
-        function slideChangeEvent(event, ui){
+/*        function slideChangeEvent(event, ui){
             $("#historySlider").off('slidechange');
             $("#historySlider").slider( "option", "value", 0 );
             $("#historySlider").on('slidechange', slideChangeEvent);
@@ -158,20 +235,30 @@
             $("#cam_" + camId).attr('src', 'cam-frame/' + camId + '/' + fileName);
 
         }
-
+*/
         // ================================================
         //
-        // Live ON/OFF Event
+        // Live button ON Event
         //
         // ================================================
         function liveOnEvent(){
-            $("#historySlider").hide();
+//            $("#historySlider").hide();
+            $("#buttonForward").hide();
+            $("#buttonBackward").hide();
             refreshCapture();
             refreshCaptureIntervalId = setInterval(refreshCapture, 10000);
+            $( "#progressbar" ).hide();
         }
 
+        // ================================================
+        //
+        // Live button OFF Event
+        //
+        // ================================================
         function liveOffEvent(){
             clearInterval(refreshCaptureIntervalId);
+
+            $( "#progressbar" ).show();
 
             $.ajax({type: "GET", url: "/cam/frame/files/camId/" + camId, 
                     async: true,
@@ -182,9 +269,13 @@
                         if(data.result == "OK"){
 
                             fileList = data.fileList;
-                            currentFileIndex = fileList.length;
+                            currentFileIndex = fileList.length - 1;
 
-                            $("#historySlider").show();
+                            $( "#progressbar" ).hide();
+                            $("#buttonForward").show();
+                            $("#buttonBackward").show();
+
+//                            $("#historySlider").show();
 
                         }else{
                             console.error("Get Frame File List ERROR:" + error);
@@ -199,38 +290,57 @@
     </script>
 
     </head>
-    
+
     <body>
         <table border="0">
+
             <tr>
+                <td> </td>
                 <td id="title" style="text-align:center; font-size:1.5em; font-weight: bold;">
                     camId
                 </td>
+                <td> </td>
             </tr>
             <tr>
+                <td> </td>
                 <td>
                     <form>
                         <!-- Sliding Toggle Switch -->
                         <input type="checkbox" name="liveSwitch" value="1" class="lcs_check" id="liveSwitch"/>
                     </form>
                 </td>
+                <td> </td>
             </tr>
-            <tr>
-                <td>
+
+<!--            <tr>
+                <td> </td>
+                <td height="30px">
                     <div id="historySlider"></div>
                 </td>
+                <td> </td>
             </tr>
-
+-->
             <tr>
-                <td>
-                    <div></div>
+                <td> </td>
+                <td height="40px">
+                    <div id="progressbar"></div>
                 </td>
+                <td> </td>
             </tr>
 
-
             <tr>
+                <td width="60px">
+                    <button id="buttonBackward" class="ui-button ui-widget ui-corner-all">
+                        &#8592;
+                    </button>
+                </td>
                 <td id='img'>
                 <!-- <img id="cam_' + camId + '" src="/greenwall/cam-capture/capture_' + camId + '.jpg?"> -->
+                </td>
+                <td width="60px">
+                    <button id="buttonForward" class="ui-button ui-widget ui-corner-all">
+                        &#8594;
+                    </button>
                 </td>
             </tr>
         </table>
