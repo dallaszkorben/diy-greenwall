@@ -7,17 +7,39 @@
 
     <title>Cam</title>
 
+    <!-- favicon -->
+    <link rel="shortcut icon" href="favicon.ico">
+
+    <!-- JQuery -->
     <script src="script/jquery/jquery-3.6.0.min.js"></script>
+    <script src="script/jquery-ui/jquery-ui.min.js"></script>
+    <link rel="stylesheet" href="script/jquery-ui/jquery-ui.css">
+
+    <!-- Switch -->
+    <script src="script/switch/lc_switch.js"></script>
+
+    <!-- Touch-Punch -->
+    <script src="script/touch-punch/jquery.ui.touch-punch.min.js"></script>
+
+
+    <style>
+        .ui-slider-tick-mark{
+            display:inline-block;
+            width:1px;
+            background:black;
+            height:12px;
+            position:absolute;
+            top:16px;
+        }
+
+    </style>
 
     <script>
 
         var camId;
-
-        function refreshCapture(){
-
-            // Random value after the image name helps to ignore the cache at refresh
-            $("#cam_" + camId).attr('src', '/greenwall/cam-capture/capture_' + camId + '.jpg?' + Math.random());
-        }
+        var refreshCaptureIntervalId = null;
+        var fileList = [];
+        var currentFileIndex = null;
 
         $(document).ready(function(){
 
@@ -50,8 +72,130 @@
             // Add <img> node
             $(document).find("#img").append(img);
 
-            setInterval(refreshCapture, 10000);
+            // History slider
+            $( "#historySlider" ).slider({
+                min: -10,
+                max: 10,
+                step: 1,
+                value: 0,
+                animate: 'true',
+                animate: 100,
+                create: function( event, ui ) {
+                    setSliderTicks(event.target);
+                },
+
+            });
+            $("#historySlider").on('slidechange', slideChangeEvent);
+
+
+            // Live/History switch
+            lc_switch("#liveSwitch", {
+
+                on_txt      : 'Live',
+                off_txt     : 'History',
+                on_color    : false,
+                compact_mode: false
+            });
+
+            $("#liveSwitch").on('lcs-on', liveOnEvent);
+            $("#liveSwitch").on('lcs-off', liveOffEvent);
+
+            lcs_enable("#liveSwitch");
+            lcs_on("#liveSwitch");
         });
+
+        // ================================================
+        //
+        // Refresh Capture
+        //
+        // ================================================
+        function refreshCapture(){
+
+            // Random value after the image name helps to ignore the cache at refresh
+            $("#cam_" + camId).attr('src', '/greenwall/cam-capture/capture_' + camId + '.jpg?' + Math.random());
+        }
+
+        // ================================================
+        //
+        // Set Slider Ticks
+        //
+        // ================================================
+        function setSliderTicks(el) {
+            var $slider =  $(el);
+            var max =  $slider.slider("option", "max");    
+            var min =  $slider.slider("option", "min");    
+            var spacing =  100 / (max - min);
+        
+            $slider.find('.ui-slider-tick-mark').remove();
+            for (var i = 0; i < max-min ; i++) {
+                $('<span class="ui-slider-tick-mark"></span>').css('left', (spacing * i) +  '%').appendTo($slider); 
+             }
+        }
+
+        // ================================================
+        //
+        // Slider Change Event
+        //
+        // Turns off the event listener
+        // Moves back the slider to zero
+        // Turn on back the event listener
+        // Depending on the slider value, fetches the corresponding file name
+        //
+        // ================================================
+        function slideChangeEvent(event, ui){
+            $("#historySlider").off('slidechange');
+            $("#historySlider").slider( "option", "value", 0 );
+            $("#historySlider").on('slidechange', slideChangeEvent);
+
+            if( ui.value < 0 ){
+
+                currentFileIndex = Math.max(0, currentFileIndex + ui.value);
+            }else if( ui.value > 0 ){
+
+                currentFileIndex = Math.min(fileList.length - 1, currentFileIndex + ui.value);
+            }
+            fileName = fileList[currentFileIndex];
+            $("#cam_" + camId).attr('src', 'cam-frame/' + camId + '/' + fileName);
+
+        }
+
+        // ================================================
+        //
+        // Live ON/OFF Event
+        //
+        // ================================================
+        function liveOnEvent(){
+            $("#historySlider").hide();
+            refreshCapture();
+            refreshCaptureIntervalId = setInterval(refreshCapture, 10000);
+        }
+
+        function liveOffEvent(){
+            clearInterval(refreshCaptureIntervalId);
+
+            $.ajax({type: "GET", url: "/cam/frame/files/camId/" + camId, 
+                    async: true,
+                    data: {},
+                    indexValue: {camId:camId}, 
+                    success: function(data){
+
+                        if(data.result == "OK"){
+
+                            fileList = data.fileList;
+                            currentFileIndex = fileList.length;
+
+                            $("#historySlider").show();
+
+                        }else{
+                            console.error("Get Frame File List ERROR:" + error);
+                        }
+                    },
+                    error: function(xhr,status,error){
+                        console.error("Get Frame File List ERROR:" + error);
+                    }
+            });
+        }
+
     </script>
 
     </head>
@@ -59,10 +203,31 @@
     <body>
         <table border="0">
             <tr>
-                <td id="title" style="text-align:center; font-weight: bold;">
+                <td id="title" style="text-align:center; font-size:1.5em; font-weight: bold;">
                     camId
                 </td>
             </tr>
+            <tr>
+                <td>
+                    <form>
+                        <!-- Sliding Toggle Switch -->
+                        <input type="checkbox" name="liveSwitch" value="1" class="lcs_check" id="liveSwitch"/>
+                    </form>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div id="historySlider"></div>
+                </td>
+            </tr>
+
+            <tr>
+                <td>
+                    <div></div>
+                </td>
+            </tr>
+
+
             <tr>
                 <td id='img'>
                 <!-- <img id="cam_' + camId + '" src="/greenwall/cam-capture/capture_' + camId + '.jpg?"> -->

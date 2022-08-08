@@ -21,6 +21,7 @@ from greenwall.restserver.endpoints.ep_cam_capture_url import EPCamCaptureUrl
 from greenwall.restserver.endpoints.ep_cam_capturelist import EPCamCaptureList
 from greenwall.restserver.endpoints.ep_cam_video_construct import EPCamVideoConstruct
 from greenwall.restserver.endpoints.ep_cam_video_status import EPCamVideoStatus
+from greenwall.restserver.endpoints.ep_cam_frame_files import EPCamFrameFiles
 
 from greenwall.restserver.endpoints.ep import EP
 
@@ -48,6 +49,7 @@ class CamView(FlaskView):
         self.epCamCaptureUrl = EPCamCaptureUrl(web_gadget)
         self.epCamCaptureList = EPCamCaptureList(web_gadget)
         self.epCamVideoStatus = EPCamVideoStatus(web_gadget)
+        self.epCamFrameFiles = EPCamFrameFiles(web_gadget)
 
     #
     # GET http://localhost:5000/sensor/
@@ -228,5 +230,19 @@ class CamView(FlaskView):
         out = self.epCamVideoStatus.executeByParameters()
         return out
 
+
+# === GET /cam/frame/files ===
+
+    #
+    # Get the file list of the frames of a camId
+    #
+    # curl  --header "Content-Type: application/json" --request GET --data  http://localhost:5000/cam/frame/files/camId/5
+    #
+    #@route('/frame/files/camId/{camId|', methods=['GET'])
+    @route(EPCamFrameFiles.PATH_PAR_URL, methods=[EPCamFrameFiles.METHOD])
+    def getCamFrameListWithParameter(self, camId):
+
+        out = self.epCamFrameFiles.executeByParameters(camId=camId)
+        return out
 
 

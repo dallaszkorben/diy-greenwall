@@ -160,6 +160,27 @@ class Cam:
         return self.statusVideoConstruct
 
 
+    def getFrameFiles(self, camId):
+        """
+            Gives back the frame file list of a camId
+        """
+
+        fileList = []
+
+        logging.debug("Start to collect of the Frame files of {0} Cam".format(camId))
+
+        absoluteCamFrameFolder = self.webGadget.absoluteCamFrameFolder
+        framePath = os.path.join(absoluteCamFrameFolder, camId)
+        for filename in natsorted(os.listdir(framePath)):
+
+            ext = os.path.splitext(filename)[-1].lower()
+            if ext=='.jpg': #and startDate <= filename <= endDate:
+                fileList.append(filename)
+
+        logging.debug("Stopped to collect of the Frame files of {0} Cam".format(camId))
+
+        return {'fileList': fileList}
+
 #    def getCamStatus(self):
 #
 #        addresses = []

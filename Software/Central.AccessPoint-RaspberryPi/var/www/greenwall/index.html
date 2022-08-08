@@ -438,11 +438,11 @@ console.log(100*progress);
 //                            $("#cam_" + camId).attr('src', captureUrl + "?" + Math.random());
 
                         }else{
-                            console.log("Make Video ERROR:" + error);
+                            console.error("Make Video ERROR:" + error);
                         }
                     },
                     error: function(xhr,status,error){
-                        console.log("Make Video ERROR:" + error);
+                        console.error("Make Video ERROR:" + error);
                     }
             });
         }
