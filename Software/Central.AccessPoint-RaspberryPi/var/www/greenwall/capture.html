@@ -35,6 +35,24 @@
             background-color: #ccc;
         }
 -->
+
+        .round-button {
+            height: 90px;
+            width: 90px;
+            border-radius: 50%;
+            border: 1px solid #000;
+            font-size:3.0em; 
+            font-weight: bold;
+        }
+
+        .no-pointer {
+            pointer-events: none;
+        }
+
+        .no-selector {
+            user-select: none;
+        }
+
     </style>
 
     <script>
@@ -46,6 +64,8 @@
 
         var forwardButtonDown = false;
         var backwardButtonDown = false;
+        var fastForwardButtonDown = false;
+        var fastBackwardButtonDown = false;
 
         var slideFramesIntervalId = null;
 
@@ -115,38 +135,130 @@
               value: false
             });
 
-            // Button Forward
-            $("#buttonForward").on( "mousedown", buttonForwardStartEvent );
-            $("#buttonForward").on( "mouseup", buttonForwardStopEvent );
-            $("#buttonForward").on( "mouseleave", buttonForwardStopEvent );
-            $("#buttonForward").hide();
+
+
 
             // Button Backward
-            $("#buttonBackward").on( "mousedown", buttonBackwardStartEvent );
-            $("#buttonBackward").on( "mouseup", buttonBackwardStopEvent );
+            $("#buttonBackward").on( "touchstart mousedown", buttonBackwardStartEvent );
+            $("#buttonBackward").on( "touchend mouseup", buttonBackwardStopEvent );
             $("#buttonBackward").on( "mouseleave", buttonBackwardStopEvent );
-            $("#buttonBackward").hide();
+$("#buttonBackward").hide();
+
+            // Button FastBackward
+            $("#buttonFastBackward").on( "touchstart mousedown", buttonFastBackwardStartEvent );
+            $("#buttonFastBackward").on( "touchend mouseup", buttonFastBackwardStopEvent );
+            $("#buttonFastBackward").on( "mouseleave", buttonFastBackwardStopEvent );
+$("#buttonFastBackward").hide();
+
+
+
+
+
+
+            // Button FastForward
+            $("#buttonFastForward").on( "touchstart mousedown", buttonFastForwardStartEvent );
+            $("#buttonFastForward").on( "touchend mouseup", buttonFastForwardStopEvent );
+            $("#buttonFastForward").on( "mouseleave", buttonFastForwardStopEvent );
+$("#buttonFastForward").hide();
+
+            // Button Forward
+            $("#buttonForward").on( "touchstart mousedown", buttonForwardStartEvent );
+            $("#buttonForward").on( "touchend mouseup", buttonForwardStopEvent );
+            $("#buttonForward").on( "mouseleave", buttonForwardStopEvent );
+$("#buttonForward").hide();
+
+
+
 
         });
 
-        function buttonForwardStartEvent(){
-            forwardButtonDown = true;
-            console.log("forward START");
-//            selectNextImage(1);
-            slideFramesIntervalId = setInterval(slideFramesForward, 100);
+
+
+        function buttonFastBackwardStartEvent(){
+            fastBackwardButtonDown = true;
+            fastForwardButtonDown = false;
+            backwardButtonDown = false;
+            forwardButtonDown = false;
+
+            slideFramesIntervalId = setInterval(slideFrames, 200, -50);
         }
 
         function buttonBackwardStartEvent(){
             backwardButtonDown = true;
-            console.log("backward START");
-//            selectNextImage(-1);
-            slideFramesIntervalId = setInterval(slideFramesBackward, 100);
+            forwardButtonDown = false;
+            fastBackwardButtonDown = false;
+            fastForwardButtonDown = false;
+
+            slideFramesIntervalId = setInterval(slideFrames, 200, -1);
         }
+
+
+
+
+
+
+
+        function buttonForwardStartEvent(){
+            forwardButtonDown = true;
+            backwardButtonDown = false;
+            fastBackwardButtonDown = false;
+            fastForwardButtonDown = false;
+
+            slideFramesIntervalId = setInterval(slideFrames, 200, 1);
+        }
+
+        function buttonFastForwardStartEvent(){
+            fastForwardButtonDown = true;
+            fastBackwardButtonDown = false;
+            backwardButtonDown = false;
+            forwardButtonDown = false;
+
+            slideFramesIntervalId = setInterval(slideFrames, 200, 50);
+        }
+
+
+
+
+
+
 
         function buttonForwardStopEvent(){
             if (forwardButtonDown){
                 forwardButtonDown = false;
-                console.log("forward STOP");
+
+                fastBackwardButtonDown = false;
+                backwardButtonDown = false;
+                fastForwardButtonDown = false;
+
+                clearInterval(slideFramesIntervalId);
+            }
+        }
+
+        function buttonFastForwardStopEvent(){
+            if (fastForwardButtonDown){
+                fastForwardButtonDown = false;
+
+                fastBackwardButtonDown = false;
+                backwardButtonDown = false;
+                forwardButtonDown = false;
+
+                clearInterval(slideFramesIntervalId);
+            }
+        }
+
+
+
+
+
+
+        function buttonFastBackwardStopEvent(){
+            if (fastBackwardButtonDown){
+                fastBackwardButtonDown = false;
+
+                fastForwardButtonDown = false;
+                backwardButtonDown = false;
+                forwardButtonDown = false;
+
                 clearInterval(slideFramesIntervalId);
             }
         }
@@ -154,24 +266,32 @@
         function buttonBackwardStopEvent(){
             if (backwardButtonDown){
                 backwardButtonDown = false;
-                console.log("backward STOP");
+
+                fastForwardButtonDown = false;
+                fastBackwardButtonDown = false;
+                forwardButtonDown = false;
+
                 clearInterval(slideFramesIntervalId);
             }
         }
 
-        function slideFramesForward(){
-            slideFrames(1);
-        }
 
-        function slideFramesBackward(){
-            slideFrames(-1);
-        }
 
+
+
+
+
+
+        // ================================================
+        //
+        // Slide Frames - Interval
+        //
+        // ================================================
         function slideFrames(delta){
-console.log("INTERVAL");
             if( delta < 0 ){
 
                 currentFileIndex = Math.max(0, currentFileIndex + delta);
+
             }else if( delta > 0 ){
 
                 currentFileIndex = Math.min(fileList.length - 1, currentFileIndex + delta);
@@ -242,9 +362,11 @@ console.log("INTERVAL");
         //
         // ================================================
         function liveOnEvent(){
-//            $("#historySlider").hide();
-            $("#buttonForward").hide();
-            $("#buttonBackward").hide();
+//$("#historySlider").hide();
+$("#buttonForward").hide();
+$("#buttonBackward").hide();
+$("#buttonFastForward").hide();
+$("#buttonFastBackward").hide();
             refreshCapture();
             refreshCaptureIntervalId = setInterval(refreshCapture, 10000);
             $( "#progressbar" ).hide();
@@ -271,9 +393,11 @@ console.log("INTERVAL");
                             fileList = data.fileList;
                             currentFileIndex = fileList.length - 1;
 
-                            $( "#progressbar" ).hide();
+                            $("#progressbar").hide();
                             $("#buttonForward").show();
                             $("#buttonBackward").show();
+                            $("#buttonFastForward").show();
+                            $("#buttonFastBackward").show();
 
 //                            $("#historySlider").show();
 
@@ -292,24 +416,34 @@ console.log("INTERVAL");
     </head>
 
     <body>
+
+
+
+
         <table border="0">
 
-            <tr>
-                <td> </td>
-                <td id="title" style="text-align:center; font-size:1.5em; font-weight: bold;">
+<!--            <tr>
+                <td id="title" class="no-pointer no-selector" style="text-align:center; font-size:2.5em; font-weight: bold;">
                     camId
                 </td>
-                <td> </td>
             </tr>
+-->
             <tr>
-                <td> </td>
                 <td>
-                    <form>
-                        <!-- Sliding Toggle Switch -->
-                        <input type="checkbox" name="liveSwitch" value="1" class="lcs_check" id="liveSwitch"/>
-                    </form>
+                    <table border="0" width="100%">
+                        <tr">
+                            <td>
+<!--                        <form> -->
+                            <!-- Sliding Toggle Switch -->
+                            <input type="checkbox" name="liveSwitch" value="1" class="lcs_check" id="liveSwitch"/>
+<!--                        </form> -->
+                            </td>
+                            <td width="100%" height="40px">
+                                <div id="progressbar"></div>
+                            </td>
+                        </tr>
+                    </table>
                 </td>
-                <td> </td>
             </tr>
 
 <!--            <tr>
@@ -317,32 +451,50 @@ console.log("INTERVAL");
                 <td height="30px">
                     <div id="historySlider"></div>
                 </td>
-                <td> </td>
+                 <td> </td>
             </tr>
 -->
             <tr>
-                <td> </td>
-                <td height="40px">
-                    <div id="progressbar"></div>
+                <td align="center">
+
+                    <table>
+                        <tr height="90px">
+                            <td>
+                                <button id="buttonFastBackward" class="round-button no-selector" type="button">
+                                    &#xab;
+                                </button>
+                            </td>
+                            <td>
+                                <button id="buttonBackward" class="round-button no-selector" type="button">
+                                    &#60;
+                                </button>
+                            </td>
+
+
+
+                            <td>
+                                <button id="buttonForward" class="round-button no-selector" type="button">
+                                    &#62;
+                                </button>
+                            </td>
+                            <td>
+                                <button id="buttonFastForward" class="round-button no-selector" type="button">
+                                    &#xbb;
+                                </button>
+                            </td>
+                        </tr>
+                    </table>
                 </td>
-                <td> </td>
             </tr>
 
             <tr>
-                <td width="60px">
-                    <button id="buttonBackward" class="ui-button ui-widget ui-corner-all">
-                        &#8592;
-                    </button>
-                </td>
                 <td id='img'>
                 <!-- <img id="cam_' + camId + '" src="/greenwall/cam-capture/capture_' + camId + '.jpg?"> -->
                 </td>
-                <td width="60px">
-                    <button id="buttonForward" class="ui-button ui-widget ui-corner-all">
-                        &#8594;
-                    </button>
-                </td>
             </tr>
         </table>
+
+
+
     </body>
 </html>
