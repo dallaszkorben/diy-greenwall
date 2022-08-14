@@ -1,10 +1,6 @@
-<meta name="viewport" content="width=deviceOB-width, user-scalable=no, initial-scale=0.55" charset="UTF-8">
+<meta charset="UTF-8" comntent="text/html;charset=utf-8" http-equiv="Content-Type">
 
-<!-- <meta  comntent="text/html;charset=utf-8" http-equiv="Content-Type"> -->
-
-<!--
-user-scalable=no -disable user zoom on mobile
--->
+<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1">
 
 <html>
 <head>
@@ -37,7 +33,7 @@ user-scalable=no -disable user zoom on mobile
 
         /* General fonts */
         * {
-            font-family: "Comic Sans MS", "Comic Sans", cursive;
+/*            font-family: "Comic Sans MS", "Comic Sans", cursive; */
             font-size: 18px;
         }
 
@@ -79,6 +75,29 @@ user-scalable=no -disable user zoom on mobile
 //            vertical-align: top;
 //        }
 
+        .flex-container {
+            display: flex;
+            flex-wrap: wrap;
+            ppadding: 5px;  
+            justify-content: flex-start;
+        }
+
+        /* 3 picture per line on normal screen with adaptive size */
+        .flex-item {
+            mmargin: 5px;   
+            width: 33.3%;
+        }
+
+        /* 1 picture per line on vertical mobile with adaptive size */
+        @media (max-width: 600px) {
+            .flex-item {
+                float: none;
+                width: 100%;
+            }
+        }
+
+
+
     </style>
 
     <!-- Chart -->
@@ -112,7 +131,7 @@ user-scalable=no -disable user zoom on mobile
         var camCaptureRefreshIntervalId = null;
         var checkLampStatusRefreshIntervalId = null;
         var checkPumpStatusIntervalId = null;
-        var checkMakeVideoStatusIntervalId = null;
+//        var checkMakeVideoStatusIntervalId = null;
 
         $( function() {
             $( "#tabs" ).tabs();
@@ -157,16 +176,25 @@ user-scalable=no -disable user zoom on mobile
 
                         camCaptureList = newCamCaptureList;
 
-                        size=Math.min(33.33, 100/camCaptureList.length).toFixed(2);
-                        styleFlex="flex: " + size.toString() + "%"
-                        size=100;
-                        styleWidth="width: " + size.toString() + "%; cursor: pointer;"
-                        divRow = $('<div class="row"></div>');
+//                        size=Math.min(33.33, 100/camCaptureList.length).toFixed(2);
+//                        styleFlex="flex: " + size.toString() + "%"
+//                        size=100;
+//                        styleWidth="width: " + size.toString() + "%; cursor: pointer;"
+//                        divRow = $('<div class="row"></div>');
+
+
+                        divCam = $('<div id="camCaptureDiv" class="flex-container">');
 
                         $.map(camCaptureList, function(camCapture){
 
                             camId = camCapture.camId;
                             camCaptureUrl = camCapture.captureUrl;
+
+                            //
+                            // TITLE
+                            //
+                            title=$('<div id="imgTitle" style="font-size:1.5em">');
+                            title.html(camId);
 
                             //
                             // IMG
@@ -175,49 +203,35 @@ user-scalable=no -disable user zoom on mobile
 
                             // Random value after the image name helps to ignore the cache at refresh
                             img.attr('src', '/greenwall/cam-capture/capture_' + camId + '.jpg?' + Math.random());
-                            img.attr('style', styleWidth)
-
-                            title=$('<div id="imgTitle" style="font-size:1.5em">');
-                            title.html(camId);
-
-                            divColumn = $('<div class="column" >');
+                            img.attr('style', 'width: 100%;')
 
                             //
-                            // Create Make Video BUTTON
+                            // Build up the Table
                             //
-                            var buttonMakeVideo = $('<button id="buttonMakeVideo_' + camId + '" disabled>Make video</button>');
+                            var tableBody = $("<tbody>");
 
-                            //
-                            // Create DIV
-                            //
-                            var videoDiv = $('<div>');
+                            row = $('<tr>');
+                            rowData = $('<td style="padding:0px">');
+                            row.append(rowData);
+                            rowData = rowData.append(title);
+                            row.append(rowData);
+                            tableBody.append(row);
 
-                            //
-                            // Create Video PLAYER
-                            //
-                            var video = $('<video controls id="videoControl_' + camId + '"></video>');
-                            video.attr('style', styleWidth)
-                            var sourceVideo = $('<source type="video/webm" id="videoSource_' + camId + '">');
+                            row = $('<tr>');
+                            rowData = $('<td style="padding:0px">');
+                            row.append(rowData);
+                            rowData = rowData.append(img);
+                            row.append(rowData);
+                            tableBody.append(row);
 
-                            // To initiate the source is not necessary as the ActivateAllMakeMovie method will set it anyway
-                            //sourceVideo.attr('src', 'cam-video/' + camId + '/video.webm?' + Math.random());
+                            camTable = $('<table class="flex-item" border="0"></table>');
+                            camTable.append(tableBody);
+                            divCam.append(camTable);
 
-                            sourceVideo.html("Your browser does not support the video tag.");
-                            video.append(sourceVideo);
-
-                            divColumn.append(title)
-                            divColumn.append(img);
-                            divColumn.append(buttonMakeVideo);
-                            divColumn.append(videoDiv);
-                            divColumn.append(video);
-
-                            divColumn.attr('style', styleFlex);
-
-                            divRow.append(divColumn)
                         });
 
-                        $('#camCaptureDiv').html("");
-                        $('#camCaptureDiv').append(divRow);
+                        $('#tabs-cam').html("");
+                        $('#tabs-cam').append(divCam);
 
                         //
                         // Add click event listner to all pictures
@@ -239,7 +253,7 @@ user-scalable=no -disable user zoom on mobile
                         //
                         // Add click event listner to all MakeVideo  buttons
                         //
-                        $.map(camCaptureList, function(camCapture){
+/*                        $.map(camCaptureList, function(camCapture){
 
                             camId = camCapture.camId;
 
@@ -256,6 +270,7 @@ user-scalable=no -disable user zoom on mobile
                                 makeVideo(this.id);
                             });
                         });
+*/
 
                     }else{
                         //$("#value").html("");
@@ -312,7 +327,7 @@ user-scalable=no -disable user zoom on mobile
         // again, stops the check and refresh the video
         //
         // ============================================================================
-        function inactivateAllMakeVideoButtons(){
+/*        function inactivateAllMakeVideoButtons(){
 
             // Inactivate all MakeVideo buttons
             $('[id^="buttonMakeVideo_"]').prop('disabled', true);
@@ -320,7 +335,7 @@ user-scalable=no -disable user zoom on mobile
             // Start to check the status of the process of MakeVideo
             checkMakeVideoStatusIntervalId = setInterval(checkMakeVideoStatus, 3000);
         }
-
+*/
         // ============================================================================
         //
         // Activate ALL MakeVideo buttons
@@ -329,7 +344,7 @@ user-scalable=no -disable user zoom on mobile
         // of the process of the MakeVideo continously.
         //
         // ============================================================================
-        function activateAllMakeVideoButtons(){
+/*        function activateAllMakeVideoButtons(){
 
             // Stop to check the status of the process of MakeVideo
             clearInterval(checkMakeVideoStatusIntervalId);
@@ -341,13 +356,13 @@ user-scalable=no -disable user zoom on mobile
             refreshAllVideos();
 
         }
-
+*/
         // ========================================
         //
         // Refressh all videos
         //
         // ========================================
-        function refreshAllVideos(){
+/*        function refreshAllVideos(){
 
             videoControlList = $('[id^="videoControl_"]');
 
@@ -369,6 +384,7 @@ user-scalable=no -disable user zoom on mobile
                 videoControl.load();
             });
         }
+*/
 
         // ========================================
         //
@@ -381,7 +397,7 @@ user-scalable=no -disable user zoom on mobile
         // -refresh the videos
         //
         // ========================================
-        function checkMakeVideoStatus(){
+/*        function checkMakeVideoStatus(){
             $.get( "/cam/video/status" ).done(
                 function( data ) {
 
@@ -396,6 +412,7 @@ console.log(100*progress);
                     }
             });
         }
+*/
 
         // =====================================================================================================
         //
@@ -406,7 +423,7 @@ console.log(100*progress);
         // So I have to substring it to get the camId
         //
         // =====================================================================================================
-        function makeVideo(buttonId){
+/*        function makeVideo(buttonId){
 
             var camId = buttonId.substring(16);
 
@@ -447,7 +464,7 @@ console.log(100*progress);
             });
         }
 
-
+*/
 
         // ================================================
         //
@@ -961,7 +978,7 @@ console.log(100*progress);
             });
 
             constructCamCaptureSection();
-            inactivateAllMakeVideoButtons();
+//            inactivateAllMakeVideoButtons();
 
             //-----------------------
             // Lamp Switch
@@ -1036,6 +1053,9 @@ console.log(100*progress);
 
             });
 
+            $(".ui-tabs .ui-tabs-panel").css('padding', '0em');
+
+
             //-----------------------
             // Refresh Lamp Status
             //-----------------------
@@ -1092,6 +1112,9 @@ console.log(100*progress);
                     }
                 }
             });
+
+
+
 
         });
 
@@ -1166,7 +1189,7 @@ console.log(100*progress);
         <!--     -->
         <div id="tabs-cam">
 
-            <div id="camCaptureDiv"></div>
+<!--            <div id="camCaptureDiv" class="flex-container"></div> -->
 
 <!--            <video width="320" height="240" controls>
                 <source src="cam-video/5/video.webm" type="video/webm"> 
@@ -1174,7 +1197,9 @@ console.log(100*progress);
             </video> 
 -->
 
-        </div>
+        </div> 
+
+
     </div>
 
 

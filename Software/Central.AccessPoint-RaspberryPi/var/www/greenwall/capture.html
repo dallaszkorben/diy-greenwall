@@ -1,4 +1,4 @@
-<meta comntent="text/html;charset=utf-8" http-equiv="Content-Type">
+<meta charset="UTF-8" comntent="text/html;charset=utf-8" http-equiv="Content-Type">
 
 <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=0.55">
 
@@ -22,6 +22,7 @@
     <script src="script/touch-punch/jquery.ui.touch-punch.min.js"></script>
 
     <style>
+
 <!--        .ui-slider-tick-mark{
             display:inline-block;
             width:1px;
@@ -36,6 +37,19 @@
         }
 -->
 
+        /* Rounded Slider handler */
+        .ui-state-default, .ui-widget-content .ui-state-default, .ui-widget-header .ui-state-default {
+            border-radius: 50%;
+        }
+        .ui-slider .ui-slider-handle {
+            width: 3em!important;
+            height: 3em!important;
+            margin-top: -1em;
+            margin-left: -1.2em;
+        }
+
+
+        /* Rounded BUTTONS */
         .round-button {
             height: 90px;
             width: 90px;
@@ -45,10 +59,10 @@
             font-weight: bold;
         }
 
+        /* For mobiles - not allowed to select the button */
         .no-pointer {
             pointer-events: none;
         }
-
         .no-selector {
             user-select: none;
         }
@@ -91,7 +105,7 @@
             //
             // Create <img> node
             //
-            var img = $('<img id="cam_' + camId + '">');
+            var img = $('<img id="cam_' + camId + '" width="100%">');
 
             // Random value after the image name helps to ignore the cache at refresh
             img.attr('src', '/greenwall/cam-capture/capture_' + camId + '.jpg?' + Math.random());
@@ -133,44 +147,29 @@
               value: false
             });
 
-
-
-
             // Button Backward
             $("#buttonBackward").on( "touchstart mousedown", buttonBackwardStartEvent );
             $("#buttonBackward").on( "touchend mouseup", buttonBackwardStopEvent );
             $("#buttonBackward").on( "mouseleave", buttonBackwardStopEvent );
-$("#buttonBackward").hide();
 
             // Button FastBackward
             $("#buttonFastBackward").on( "touchstart mousedown", buttonFastBackwardStartEvent );
             $("#buttonFastBackward").on( "touchend mouseup", buttonFastBackwardStopEvent );
             $("#buttonFastBackward").on( "mouseleave", buttonFastBackwardStopEvent );
-$("#buttonFastBackward").hide();
-
-
-
-
-
 
             // Button FastForward
             $("#buttonFastForward").on( "touchstart mousedown", buttonFastForwardStartEvent );
             $("#buttonFastForward").on( "touchend mouseup", buttonFastForwardStopEvent );
             $("#buttonFastForward").on( "mouseleave", buttonFastForwardStopEvent );
-$("#buttonFastForward").hide();
 
             // Button Forward
             $("#buttonForward").on( "touchstart mousedown", buttonForwardStartEvent );
             $("#buttonForward").on( "touchend mouseup", buttonForwardStopEvent );
             $("#buttonForward").on( "mouseleave", buttonForwardStopEvent );
-$("#buttonForward").hide();
 
-
-
+            turnAllHistoryButtons("OFF");
 
         });
-
-
 
         function buttonFastBackwardStartEvent(){
             fastBackwardButtonDown = true;
@@ -190,12 +189,6 @@ $("#buttonForward").hide();
             showDeltaFrameIntervalId = setInterval(showDeltaFrame, 200, -1);
         }
 
-
-
-
-
-
-
         function buttonForwardStartEvent(){
             forwardButtonDown = true;
             backwardButtonDown = false;
@@ -213,12 +206,6 @@ $("#buttonForward").hide();
 
             showDeltaFrameIntervalId = setInterval(showDeltaFrame, 200, 50);
         }
-
-
-
-
-
-
 
         function buttonForwardStopEvent(){
             if (forwardButtonDown){
@@ -244,11 +231,6 @@ $("#buttonForward").hide();
             }
         }
 
-
-
-
-
-
         function buttonFastBackwardStopEvent(){
             if (fastBackwardButtonDown){
                 fastBackwardButtonDown = false;
@@ -272,13 +254,6 @@ $("#buttonForward").hide();
                 clearInterval(showDeltaFrameIntervalId);
             }
         }
-
-
-
-
-
-
-
 
         // ============================================================
         //
@@ -327,18 +302,18 @@ $("#buttonForward").hide();
         // Set Slider Ticks
         //
         // ================================================
-/*        function setSliderTicks(el) {
-            var $slider =  $(el);
-            var max =  $slider.slider("option", "max");
-            var min =  $slider.slider("option", "min");
-            var spacing =  100 / (max - min);
-
-            $slider.find('.ui-slider-tick-mark').remove();
-            for (var i = 0; i < max-min ; i++) {
-                $('<span class="ui-slider-tick-mark"></span>').css('left', (spacing * i) +  '%').appendTo($slider); 
-             }
-        }
-*/
+//        function setSliderTicks(el) {
+//            var $slider =  $(el);
+//            var max =  $slider.slider("option", "max");
+//            var min =  $slider.slider("option", "min");
+//            var spacing =  100 / (max - min);
+//
+//            $slider.find('.ui-slider-tick-mark').remove();
+//            for (var i = 0; i < max-min ; i++) {
+//                $('<span class="ui-slider-tick-mark"></span>').css('left', (spacing * i) +  '%').appendTo($slider); 
+//             }
+//        }
+//
 
         // ================================================
         //
@@ -410,9 +385,8 @@ console.log(ui.value);
                             fileList = data.fileList;
                             currentFileIndex = fileList.length - 1;
 
-            $("#seekSlider").slider( "option", "max", currentFileIndex );
-            $("#seekSlider").slider( "option", "value", currentFileIndex );
-
+                            $("#seekSlider").slider( "option", "max", currentFileIndex );
+                            $("#seekSlider").slider( "option", "value", currentFileIndex );
 
                             turnAllHistoryButtons("ON");
 
@@ -492,6 +466,22 @@ console.log(ui.value);
                 </td>
             </tr>
 
+            <!-- IMG -->
+            <tr>
+                <td id='img'>
+                <!-- <img id="cam_' + camId + '" src="/greenwall/cam-capture/capture_' + camId + '.jpg?"> -->
+                </td>
+            </tr>
+
+            <!-- SEEK SLIDER -->
+            <tr>
+                <td height="60px">
+                    <div id="seekSlider"></div>
+                </td>
+            </tr>
+
+            <!-- BUTTONS -->
+
             <tr>
                 <td align="center">
 
@@ -525,18 +515,7 @@ console.log(ui.value);
                 </td>
             </tr>
 
-            <tr>
-                <td height="30px">
-                    <div id="seekSlider"></div>
-                </td>
-                 <td> </td>
-            </tr>
 
-            <tr>
-                <td id='img'>
-                <!-- <img id="cam_' + camId + '" src="/greenwall/cam-capture/capture_' + camId + '.jpg?"> -->
-                </td>
-            </tr>
         </table>
 
 
