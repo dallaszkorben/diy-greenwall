@@ -57,7 +57,8 @@ class EPCamCaptureUrl(EP):
                     )
         )
 
-        camUrl = self.web_gadget.cam.getCapture(camId)
+        # Take picture and save it into WebCamCapture folder
+        captureUrl = self.web_gadget.cam.getCapture(camId)
 
-        return output_json( {'result': 'OK', 'camUrl': camUrl}, EP.CODE_OK)
+        return output_json( {'result': 'OK', 'captureUrl': captureUrl}, EP.CODE_OK)
 

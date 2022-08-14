@@ -1,0 +1,524 @@
+<meta charset="UTF-8" comntent="text/html;charset=utf-8" http-equiv="Content-Type">
+
+<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=0.55">
+
+<html>
+    <head>
+
+    <title>Cam</title>
+
+    <!-- favicon -->
+    <link rel="shortcut icon" href="favicon.ico">
+
+    <!-- JQuery -->
+    <script src="script/jquery/jquery-3.6.0.min.js"></script>
+    <script src="script/jquery-ui/jquery-ui.min.js"></script>
+    <link rel="stylesheet" href="script/jquery-ui/jquery-ui.css">
+
+    <!-- Switch -->
+    <script src="script/switch/lc_switch.js"></script>
+
+    <!-- Touch-Punch - needed for jQuery-slider on android -->
+    <script src="script/touch-punch/jquery.ui.touch-punch.min.js"></script>
+
+    <style>
+
+<!--        .ui-slider-tick-mark{
+            display:inline-block;
+            width:1px;
+            background:black;
+            height:12px;
+            position:absolute;
+            top:16px;
+        }
+
+        #progressbar .ui-progressbar-value {
+            background-color: #ccc;
+        }
+-->
+
+        /* Rounded Slider handler */
+        .ui-state-default, .ui-widget-content .ui-state-default, .ui-widget-header .ui-state-default {
+            border-radius: 50%;
+        }
+        .ui-slider .ui-slider-handle {
+            width: 3em!important;
+            height: 3em!important;
+            margin-top: -1em;
+            margin-left: -1.2em;
+        }
+
+
+        /* Rounded BUTTONS */
+        .round-button {
+            height: 90px;
+            width: 90px;
+            border-radius: 50%;
+            border: 1px solid #000;
+            font-size:3.0em; 
+            font-weight: bold;
+        }
+
+        /* For mobiles - not allowed to select the button */
+        .no-pointer {
+            pointer-events: none;
+        }
+        .no-selector {
+            user-select: none;
+        }
+
+    </style>
+
+    <script>
+
+        var camId;
+        var refreshCaptureIntervalId = null;
+        var fileList = [];
+        var currentFileIndex = null;
+
+        var forwardButtonDown = false;
+        var backwardButtonDown = false;
+        var fastForwardButtonDown = false;
+        var fastBackwardButtonDown = false;
+
+        var showDeltaFrameIntervalId = null;
+
+        $(document).ready(function(){
+
+            // I get the camId parameter as the window.name - window.open()
+
+            //
+            // Fetch camId
+            //
+            camId = window.name;
+
+            //
+            // Title of new window
+            //
+            $(document).find("title").html(camId);
+
+            //
+            // Write camId
+            //
+            $(document).find("#title").html(camId);
+
+            //
+            // Create <img> node
+            //
+            var img = $('<img id="cam_' + camId + '" width="100%">');
+
+            // Random value after the image name helps to ignore the cache at refresh
+            img.attr('src', '/greenwall/cam-capture/capture_' + camId + '.jpg?' + Math.random());
+
+            // Add <img> node
+            $(document).find("#img").append(img);
+
+            // Seek Slider
+            $( "#seekSlider" ).slider({
+                min: 0,
+                max: 100,
+                step: 1,
+                value: 0,
+                animate: 'true',
+                animate: 100,
+//                create: function( event, ui ) {
+//                    setSliderTicks(event.target);
+//                },
+            });
+            $("#seekSlider").on('slidechange', seekSlideChangeEvent);
+
+            // Live/History switch
+            lc_switch("#liveSwitch", {
+
+                on_txt      : 'Live',
+                off_txt     : 'History',
+                on_color    : false,
+                compact_mode: false
+            });
+
+            $("#liveSwitch").on('lcs-on', liveOnEvent);
+            $("#liveSwitch").on('lcs-off', liveOffEvent);
+
+            lcs_enable("#liveSwitch");
+            lcs_on("#liveSwitch");
+
+            // Progerss bar
+            $( "#progressbar" ).progressbar({
+              value: false
+            });
+
+            // Button Backward
+            $("#buttonBackward").on( "touchstart mousedown", buttonBackwardStartEvent );
+            $("#buttonBackward").on( "touchend mouseup", buttonBackwardStopEvent );
+            $("#buttonBackward").on( "mouseleave", buttonBackwardStopEvent );
+
+            // Button FastBackward
+            $("#buttonFastBackward").on( "touchstart mousedown", buttonFastBackwardStartEvent );
+            $("#buttonFastBackward").on( "touchend mouseup", buttonFastBackwardStopEvent );
+            $("#buttonFastBackward").on( "mouseleave", buttonFastBackwardStopEvent );
+
+            // Button FastForward
+            $("#buttonFastForward").on( "touchstart mousedown", buttonFastForwardStartEvent );
+            $("#buttonFastForward").on( "touchend mouseup", buttonFastForwardStopEvent );
+            $("#buttonFastForward").on( "mouseleave", buttonFastForwardStopEvent );
+
+            // Button Forward
+            $("#buttonForward").on( "touchstart mousedown", buttonForwardStartEvent );
+            $("#buttonForward").on( "touchend mouseup", buttonForwardStopEvent );
+            $("#buttonForward").on( "mouseleave", buttonForwardStopEvent );
+
+            turnAllHistoryButtons("OFF");
+
+        });
+
+        function buttonFastBackwardStartEvent(){
+            fastBackwardButtonDown = true;
+            fastForwardButtonDown = false;
+            backwardButtonDown = false;
+            forwardButtonDown = false;
+
+            showDeltaFrameIntervalId = setInterval(showDeltaFrame, 200, -50);
+        }
+
+        function buttonBackwardStartEvent(){
+            backwardButtonDown = true;
+            forwardButtonDown = false;
+            fastBackwardButtonDown = false;
+            fastForwardButtonDown = false;
+
+            showDeltaFrameIntervalId = setInterval(showDeltaFrame, 200, -1);
+        }
+
+        function buttonForwardStartEvent(){
+            forwardButtonDown = true;
+            backwardButtonDown = false;
+            fastBackwardButtonDown = false;
+            fastForwardButtonDown = false;
+
+            showDeltaFrameIntervalId = setInterval(showDeltaFrame, 200, 1);
+        }
+
+        function buttonFastForwardStartEvent(){
+            fastForwardButtonDown = true;
+            fastBackwardButtonDown = false;
+            backwardButtonDown = false;
+            forwardButtonDown = false;
+
+            showDeltaFrameIntervalId = setInterval(showDeltaFrame, 200, 50);
+        }
+
+        function buttonForwardStopEvent(){
+            if (forwardButtonDown){
+                forwardButtonDown = false;
+
+                fastBackwardButtonDown = false;
+                backwardButtonDown = false;
+                fastForwardButtonDown = false;
+
+                clearInterval(showDeltaFrameIntervalId);
+            }
+        }
+
+        function buttonFastForwardStopEvent(){
+            if (fastForwardButtonDown){
+                fastForwardButtonDown = false;
+
+                fastBackwardButtonDown = false;
+                backwardButtonDown = false;
+                forwardButtonDown = false;
+
+                clearInterval(showDeltaFrameIntervalId);
+            }
+        }
+
+        function buttonFastBackwardStopEvent(){
+            if (fastBackwardButtonDown){
+                fastBackwardButtonDown = false;
+
+                fastForwardButtonDown = false;
+                backwardButtonDown = false;
+                forwardButtonDown = false;
+
+                clearInterval(showDeltaFrameIntervalId);
+            }
+        }
+
+        function buttonBackwardStopEvent(){
+            if (backwardButtonDown){
+                backwardButtonDown = false;
+
+                fastForwardButtonDown = false;
+                fastBackwardButtonDown = false;
+                forwardButtonDown = false;
+
+                clearInterval(showDeltaFrameIntervalId);
+            }
+        }
+
+        // ============================================================
+        //
+        // Show Delta Frame -> Interval
+        //
+        // It shows the delta th frame relative to the currentFileIndex
+        // 
+        // ============================================================
+        function showDeltaFrame(delta){
+
+            // If the frame position changed by the buttons
+            if( delta != 0){
+
+                if( delta < 0 ){
+
+                    currentFileIndex = Math.max(0, currentFileIndex + delta);
+
+                }else if( delta > 0 ){
+
+                    currentFileIndex = Math.min(fileList.length - 1, currentFileIndex + delta);
+                }
+
+                // Turn OFF the slider's listener
+                $("#seekSlider").off('slidechange');
+                $("#seekSlider").slider( "option", "value", currentFileIndex );
+                $("#seekSlider").on('slidechange', seekSlideChangeEvent);
+
+            }
+            fileName = fileList[currentFileIndex];
+            $("#cam_" + camId).attr('src', 'cam-frame/' + camId + '/' + fileName);
+        }
+
+        // ================================================
+        //
+        // Refresh Capture
+        //
+        // ================================================
+        function refreshCapture(){
+
+            // Random value after the image name helps to ignore the cache at refresh
+            $("#cam_" + camId).attr('src', '/greenwall/cam-capture/capture_' + camId + '.jpg?' + Math.random());
+        }
+
+        // ================================================
+        //
+        // Set Slider Ticks
+        //
+        // ================================================
+//        function setSliderTicks(el) {
+//            var $slider =  $(el);
+//            var max =  $slider.slider("option", "max");
+//            var min =  $slider.slider("option", "min");
+//            var spacing =  100 / (max - min);
+//
+//            $slider.find('.ui-slider-tick-mark').remove();
+//            for (var i = 0; i < max-min ; i++) {
+//                $('<span class="ui-slider-tick-mark"></span>').css('left', (spacing * i) +  '%').appendTo($slider); 
+//             }
+//        }
+//
+
+        // ================================================
+        //
+        // Seek Slider Change Event
+        //
+        // Turns off the event listener
+        // Moves back the slider to zero
+        // Turn on back the event listener
+        // Depending on the slider value, fetches the corresponding file name
+        //
+        // ================================================
+        function seekSlideChangeEvent(event, ui){
+//            $("#historySlider").off('slidechange');
+//            $("#historySlider").slider( "option", "value", 0 );
+//            $("#historySlider").on('slidechange', slideChangeEvent);
+//
+//            if( ui.value < 0 ){
+//
+//                currentFileIndex = Math.max(0, currentFileIndex + ui.value);
+//            }else if( ui.value > 0 ){
+//
+//                currentFileIndex = Math.min(fileList.length - 1, currentFileIndex + ui.value);
+//            }
+//            fileName = fileList[currentFileIndex];
+//            $("#cam_" + camId).attr('src', 'cam-frame/' + camId + '/' + fileName);
+    
+
+            // set the current frame pointer to the value of the slider
+            currentFileIndex = ui.value;
+
+            // show the current frame
+            showDeltaFrame(0);
+
+console.log(ui.value);
+        }
+
+        // ================================================
+        //
+        // Live button ON Event
+        //
+        // ================================================
+        function liveOnEvent(){
+
+            refreshCapture();
+            refreshCaptureIntervalId = setInterval(refreshCapture, 10000);
+
+            turnAllHistoryButtons("OFF");
+
+        }
+
+        // ================================================
+        //
+        // Live button OFF Event
+        //
+        // ================================================
+        function liveOffEvent(){
+            clearInterval(refreshCaptureIntervalId);
+
+            $( "#progressbar" ).show();
+
+            $.ajax({type: "GET", url: "/cam/frame/files/camId/" + camId, 
+                    async: true,
+                    data: {},
+                    indexValue: {camId:camId}, 
+                    success: function(data){
+
+                        if(data.result == "OK"){
+
+                            fileList = data.fileList;
+                            currentFileIndex = fileList.length - 1;
+
+                            $("#seekSlider").slider( "option", "max", currentFileIndex );
+                            $("#seekSlider").slider( "option", "value", currentFileIndex );
+
+                            turnAllHistoryButtons("ON");
+
+                        }else{
+                            console.error("Get Frame File List ERROR:" + error);
+                        }
+                    },
+                    error: function(xhr,status,error){
+                        console.error("Get Frame File List ERROR:" + error);
+                    }
+            });
+        }
+
+        // ================================================
+        //
+        // Turn All History Buttons to ON/OFF
+        //
+        // ================================================
+        function turnAllHistoryButtons(status){
+            if(status == "ON"){
+
+                $("#progressbar").hide();
+
+                $("#buttonForward").show();
+                $("#buttonBackward").show();
+                $("#buttonFastForward").show();
+                $("#buttonFastBackward").show();
+
+                $("#seekSlider").show();
+
+            }else if(status == "OFF"){
+
+                $( "#progressbar" ).hide();
+
+                $("#buttonForward").hide();
+                $("#buttonBackward").hide();
+                $("#buttonFastForward").hide();
+                $("#buttonFastBackward").hide();
+
+                $("#seekSlider").hide();
+
+            }
+        }
+
+    </script>
+
+    </head>
+
+    <body>
+
+
+
+
+        <table border="0">
+
+<!--            <tr>
+                <td id="title" class="no-pointer no-selector" style="text-align:center; font-size:2.5em; font-weight: bold;">
+                    camId
+                </td>
+            </tr>
+-->
+            <tr>
+                <td>
+                    <table border="0" width="100%">
+                        <tr">
+                            <td>
+<!--                        <form> -->
+                            <!-- Live Toggle Switch -->
+                            <input type="checkbox" name="liveSwitch" value="1" class="lcs_check" id="liveSwitch"/>
+<!--                        </form> -->
+                            </td>
+                            <td width="100%" height="40px">
+                                <div id="progressbar"></div>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+
+            <!-- IMG -->
+            <tr>
+                <td id='img'>
+                <!-- <img id="cam_' + camId + '" src="/greenwall/cam-capture/capture_' + camId + '.jpg?"> -->
+                </td>
+            </tr>
+
+            <!-- SEEK SLIDER -->
+            <tr>
+                <td height="60px">
+                    <div id="seekSlider"></div>
+                </td>
+            </tr>
+
+            <!-- BUTTONS -->
+
+            <tr>
+                <td align="center">
+
+                    <table>
+                        <tr height="90px">
+                            <td>
+                                <button id="buttonFastBackward" class="round-button no-selector" type="button">
+                                    &#xab;
+                                </button>
+                            </td>
+                            <td>
+                                <button id="buttonBackward" class="round-button no-selector" type="button">
+                                    &#60;
+                                </button>
+                            </td>
+
+
+
+                            <td>
+                                <button id="buttonForward" class="round-button no-selector" type="button">
+                                    &#62;
+                                </button>
+                            </td>
+                            <td>
+                                <button id="buttonFastForward" class="round-button no-selector" type="button">
+                                    &#xbb;
+                                </button>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+
+
+        </table>
+
+
+
+    </body>
+</html>

@@ -8,6 +8,7 @@ The Green Wall consist of many elements:
 * Plants in the Balcony Planter Box mounted on the wall
 * Irrigation system
 * Sensor units for measuring water level, temperature, humidity
+* Cameras
 * Controller units for light, water pump
 * [Central controller unit](Wiki/CentralController/centralController.md)
 * 3D printed accessories

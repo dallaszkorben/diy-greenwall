@@ -257,7 +257,8 @@ pi@raspberrypi:/var/www/greenwall/python $ python3 -m venv env
   (env) pi@raspberrypi:/var/www/greenwall/python/env/bin $ pip install scipy --no-cache-dir
   (env) pi@raspberrypi:/var/www/greenwall/python/env/bin $ pip install matplotlib
   (env) pi@raspberrypi:/var/www/greenwall/python/env/bin $ pip3 install pandas
-  
+  (env) pi@raspberrypi:/var/www/greenwall/python/env/bin $ pip3 install natsort
+
   
   
   
@@ -403,23 +404,30 @@ Under the **python** folder, you can see the following hierarchy of the python c
     ```sh
     pi@raspberrypi:~$ touch /etc/apache2/conf-available/green-wall.conf
      
+    WSGIRestrictStdout Off
+    WSGIApplicationGroup %{GLOBAL}
     <VirtualHost *:80>
-       ServerAdmin webmaster@greenwallsite.com
-       ServerName www.greenwallsite.com
-       ServerAlias greenwallsite.com
+        ServerAdmin webmaster@greenwall.com
+        ServerName www.greenwallsite.com
+        ServerAlias greenwallsite.com
 
-       ErrorLog /var/www/logs/error.log
-       CustomLog /var/www/logs/access.log combined
+        ErrorLog /var/www/greenwall/logs/error.log
+        CustomLog /var/www/greenwall/logs/access.log combined
 
-       <IfModule dir_module>
-           DirectoryIndex index.html
-       </IfModule>
+        WSGIDaemonProcess greenwall user=pi group=pi threads=5 python-home=/var/www/greenwall/python/env
+        WSGIProcessGroup greenwall
+        WSGIScriptAlias / /var/www/greenwall/python/greenwall.wsgi    
 
-       Alias /greenwall/ /var/www/greenwall/
-       <Directory /var/www/greenwall>
-          Order allow,deny
-          Allow from all
-       </Directory>
+        <IfModule dir_module>
+            DirectoryIndex index.html
+        </IfModule>
+
+        Alias /greenwall/ /var/www/greenwall/
+        <Directory /var/www/greenwall>
+            Order allow,deny
+            Allow from all
+        </Directory>
+
     </VirtualHost>
     ```
 
@@ -443,6 +451,49 @@ Under the **python** folder, you can see the following hierarchy of the python c
     ~~pi@raspberrypi:~$ sudo /etc/init.d/apache2 restart~~ 
     pi@raspberrypi:~$ sudo systemctl restart apache2      
     ```
+
+
+### Services on PI
+#### CAM
+```mermaid
+sequenceDiagram
+participant Cam
+participant PI
+participant WEB browser
+
+    loop CamRegister
+        Cam->>PI: POST /cam/register
+        PI->>PI: register
+    end
+
+    loop AutomaticSaveFrame
+        Cam->>PI: POST /cam/save/frame/camId/<camId>
+        PI->>PI: save file
+    end
+
+    loop GetRegisteredCams
+        WEB browser->>PI: GET /cam/captureList
+        PI->>WEB browser: gives back the registered cams
+    end
+
+    loop SaveCaptureByRequest
+        WEB browser->>PI: GET /cam/capture/url
+        PI->>Cam: GET /capture
+        Cam->>Cam: take photo
+        Cam->>PI: send back photo
+        PI->>WEB browser: gives back the url to the photo 
+    end
+
+    loop GenerateVideoFromFrames
+        WEB browser->>PI: POST /cam/construct/video {camId,startDate,endDate,fps}
+        PI->>PI: construct the video in the background
+    end
+  ```
+
+
+#### LAMP-PUMP
+#### Sensors
+
 
 ### Port forwarding
   Why do we need it?

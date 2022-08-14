@@ -1,9 +1,6 @@
-<meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+<meta charset="UTF-8" comntent="text/html;charset=utf-8" http-equiv="Content-Type">
 
-<!--
-user-scalable=no -disable user zoom on mobile
--->
-<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=0.55">
+<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1">
 
 <html>
 <head>
@@ -12,11 +9,34 @@ user-scalable=no -disable user zoom on mobile
 
     <style>
 
+        /* camCapture in row */
         * {
-            font-family: "Comic Sans MS", "Comic Sans", cursive;
+            box-sizing: border-box;
+        }
+
+        .row {
+            display: flex;
+        }
+
+        /* Create three equal columns that sits next to each other */
+        .column {
+            padding: 5px;
+        }
+
+        /* camCapture title aligned to center */
+        #imgTitle {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+        }
+
+        /* General fonts */
+        * {
+/*            font-family: "Comic Sans MS", "Comic Sans", cursive; */
             font-size: 18px;
         }
-    
+
         h1 {
             font-size: 40px;
         }
@@ -45,9 +65,35 @@ user-scalable=no -disable user zoom on mobile
             display: inline-block;
         }
 
-        #refreshChartButton{
+        button{
             height: 60px;
             vertical-align: top;
+        }
+
+//        #refreshChartButton{
+//            height: 60px;
+//            vertical-align: top;
+//        }
+
+        .flex-container {
+            display: flex;
+            flex-wrap: wrap;
+            ppadding: 5px;  
+            justify-content: flex-start;
+        }
+
+        /* 3 picture per line on normal screen with adaptive size */
+        .flex-item {
+            mmargin: 5px;   
+            width: 33.3%;
+        }
+
+        /* 1 picture per line on vertical mobile with adaptive size */
+        @media (max-width: 600px) {
+            .flex-item {
+                float: none;
+                width: 100%;
+            }
         }
 
 
@@ -57,7 +103,6 @@ user-scalable=no -disable user zoom on mobile
     <!-- Chart -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.8.0/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/date-fns/1.30.1/date_fns.js"></script>
-    <!-- <script src="http://cdnjs.cloudflare.com/ajax/libs/moment.js/2.13.0/moment.min.js"></script> -->
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
 
     <!-- JQuery -->
@@ -67,6 +112,9 @@ user-scalable=no -disable user zoom on mobile
 
     <!-- Switch -->
     <script src="script/switch/lc_switch.js"></script>
+
+    <!-- moment -->
+    <script src="script/moment/moment.js"></script>
 
     <!-- favicon -->
     <link rel="shortcut icon" href="favicon.ico">
@@ -79,7 +127,15 @@ user-scalable=no -disable user zoom on mobile
 
         var camCaptureList = [];
 
-        var intervalId = null;
+        var chartRefreshIntervalId = null;
+        var camCaptureRefreshIntervalId = null;
+        var checkLampStatusRefreshIntervalId = null;
+        var checkPumpStatusIntervalId = null;
+//        var checkMakeVideoStatusIntervalId = null;
+
+        $( function() {
+            $( "#tabs" ).tabs();
+        } );
 
         function isEmpty(str) {
             return (!str || str.length === 0 );
@@ -99,8 +155,7 @@ user-scalable=no -disable user zoom on mobile
 
                     if(res == "OK"){
 
-                        var tableBody = $("<tbody>");
-
+                        newCamCaptureList = [];
                         $.map(result.camCaptureList, function(camCapture){
 
                             camId = camCapture.camId;
@@ -109,28 +164,113 @@ user-scalable=no -disable user zoom on mobile
                             cc = {};
                             cc['camId'] = camId;
                             cc['camCaptureUrl'] = camCaptureUrl;
-                            camCaptureList.push(cc);
-    
-                            row = $("<tr>");
-                            rowData = $("<td>");
+                            newCamCaptureList.push(cc);
+                        });
 
+                        newCamCaptureList.sort(function(a, b){return a.camId > b.camId});
+
+                        //If the old and new list is the same, does not need to re-build the camCaptureDiv
+                        if( newCamCaptureList.length === camCaptureList.length && newCamCaptureList.every(function(value, index) { return value.camId === camCaptureList[index].camId }) ){
+                            return;
+                        }
+
+                        camCaptureList = newCamCaptureList;
+
+//                        size=Math.min(33.33, 100/camCaptureList.length).toFixed(2);
+//                        styleFlex="flex: " + size.toString() + "%"
+//                        size=100;
+//                        styleWidth="width: " + size.toString() + "%; cursor: pointer;"
+//                        divRow = $('<div class="row"></div>');
+
+
+                        divCam = $('<div id="camCaptureDiv" class="flex-container">');
+
+                        $.map(camCaptureList, function(camCapture){
+
+                            camId = camCapture.camId;
+                            camCaptureUrl = camCapture.captureUrl;
+
+                            //
+                            // TITLE
+                            //
+                            title=$('<div id="imgTitle" style="font-size:1.5em">');
+                            title.html(camId);
+
+                            //
+                            // IMG
+                            //
                             var img = $('<img id="cam_' + camId + '">');
+
                             // Random value after the image name helps to ignore the cache at refresh
                             img.attr('src', '/greenwall/cam-capture/capture_' + camId + '.jpg?' + Math.random());
-                            img.attr('width', '400px');
-                            img.attr('style', '')
-                            rowData.html(img);
-                            row.append(rowData);
+                            img.attr('style', 'width: 100%;')
 
+                            //
+                            // Build up the Table
+                            //
+                            var tableBody = $("<tbody>");
+
+                            row = $('<tr>');
+                            rowData = $('<td style="padding:0px">');
+                            row.append(rowData);
+                            rowData = rowData.append(title);
+                            row.append(rowData);
                             tableBody.append(row);
+
+                            row = $('<tr>');
+                            rowData = $('<td style="padding:0px">');
+                            row.append(rowData);
+                            rowData = rowData.append(img);
+                            row.append(rowData);
+                            tableBody.append(row);
+
+                            camTable = $('<table class="flex-item" border="0"></table>');
+                            camTable.append(tableBody);
+                            divCam.append(camTable);
 
                         });
 
-                        var table = $('<table border="0"></table>').append(tableBody);
+                        $('#tabs-cam').html("");
+                        $('#tabs-cam').append(divCam);
 
-                        $('#camCaptureDiv').html("");
-                        $('#camCaptureDiv').append(table);
+                        //
+                        // Add click event listner to all pictures
+                        //
+                        $.map(camCaptureList, function(camCapture){
 
+                            camId = camCapture.camId;
+                            $("#cam_" + camId).on("click", function(e){
+
+                                // Open window - parameter is the camId
+                                // I can not put here simple the camId because it always will be the latest selected value
+                                // So I just substring it from the <img id>
+                                // The click will be executed on <img> so the 'this' value will refer to the <img>
+                                // In the function I will substring the camId value from the parameter
+                                openWindow(this.id);
+                            });
+                        });
+
+                        //
+                        // Add click event listner to all MakeVideo  buttons
+                        //
+/*                        $.map(camCaptureList, function(camCapture){
+
+                            camId = camCapture.camId;
+
+                            $("#buttonMakeVideo_" + camId).on("click", function(e){
+
+                                // Incactivate all MakeVideo buttons
+                                inactivateAllMakeVideoButtons();
+
+                                // Make video - parameter is the camId
+                                // I can not pass here simple the camId because it always will be the latest selected value
+                                // So I just substring it from the <button id>
+                                // The click will be executed on <button> so the 'this' value will refer to the <button>
+                                // In the function I will substring the camId value from the parameter
+                                makeVideo(this.id);
+                            });
+                        });
+*/
 
                     }else{
                         //$("#value").html("");
@@ -148,40 +288,226 @@ user-scalable=no -disable user zoom on mobile
             });
         }
 
+
+        // =========================================================================================================================
+        //
+        // Open Capture Window
+        //
+        // That part if pretty tricky
+        // The imgId is the <img id> of the capture image which looks like this: cam_4
+        // So I have to substring it to get the camId
+        //
+        // Then I have to provide this camId to the new window, which I will open
+        // I provide it through the window name
+        // Solving this problem I tried to dynamically construct that page here and put it into the opened page when it is loaded
+        // Unfortunatelly this event listener does not work for Chrome. It worked for Firefox though.
+        //
+        // Plus I had to solve the problem to NOT to open the already opened cam's window, BUT still have to select it
+        //
+        // ========================================================================================================================
+        function openWindow(imgId){
+            var camId = imgId.substring(4);
+            var url = 'capture.html';
+
+            var newWindow = window.open('', camId, '');
+            if(newWindow.location.href === 'about:blank'){
+                newWindow.location.href = url;
+            }else{
+                newWindow.focus();
+            }
+        }
+
+        // ============================================================================
+        //
+        // Inactivate ALL MakeVideo buttons
+        //
+        // Besides of button inactivation, it will setInterval() for checking the status
+        // of the process of the MakeVideo continously.
+        // When the MakeVideo status is NOT IN PROGRESS then it will enable the buttons 
+        // again, stops the check and refresh the video
+        //
+        // ============================================================================
+/*        function inactivateAllMakeVideoButtons(){
+
+            // Inactivate all MakeVideo buttons
+            $('[id^="buttonMakeVideo_"]').prop('disabled', true);
+
+            // Start to check the status of the process of MakeVideo
+            checkMakeVideoStatusIntervalId = setInterval(checkMakeVideoStatus, 3000);
+        }
+*/
+        // ============================================================================
+        //
+        // Activate ALL MakeVideo buttons
+        //
+        // Besides of button Activation, it will clearInterval() for checking the status
+        // of the process of the MakeVideo continously.
+        //
+        // ============================================================================
+/*        function activateAllMakeVideoButtons(){
+
+            // Stop to check the status of the process of MakeVideo
+            clearInterval(checkMakeVideoStatusIntervalId);
+
+            // Activate all MakeVideo buttons
+            $('[id^="buttonMakeVideo_"]').prop('disabled', false);
+
+            // Refresh the video
+            refreshAllVideos();
+
+        }
+*/
+        // ========================================
+        //
+        // Refressh all videos
+        //
+        // ========================================
+/*        function refreshAllVideos(){
+
+            videoControlList = $('[id^="videoControl_"]');
+
+            $.each(videoControlList, function( index, videoControl ) {
+
+                videoControlId = videoControl.id;
+                var camId = videoControlId.substring(13);
+
+                // This part is not understandable for me
+                // You have to set the source in the VideoControl <video> element NOT in the <source> element
+                //videoSource = $("#videoSource_" + camId);
+
+                videoSource = videoControl.firstChild;
+                videoSource.src = 'cam-video/' + camId + '/video.webm?' + Math.random();
+
+                //videoControl.src = '/greenwall/cam-video/' + camId + '/video.webm?' + Math.random();
+//                videoControl.src = 'cam-video/' + camId + '/video.webm?' + Math.random();
+
+                videoControl.load();
+            });
+        }
+*/
+
+        // ========================================
+        //
+        // Check the status of the MakeVideo
+        //
+        //
+        // If it is NOT IN PROGRESS, then it will 
+        // -stop the check 
+        // -enable the bottons
+        // -refresh the videos
+        //
+        // ========================================
+/*        function checkMakeVideoStatus(){
+            $.get( "/cam/video/status" ).done(
+                function( data ) {
+
+                    if(data.result == "OK" && data.inProgress){
+
+                        progress = data.progress;
+                        camId = data.camId;
+
+console.log(100*progress);
+                    }else{
+                        activateAllMakeVideoButtons()
+                    }
+            });
+        }
+*/
+
+        // =====================================================================================================
+        //
+        // Make Video
+        //
+        // The parameter is pretty tricky
+        // The buttonId is the <button id> of the 'create video' button which looks like this: buttonMakeVideo_4
+        // So I have to substring it to get the camId
+        //
+        // =====================================================================================================
+/*        function makeVideo(buttonId){
+
+            var camId = buttonId.substring(16);
+
+            var startDate = moment().subtract(15, 'minute').format("YYYY-MM-DDTHH:mm:ssZ");
+
+            // The saved files have NO miliseconds, so I omit it here as well
+            var endDate = moment().format("YYYY-MM-DDTHH:mm:ssZ");
+            var fps = "1";
+
+            $.ajax({type: "POST", url: "/cam/video/construct", 
+                    async: false,
+                    data: {
+                        "camId": camId,
+                        "startDate": startDate,
+                        "endDate": endDate,
+                        "fps": fps
+                    },
+                    indexValue: {camId:camId}, 
+                    success: function(result){
+
+                        res = result.result;
+
+                        if(res == "OK"){
+
+//                            captureUrl = result.captureUrl;
+//                            camId = this.indexValue.camId;
+
+                            // Random value after the image name helps to ignore the cache at refresh
+//                            $("#cam_" + camId).attr('src', captureUrl + "?" + Math.random());
+
+                        }else{
+                            console.error("Make Video ERROR:" + error);
+                        }
+                    },
+                    error: function(xhr,status,error){
+                        console.error("Make Video ERROR:" + error);
+                    }
+            });
+        }
+
+*/
+
         // ================================================
         //
         // Refresh Cam Capture
         //
         // ================================================
         function refreshCamCapture(){
+            constructCamCaptureSection();
 
             $.map(camCaptureList, function(camCapture){
 
                 camId = camCapture.camId;
-                camCaptureUrl = camCapture.captureUrl;
+                //camCaptureUrl = camCapture.captureUrl;
 
-                $.ajax({type: "GET", url: "/cam/capture/url/camId/" + camId, async: true,
-                    success: function(result){
+                // Random value after the image name helps to ignore the cache at refresh
+                $("#cam_" + camId).attr('src', '/greenwall/cam-capture/capture_' + camId + '.jpg?' + Math.random());
 
-                        res = result.result
-
-                        if(res == "OK"){
-
-                            // Random value after the image name helps to ignore the cache at refresh
-                            $("#cam_" + camId).attr('src', '/greenwall/cam-capture/capture_' + camId + '.jpg?' + Math.random());
-
-                        }else{
-                            console.log("ERROR:" + error);
-                        }
-                    },
-                    error: function(xhr,status,error){
-                        console.log("ERROR:" + error);
-                    }
-                });
+//                $.ajax({type: "GET", url: "/cam/capture/url/camId/" + camId, 
+//                    async: true,
+//                    indexValue: {camId:camId}, 
+//                    success: function(result){
+//
+//                        res = result.result;
+//
+//                        if(res == "OK"){
+//
+//                            captureUrl = result.captureUrl;
+//                            camId = this.indexValue.camId;
+//
+//                            // Random value after the image name helps to ignore the cache at refresh
+//                            $("#cam_" + camId).attr('src', captureUrl + "?" + Math.random());
+//
+//                        }else{
+//                            console.log("ERROR:" + error);
+//                        }
+//                    },
+//                    error: function(xhr,status,error){
+//                        console.log("ERROR:" + error);
+//                    }
+//                });
             });
-
-
         }
+
 
         // ================================================
         //
@@ -419,7 +745,7 @@ user-scalable=no -disable user zoom on mobile
                         colorIndex=0;
                         charts = result.data;
                         $.map(charts,function(graph, index){
-    
+
                             id=index;
                             record=graph.record
 
@@ -517,14 +843,87 @@ user-scalable=no -disable user zoom on mobile
         //
         // ================================================
         function checkPumpStatus(){
-
             $.get( "/pump/status").done(
                 function( data ) {
 
                     if (data.status == 'off'){
                         lcs_off("#pumpSwitch");
-                    }            
+                    }
             });
+        }
+
+        // ================================================
+        //
+        // check lamp status
+        //
+        // ================================================
+        function checkLampStatus(){
+            $.get("/lamp/status").done(
+                function( data ) {
+                    $("#lampSwitch").off('lcs-on lcs-off');
+
+                    if (data.status == 'off'){
+                        lcs_off("#lampSwitch");
+                    }else{
+                        lcs_on("#lampSwitch");
+                    }
+
+                    $("#lampSwitch").on('lcs-on', lampOnEvent);
+                    $("#lampSwitch").on('lcs-off', lampOffEvent);
+            });
+
+
+
+        }
+
+        // ================================================
+        //
+        // Lamp ON/OFF Event
+        //
+        // ================================================
+        function lampOnEvent(){
+            $.post( "/lamp/switch", { "status": "on", "lengthInSec": "10" } );
+        }
+
+        function lampOffEvent(){
+            $.post( "/lamp/switch", { "status": "off", "lengthInSec": "10" } );
+        }
+
+        // ================================================
+        //
+        // Pump ON/OFF Event
+        //
+        // ================================================
+        function pumpOnEvent(){
+
+            lcs_disable("#pumpSwitch");
+
+            //first check the state of the pump
+            $.get( "/pump/status").done(
+                function( data ) {
+
+                    //if the pump is OFF
+                    if (data.status == 'off'){
+
+                        //the pump can be turn ON
+                        $.post( "/pump/turnOn", { "lengthInSec": "30" } );
+                    }
+                    checkPumpStatusIntervalId = setInterval(checkPumpStatus, 5000);
+
+                    //console.log("checkPumpStatusIntervalId: " + checkPumpStatusIntervalId);
+
+                    lcs_enable("#pumpSwitch");
+                }
+            );
+        }
+
+        function pumpOffEvent(){
+
+            $.post( "/pump/turnOff" );
+            clearInterval(checkPumpStatusIntervalId);
+
+            //console.log("end of interval check. checkPumpStatusIntervalId: " +  checkPumpStatusIntervalId);
+            //console.log(" ");
         }
 
         // ================================================
@@ -579,17 +978,7 @@ user-scalable=no -disable user zoom on mobile
             });
 
             constructCamCaptureSection();
-
-            //-----------------------
-            // Refresh Charts
-            //-----------------------
-            setInterval(refreshCharts, 600000);
-
-            //-----------------------
-            // Refresh Cam Capture
-            //-----------------------
-            setInterval(refreshCamCapture, 10000);
-
+//            inactivateAllMakeVideoButtons();
 
             //-----------------------
             // Lamp Switch
@@ -615,14 +1004,10 @@ user-scalable=no -disable user zoom on mobile
                         lcs_enable("#lampSwitch");
                     }
 
-                    $("#lampSwitch")[0].addEventListener('lcs-on', function(){
-                        $.post( "/lamp/switch", { "status": "on", "lengthInSec": "10" } );
-                    });
-
-                    $("#lampSwitch")[0].addEventListener('lcs-off', function(){
-                        $.post( "/lamp/switch", { "status": "off", "lengthInSec": "10" } );
-                    });
-            });
+                    $("#lampSwitch").on('lcs-on', lampOnEvent);
+                    $("#lampSwitch").on('lcs-off', lampOffEvent);
+                }
+            );
 
             //-----------------------
             // Pump Switch
@@ -645,46 +1030,92 @@ user-scalable=no -disable user zoom on mobile
                         lcs_enable("#pumpSwitch");
 
                         // 5 sec
-                        intervalId = setInterval(checkPumpStatus, 5000);
-                        //console.log("initial intervalId: " + intervalId);
+                        checkPumpStatusIntervalId = setInterval(checkPumpStatus, 5000);
+                        //console.log("initial checkPumpStatusIntervalId: " + checkPumpStatusIntervalId);
 
                     }else{
                         lcs_off("#pumpSwitch")
                         lcs_enable("#pumpSwitch");
                     }
 
-                    $("#pumpSwitch")[0].addEventListener('lcs-on', function(){
+                    $("#pumpSwitch").on('lcs-on', pumpOnEvent);
+                    $("#pumpSwitch").on('lcs-off', pumpOffEvent);
+                }
+            );
 
-                        lcs_disable("#pumpSwitch");
+            //-----------------------
+            // Tab
+            //-----------------------
+            $( "#tabs" ).tabs({
 
-                        //first check the state of the pump
+                // Initial TAB = Control-Tab
+                active: 0
 
-                        $.get( "/pump/status").done(
-                            function( data ) {
-
-                                //if the pump is OFF
-                                if (data.status == 'off'){
-
-                                    //the the pump can be turn ON
-                                    $.post( "/pump/turnOn", { "lengthInSec": "30" } );
-                                }
-                                intervalId = setInterval(checkPumpStatus, 5000);
-
-                                //console.log("intervalId: " + intervalId);
-
-                                lcs_enable("#pumpSwitch");
-                            }
-                        );
-                    });
-
-                    $("#pumpSwitch")[0].addEventListener('lcs-off', function(){
-                        $.post( "/pump/turnOff" );
-                        clearInterval(intervalId);
-
-                        //console.log("end of interval check. intervalid: " +  intervalId);
-                        //console.log(" ");
-                    });
             });
+
+            $(".ui-tabs .ui-tabs-panel").css('padding', '0em');
+
+
+            //-----------------------
+            // Refresh Lamp Status
+            //-----------------------
+            checkLampStatusRefreshIntervalId = setInterval(checkLampStatus, 5000);
+
+            $( "#tabs" ).tabs({
+               activate: function( event, ui ) {
+
+                    // Leave Control-Tab
+                    if(ui.oldTab.index() == 0){
+
+                        // No more Check Lamp Status request
+                        clearInterval(checkLampStatusRefreshIntervalId);
+
+                    // Leave Chart-Tab
+                    }else if(ui.oldTab.index() == 1){
+
+                        // No more Chart refresh request
+                        clearInterval(chartRefreshIntervalId);
+
+                    // Leave Cam-Tab
+                    }else if( ui.oldTab.index() == 2){
+
+                        // No more Cam Capture request
+                        clearInterval(camCaptureRefreshIntervalId);
+
+                    }
+
+                    //
+                    // Select Control-Tab
+                    //
+                    if(ui.newTab.index() == 0){
+
+                        //-----------------------
+                        // Refresh Lamp Status
+                        //-----------------------
+                        checkLampStatusRefreshIntervalId = setInterval(checkLampStatus, 5000);
+
+                    // Select Chart-Tab
+                    }else if(ui.newTab.index() == 1){
+
+                        //-----------------------
+                        // Refresh Charts
+                        //-----------------------
+                        chartRefreshIntervalId = setInterval(refreshCharts, 600000);
+
+                    // Select Cam-Tab
+                    }else if( ui.newTab.index() == 2){
+
+                        //-----------------------
+                        // Refresh Cam Capture
+                        //-----------------------
+                        camCaptureRefreshIntervalId = setInterval(refreshCamCapture, 10000);
+                    }
+                }
+            });
+
+
+
+
         });
 
     </script>
@@ -692,53 +1123,84 @@ user-scalable=no -disable user zoom on mobile
 </head>
 
 <body style="background-color:DarkGrey;">
-    <center><h1>Green Wall</h1></center> 
 
-    <hr> <!-- ------------------------ -->
+    <div class="header" style="position:relative; text-align:center; color:white; text-shadow: 2px 2px 2px green; ">
+        <img src="header.jpg" style="width:100%"/>
+        <div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); font-weight:bolder; font-size:5vw">Green Wall</div>
+    </div>
 
-    <table id="controller" border="0" class="switchh">
-        <tr>
-            <td valign="top" >Lamp:</td>
-            <td >
-                <form>
-                   <input type="checkbox" name="lampSwitch" value="1" class="lcs_check" id="lampSwitch"/>
-                </form>
-            </td>
-        </tr>
+    <div id="tabs" style="background: none repeat scroll 0% 0% rgb(204, 204, 204);">
+        <ul>
+            <li><a href="#tabs-control">Control</a></li>
+            <li><a href="#tabs-charts">Charts</a></li>
+            <li><a href="#tabs-cam">Cam</a></li>
+        </ul>
 
-        <tr>
-            <td valign="top" >Pump:</td>
-            <td >
-                <form>
-                   <input type="checkbox" name="pumpSwitch" value="1" class="lcs_check" id="pumpSwitch"/>
-                </form>
-            </td>
-        </tr>
+        <!--         -->
+        <!-- CONTROL -->
+        <!--         -->
+        <div id="tabs-control">
 
-    </table>
+            <table id="controller" border="0" class="switchh">
+                <tr>
+                    <td valign="top" >Lamp:</td>
+                    <td >
+                        <form>
+                            <!-- Sliding Toggle Switch -->
+                            <input type="checkbox" name="lampSwitch" value="1" class="lcs_check" id="lampSwitch"/>
+                        </form>
+                    </td>
+                </tr>
 
-    <hr> <!-- ------------------------ -->
+                <tr>
+                    <td valign="top" >Pump:</td>
+                    <td >
+                        <form>
+                            <input type="checkbox" name="pumpSwitch" value="1" class="lcs_check" id="pumpSwitch"/>
+                        </form>
+                    </td>
+                </tr>
+            </table>
+        </div>
 
-    <table id="dateFilter" border="0">
-        <tr>
-            <td> Start date:</td>
-            <td><input type="text" id="startDatePicker" size="8"> </td>
-            <td rowspan="2"><button id="refreshChartButton">Refresh</button></td>
-            <td rowspan="2" width="60px"><img id="spinner" src="spinner.gif" width="60"></td> 
-        </tr>
-        <tr>
-            <td> End date:</td>
-            <td><input type="text" id="endDatePicker" size="8"> </td>
-        </tr>
-    </table>
+        <!--        -->
+        <!-- CHARTS -->
+        <!--        -->
+        <div id="tabs-charts">
+
+            <table id="dateFilter" border="0">
+                <tr>
+                    <td> Start date:</td>
+                    <td><input type="text" id="startDatePicker" size="8"> </td>
+                    <td rowspan="2"><button id="refreshChartButton">Refresh</button></td>
+                    <td rowspan="2" width="60px"><img id="spinner" src="spinner.gif" width="60"></td> 
+                </tr>
+                <tr>
+                    <td> End date:</td>
+                    <td><input type="text" id="endDatePicker" size="8"> </td>
+                </tr>
+            </table>
+            <div id="chartTableDiv"></div>
+            <div id="errormessage"></div>
+        </div>
+
+        <!--     -->
+        <!-- CAM -->
+        <!--     -->
+        <div id="tabs-cam">
+
+<!--            <div id="camCaptureDiv" class="flex-container"></div> -->
+
+<!--            <video width="320" height="240" controls>
+                <source src="cam-video/5/video.webm" type="video/webm"> 
+            	    Your browser does not support the video tag.
+            </video> 
+-->
+
+        </div> 
 
 
-    <div id="chartTableDiv"></div>
-    <div id="errormessage"></div>
-
-    <hr> <!-- ------------------------ -->
-
-    <div id="camCaptureDiv"></div>
+    </div>
 
 
 </body>
