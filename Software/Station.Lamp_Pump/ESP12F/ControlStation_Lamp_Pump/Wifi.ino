@@ -1,5 +1,7 @@
 
 bool connectToWiFi() {
+  ledSignalCommunicate();
+
   WiFi.begin(essid, password);
 
   WiFi.setAutoReconnect(true);
@@ -8,7 +10,7 @@ bool connectToWiFi() {
   Serial.println();
   Serial.print("Connecting to WiFi First time");
   while (WiFi.status() != WL_CONNECTED){
-    delay(10000);
+    delay(2000);
     Serial.print(".");
   }
 
@@ -16,16 +18,16 @@ bool connectToWiFi() {
   Serial.print("Local IP Address is: ");
   Serial.println(WiFi.localIP());
 
+  ledSignalHealthy();
+  
   return true;
 }
 
 void connectToWiFiIfNotConnected(){
+  ledSignalCommunicate();
+
   Serial.print("\nReconnecting to WiFi ");
   while ( !WiFi.localIP().isSet() || !WiFi.isConnected() ){
-
-    //Serial.print(WiFi.localIP());
-    //Serial.print(" - ");
-    //Serial.println(WiFi.isConnected());
     
     Serial.print(".");
     WiFi.reconnect();
@@ -34,6 +36,9 @@ void connectToWiFiIfNotConnected(){
   Serial.print(" OK. Local IP: ");
   Serial.println(WiFi.localIP());
   Serial.println("");
+
+  ledSignalHealthy();
+  
   return;
 
 /*  

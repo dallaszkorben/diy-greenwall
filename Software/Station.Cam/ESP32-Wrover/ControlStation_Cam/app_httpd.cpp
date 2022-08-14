@@ -3,25 +3,6 @@
 #include <ArduinoJson.h>
 #include "esp_camera.h"
 
-/*
-typedef struct {
-        httpd_req_t *req;
-        size_t len;
-} jpg_chunking_t;
-
-static size_t jpg_encode_stream(void * arg, size_t index, const void* data, size_t len){
-    jpg_chunking_t *j = (jpg_chunking_t *)arg;
-    if(!index){
-        j->len = 0;
-    }
-    if(httpd_resp_send_chunk(j->req, (const char *)data, len) != ESP_OK){
-        return 0;
-    }
-    j->len += len;
-    return len;
-}
-*/
-
 camera_fb_t* takePhoto();
 
 /*
@@ -30,7 +11,7 @@ camera_fb_t* takePhoto();
 esp_err_t handler_is_alive(httpd_req_t *req){
   const char resp[] = "{'status': 'OK'}";
   esp_err_t res = httpd_resp_send(req, resp, strlen(resp));
-  printf("   Request \"GET /isAlive\" was served\n", "");    
+  printf("   Request \"GET /isAlive\" was served\n\n", "");    
   return res;
 }
 
@@ -40,11 +21,13 @@ esp_err_t handler_is_alive(httpd_req_t *req){
 esp_err_t handler_capture(httpd_req_t *req){
   esp_err_t res = ESP_OK;
 
+  Serial.println("Request arrived to serve \"GET /capture");
+
   camera_fb_t * fb = NULL;
   fb = takePhoto();
   
   if (!fb) {
-    Serial.println("!!! Camera CAPTUE failed !!!");
+    Serial.println("   !!! Camera CAPTUE failed !!!\n");
     httpd_resp_send_500(req);
     return ESP_FAIL;
   }
@@ -62,13 +45,8 @@ esp_err_t handler_capture(httpd_req_t *req){
   fb_len = fb->len;
   
   res = httpd_resp_send(req, (const char *)fb->buf, fb->len);
-/*  jpg_chunking_t jchunk = {req, 0};
-  res = frame2jpg_cb(fb, 80, jpg_encode_stream, &jchunk)?ESP_OK:ESP_FAIL;
-  httpd_resp_send_chunk(req, NULL, 0);
-  fb_len = jchunk.len;
-*/
     
-  printf("   Request \"GET /capture\" was served - JPG: %uB\n", (uint32_t)(fb_len));    
+  printf("   Request \"GET /capture\" was served - JPG: %uB\n\n", (uint32_t)(fb_len));    
   
   return res;
 }

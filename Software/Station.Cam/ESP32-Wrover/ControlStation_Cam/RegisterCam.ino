@@ -19,9 +19,9 @@ bool registerCam() {
   String requestBody;
   serializeJson(doc, requestBody);
 
-  Serial.println(String("    POST: ") + url);
+  Serial.println(String("   POST: ") + url);
   int responseCode = http.POST(requestBody);
-  Serial.print("    Response Code: ");
+  Serial.print("   Response Code: ");
   Serial.println(responseCode);
 
   bool result = true;
@@ -31,11 +31,11 @@ bool registerCam() {
 
     //Serial.print("    Response Code: ");
     //Serial.println(responseCode);
-    Serial.print("    Payload: ");
+    Serial.print("   Payload: ");
     Serial.println(payload);             //Print the response payload
 
   } else {
-    Serial.println("    !!! No GET response !!!");
+    Serial.println("   !!! No GET response !!!");
     result = false;
   }
 

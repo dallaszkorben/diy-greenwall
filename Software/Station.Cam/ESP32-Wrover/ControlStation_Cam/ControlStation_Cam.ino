@@ -10,19 +10,19 @@ const char* password = "Elmebetegek Almaiban";
 //const String clientIp = "192.168.50.3";                         // REPLACE WITH YOUR Raspberry Pi IP ADDRESS
 const String clientIp = "192.168.0.104";
 const int clientPort = 80;
-const String camId = "5";
+const String camId = "8";
 const String clientPathToInfoTimestamp = "info/timeStamp";
 const String clientPathToCamRegister = "cam/register";
-const String clientPathToCamFrameSave = "cam/frame/save/camId/" + camId;
+const String clientPathToCamFrameSave = "cam/save/frame/camId/" + camId;
 
 unsigned long previousReconnectMillis = 0;
 unsigned long intervalReconnectMillis = 10000;
 
 unsigned long previousRegisterMillis = 0;
-unsigned long intervalRegisterMillis = 60000;
+unsigned long intervalRegisterMillis = 60000; // register / 60 seconds
 
 unsigned long previousFrameSaveMillis = 0;
-unsigned long intervalFrameSaveMillis = 30000;
+unsigned long intervalFrameSaveMillis = 20000; //save 1 frame / minute
 
 HTTPClient http;
 WiFiClient wifiClient;
@@ -99,14 +99,14 @@ void loop() {
     Serial.println();   
   }
 
-  //In every 30 seconds tries to FRAME SAVE
+  //In every 30 seconds tries to SAVE FRAME
   else if(currentMillis - previousFrameSaveMillis >= intervalFrameSaveMillis){
 
     if(postFrame(wifiClient, clientIp, clientPort, clientPathToCamFrameSave)){      
-      Serial.println("   POST /cam/frame/save was sent");      
+      Serial.println("   POST /cam/save/frame was sent");      
       previousFrameSaveMillis = currentMillis;
     }else{
-      Serial.println("   !!! Camera FRAME/SAVE failed !!!");
+      Serial.println("   !!! Camera SAVE FRAME failed !!!");
     }
     Serial.println();    
   }

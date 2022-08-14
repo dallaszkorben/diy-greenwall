@@ -103,7 +103,7 @@ void setup() {
   Serial.println("HTTP server started\n");
 
   // --- Sync Pump adn Lamp statuses -- //
-  if (!syncLampStatus() || !syncPumpStatus()){
+  if (!syncLampStatus()){// || !syncPumpStatus()){
     ledSignalNetworkError();
     Serial.println("!!! Wait 1 minute and then restart !!!");
     delay(60000);

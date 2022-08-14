@@ -68,10 +68,12 @@ void configureCam(){
   
   if(psramFound()){
     config.frame_size = FRAMESIZE_XGA;
+    //config.frame_size = FRAMESIZE_SVGA;    
     config.jpeg_quality = 10;
     config.fb_count = 1;
   } else {
     config.frame_size = FRAMESIZE_HD;
+    config.frame_size = FRAMESIZE_SVGA;    
     config.jpeg_quality = 10;
     config.fb_count = 1;
   }

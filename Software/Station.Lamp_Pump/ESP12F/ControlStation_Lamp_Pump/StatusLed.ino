@@ -5,13 +5,6 @@ Ticker blinker2;
 
 float pulse = 0.1;
 
-//#define LED_INITIATE 0
-//#define LED_COMMUNICATE 1
-//#define LED_HEALTHY 2
-//#define LED_ERROR 3
-//
-//int ledStatus = LED_INITIATE;
-
 void setPinLow() {
   digitalWrite(LED_BUILTIN, 0);
 }
@@ -35,7 +28,7 @@ void signalStart(){
 // Blinking with Short High
 void ledSignalHealthy(){
   ledStatus = LED_HEALTHY;
-  pulse = 0.1;
+  pulse = 0.05;
   blinker1.detach();
   blinker2.detach();
   blinker1.attach(1, signalStart);   
@@ -61,8 +54,8 @@ void ledSignalInitiate(){
 
 void ledSignalCommunicate(){
   ledStatus = LED_COMMUNICATE;
-  pulse = 0.025;
+  pulse = 0.05;
   blinker1.detach();
   blinker2.detach();
-  blinker1.attach(0.05, signalStart);
+  blinker1.attach(0.1, signalStart);
 }
