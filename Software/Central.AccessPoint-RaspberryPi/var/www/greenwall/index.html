@@ -23,13 +23,6 @@
             padding: 5px;
         }
 
-        /* camCapture title aligned to center */
-        #imgTitle {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-weight: bold;
-        }
 
         /* General fonts */
         * {
@@ -70,33 +63,86 @@
             vertical-align: top;
         }
 
+        .chart-canvas{
+            min-height:auto;
+            width: 100%;
+            background-color: rgb(152, 251, 152);
+            padding: 0px;
+            border: 1px solid;
+/*            border-color: transparent; */
+/*            display: block; */
+/*            box-sizing: border-box; */
+/* display: flex; */
+/* flex-grow:1; */
+        }
+
 //        #refreshChartButton{
 //            height: 60px;
 //            vertical-align: top;
 //        }
 
-        .flex-container {
+        /* CAM title aligned to center */
+        .cam-img-title {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size:1.5em;
+        }
+
+        /* CHART title aligned to center */
+        .chart-img-title {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size:1.5em;
+        }
+
+        /* CAM containder for tables to be flex  */
+        .flex-cam-container {
             display: flex;
             flex-wrap: wrap;
             ppadding: 5px;  
             justify-content: flex-start;
         }
 
-        /* 3 picture per line on normal screen with adaptive size */
-        .flex-item {
-            mmargin: 5px;   
+        /* CHART containder for tables to be flex  */
+        .flex-chart-container {
+            display: flex;
+            flex-wrap: wrap;
+            padding: 5px;  
+            justify-content: flex-start;
+        }
+
+        /* 3 pictures per line on normal screen with adaptive size */
+        .flex-cam-item {
+            mmargin: 5px;
             width: 33.3%;
         }
 
-        /* 1 picture per line on vertical mobile with adaptive size */
+        /* 3 charts per line on normal screen with adaptive size */
+        .flex-chart-item {
+            mmargin: 5px;
+            padding: 2px;
+            width: 33.3%;
+        }
+
+        /* 1 picture/chart per line on vertical mobile with adaptive size */
         @media (max-width: 600px) {
-            .flex-item {
+            .flex-cam-item {
                 float: none;
                 width: 100%;
             }
         }
 
-
+        /* 1 picture/chart per line on vertical mobile with adaptive size */
+        @media (max-width: 900px) {
+            .flex-chart-item {
+                float: none;
+                width: 100%;
+            }
+        }
 
     </style>
 
@@ -174,17 +220,9 @@
                             return;
                         }
 
+                        divCam = $('<div id="camCaptureDiv" class="flex-cam-container">');
+
                         camCaptureList = newCamCaptureList;
-
-//                        size=Math.min(33.33, 100/camCaptureList.length).toFixed(2);
-//                        styleFlex="flex: " + size.toString() + "%"
-//                        size=100;
-//                        styleWidth="width: " + size.toString() + "%; cursor: pointer;"
-//                        divRow = $('<div class="row"></div>');
-
-
-                        divCam = $('<div id="camCaptureDiv" class="flex-container">');
-
                         $.map(camCaptureList, function(camCapture){
 
                             camId = camCapture.camId;
@@ -193,7 +231,7 @@
                             //
                             // TITLE
                             //
-                            title=$('<div id="imgTitle" style="font-size:1.5em">');
+                            title=$('<div class="cam-img-title" style="font-size:1.5em">');
                             title.html(camId);
 
                             //
@@ -224,7 +262,7 @@
                             row.append(rowData);
                             tableBody.append(row);
 
-                            camTable = $('<table class="flex-item" border="0"></table>');
+                            camTable = $('<table class="flex-cam-item" border="0"></table>');
                             camTable.append(tableBody);
                             divCam.append(camTable);
 
@@ -482,9 +520,9 @@ console.log(100*progress);
                 // Random value after the image name helps to ignore the cache at refresh
                 $("#cam_" + camId).attr('src', '/greenwall/cam-capture/capture_' + camId + '.jpg?' + Math.random());
 
-//                $.ajax({type: "GET", url: "/cam/capture/url/camId/" + camId, 
+//                $.ajax({type: "GET", url: "/cam/capture/url/camId/" + camId,
 //                    async: true,
-//                    indexValue: {camId:camId}, 
+//                    indexValue: {camId:camId},
 //                    success: function(result){
 //
 //                        res = result.result;
@@ -508,14 +546,15 @@ console.log(100*progress);
             });
         }
 
-
         // ================================================
         //
         // Construct a Chart Canvas
         //
         // ================================================
         function constructChartCanvas(chartCanvasId, title, labelY){
-            var myChart = new Chart(document.getElementById(chartCanvasId), {
+//            var myChart = new Chart(document.getElementById(chartCanvasId), {
+            myChart = new Chart($("#" + chartCanvasId), {
+
                 type: 'scatter',
                 data: {
                     datasets: [
@@ -665,66 +704,57 @@ console.log(100*progress);
 
                     if(res == "OK"){
 
+                        divChart = $("#chartTableDiv");
+
+                        // -----------
                         //
-                        // header line
+                        // WATER LEVEL
                         //
-                        row = $("<tr>");
-
-                        // Water level
-                        rowData = $("<th width='33%'>");
-                        rowData.html("Water level [mm]")
-                        row.append(rowData)
-
-                        // t=Temperature
-                        rowData = $("<th width='33%'>");
-                        rowData.html("Temperature [°C]")
-                        row.append(rowData)
-
-                        // Humidity
-                        rowData = $("<th width='33%'>");
-                        rowData.html("Humidity [%]")
-                        row.append(rowData)
-
-                        var tableBody = $("<tbody>");
-                        tableBody.append(row)
+                        // -----------
 
                         //
-                        // === construct the canvases === //
+                        // Water level CHART
                         //
+                        levelCanvasId = "levelCanvas";
+                        rowData = $('<canvas id="' + levelCanvasId + '" class="chart-canvas">');
 
-                        row = $('<tr>');
+                        div = $('<div class="flex-chart-item">');
+                        div.append(rowData);
+                        divChart.append(div);
 
-                        var levelCanvasId = "levelCanvas";
-                        var temperatureCanvasId = "temperatureCanvas";
-                        var humidityCanvasId = "humidityCanvas";
+                        // -----------
+                        //
+                        // TEMPERATURE
+                        //
+                        // -----------
 
-                        // Level
-                        rowData = $('<td style="padding:1px">');
-                        //rowData = rowData.html('<canvas id="' + levelCanvasId + '" style="width:700px;max-width:700px;background-color: #98fb98;"></canvas>');
-                        rowData = rowData.html('<canvas id="' + levelCanvasId + '" style="width:33%;background-color: #98fb98;"></canvas>');
-                        row.append(rowData);
+                        //
+                        // Temperature CHART
+                        //
+                        temperatureCanvasId = "temperatureCanvas";
+                        rowData = $('<canvas id="' + temperatureCanvasId + '" class="chart-canvas">');
 
-                        // Temperature
-                        rowData = $('<td style="padding:1px">');
-                        //rowData = rowData.html('<canvas id="' + temperatureCanvasId + '" style="width:700px;max-width:700px;background-color: #98fb98;"></canvas>');
-                        rowData = rowData.html('<canvas id="' + temperatureCanvasId + '" style="width:33%;background-color: #98fb98;"></canvas>');
-                        row.append(rowData);
+                        div = $('<div class="flex-chart-item">');
+                        div.append(rowData);
+                        divChart.append(div);
 
-                        // Humidity
-                        rowData = $('<td style="padding:1px">');
-                        //rowData = rowData.html('<canvas id="' + humidityCanvasId + '" style="width:700px;max-width:700px;background-color: #98fb98;"></canvas>');
-                        rowData = rowData.html('<canvas id="' + humidityCanvasId + '" style="width:33%;background-color: #98fb98;"></canvas>');
-                        row.append(rowData);
+                        // -----------
+                        //
+                        // HUMIDITY
+                        //
+                        // -----------
 
-                        tableBody.append(row);
+                        //
+                        // Humidity CHART
+                        //
+                        humidityCanvasId = "humidityCanvas";
+                        rowData = $('<canvas id="' + humidityCanvasId + '" class="chart-canvas">');
 
-                        var table = $('<table border="0" width="100%"></table>').append(tableBody);
+                        div = $('<div class="flex-chart-item">');
+                        div.append(rowData);
+                        divChart.append(div);
 
-                        // Clear the chartTableDiv
-                        $('#chartTableDiv').html("");
-
-                        // Build up new Charts
-                        $('#chartTableDiv').append(table);
+                        // 
 
                         levelChart=constructChartCanvas(levelCanvasId, "Water Level", "Level [mm]");
                         temperatureChart=constructChartCanvas(temperatureCanvasId, "Temperature", "Temperature [C°]");
@@ -1180,7 +1210,9 @@ console.log(100*progress);
                     <td><input type="text" id="endDatePicker" size="8"> </td>
                 </tr>
             </table>
-            <div id="chartTableDiv"></div>
+
+            <div id="chartTableDiv" class="flex-chart-container"></div>
+
             <div id="errormessage"></div>
         </div>
 
@@ -1189,7 +1221,7 @@ console.log(100*progress);
         <!--     -->
         <div id="tabs-cam">
 
-<!--            <div id="camCaptureDiv" class="flex-container"></div> -->
+<!--            <div id="camCaptureDiv" class="flex-cam-container"></div> -->
 
 <!--            <video width="320" height="240" controls>
                 <source src="cam-video/5/video.webm" type="video/webm"> 
