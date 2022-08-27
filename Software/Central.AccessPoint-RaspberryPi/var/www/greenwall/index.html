@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <meta charset="UTF-8" comntent="text/html;charset=utf-8" http-equiv="Content-Type">
 
 <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1">
@@ -23,10 +24,8 @@
             padding: 5px;
         }
 
-
         /* General fonts */
         * {
-/*            font-family: "Comic Sans MS", "Comic Sans", cursive; */
             font-size: 18px;
         }
 
@@ -69,17 +68,7 @@
             background-color: rgb(152, 251, 152);
             padding: 0px;
             border: 1px solid;
-/*            border-color: transparent; */
-/*            display: block; */
-/*            box-sizing: border-box; */
-/* display: flex; */
-/* flex-grow:1; */
         }
-
-//        #refreshChartButton{
-//            height: 60px;
-//            vertical-align: top;
-//        }
 
         /* CAM title aligned to center */
         .cam-img-title {
@@ -177,7 +166,10 @@
         var camCaptureRefreshIntervalId = null;
         var checkLampStatusRefreshIntervalId = null;
         var checkPumpStatusIntervalId = null;
-//        var checkMakeVideoStatusIntervalId = null;
+
+        var levelChart = null;
+        var temperatureChart = null;
+        var humidityChart = null;
 
         $( function() {
             $( "#tabs" ).tabs();
@@ -288,28 +280,6 @@
                             });
                         });
 
-                        //
-                        // Add click event listner to all MakeVideo  buttons
-                        //
-/*                        $.map(camCaptureList, function(camCapture){
-
-                            camId = camCapture.camId;
-
-                            $("#buttonMakeVideo_" + camId).on("click", function(e){
-
-                                // Incactivate all MakeVideo buttons
-                                inactivateAllMakeVideoButtons();
-
-                                // Make video - parameter is the camId
-                                // I can not pass here simple the camId because it always will be the latest selected value
-                                // So I just substring it from the <button id>
-                                // The click will be executed on <button> so the 'this' value will refer to the <button>
-                                // In the function I will substring the camId value from the parameter
-                                makeVideo(this.id);
-                            });
-                        });
-*/
-
                     }else{
                         //$("#value").html("");
                         //$("#errormessage").html("something went wrong");
@@ -355,155 +325,6 @@
             }
         }
 
-        // ============================================================================
-        //
-        // Inactivate ALL MakeVideo buttons
-        //
-        // Besides of button inactivation, it will setInterval() for checking the status
-        // of the process of the MakeVideo continously.
-        // When the MakeVideo status is NOT IN PROGRESS then it will enable the buttons 
-        // again, stops the check and refresh the video
-        //
-        // ============================================================================
-/*        function inactivateAllMakeVideoButtons(){
-
-            // Inactivate all MakeVideo buttons
-            $('[id^="buttonMakeVideo_"]').prop('disabled', true);
-
-            // Start to check the status of the process of MakeVideo
-            checkMakeVideoStatusIntervalId = setInterval(checkMakeVideoStatus, 3000);
-        }
-*/
-        // ============================================================================
-        //
-        // Activate ALL MakeVideo buttons
-        //
-        // Besides of button Activation, it will clearInterval() for checking the status
-        // of the process of the MakeVideo continously.
-        //
-        // ============================================================================
-/*        function activateAllMakeVideoButtons(){
-
-            // Stop to check the status of the process of MakeVideo
-            clearInterval(checkMakeVideoStatusIntervalId);
-
-            // Activate all MakeVideo buttons
-            $('[id^="buttonMakeVideo_"]').prop('disabled', false);
-
-            // Refresh the video
-            refreshAllVideos();
-
-        }
-*/
-        // ========================================
-        //
-        // Refressh all videos
-        //
-        // ========================================
-/*        function refreshAllVideos(){
-
-            videoControlList = $('[id^="videoControl_"]');
-
-            $.each(videoControlList, function( index, videoControl ) {
-
-                videoControlId = videoControl.id;
-                var camId = videoControlId.substring(13);
-
-                // This part is not understandable for me
-                // You have to set the source in the VideoControl <video> element NOT in the <source> element
-                //videoSource = $("#videoSource_" + camId);
-
-                videoSource = videoControl.firstChild;
-                videoSource.src = 'cam-video/' + camId + '/video.webm?' + Math.random();
-
-                //videoControl.src = '/greenwall/cam-video/' + camId + '/video.webm?' + Math.random();
-//                videoControl.src = 'cam-video/' + camId + '/video.webm?' + Math.random();
-
-                videoControl.load();
-            });
-        }
-*/
-
-        // ========================================
-        //
-        // Check the status of the MakeVideo
-        //
-        //
-        // If it is NOT IN PROGRESS, then it will 
-        // -stop the check 
-        // -enable the bottons
-        // -refresh the videos
-        //
-        // ========================================
-/*        function checkMakeVideoStatus(){
-            $.get( "/cam/video/status" ).done(
-                function( data ) {
-
-                    if(data.result == "OK" && data.inProgress){
-
-                        progress = data.progress;
-                        camId = data.camId;
-
-console.log(100*progress);
-                    }else{
-                        activateAllMakeVideoButtons()
-                    }
-            });
-        }
-*/
-
-        // =====================================================================================================
-        //
-        // Make Video
-        //
-        // The parameter is pretty tricky
-        // The buttonId is the <button id> of the 'create video' button which looks like this: buttonMakeVideo_4
-        // So I have to substring it to get the camId
-        //
-        // =====================================================================================================
-/*        function makeVideo(buttonId){
-
-            var camId = buttonId.substring(16);
-
-            var startDate = moment().subtract(15, 'minute').format("YYYY-MM-DDTHH:mm:ssZ");
-
-            // The saved files have NO miliseconds, so I omit it here as well
-            var endDate = moment().format("YYYY-MM-DDTHH:mm:ssZ");
-            var fps = "1";
-
-            $.ajax({type: "POST", url: "/cam/video/construct", 
-                    async: false,
-                    data: {
-                        "camId": camId,
-                        "startDate": startDate,
-                        "endDate": endDate,
-                        "fps": fps
-                    },
-                    indexValue: {camId:camId}, 
-                    success: function(result){
-
-                        res = result.result;
-
-                        if(res == "OK"){
-
-//                            captureUrl = result.captureUrl;
-//                            camId = this.indexValue.camId;
-
-                            // Random value after the image name helps to ignore the cache at refresh
-//                            $("#cam_" + camId).attr('src', captureUrl + "?" + Math.random());
-
-                        }else{
-                            console.error("Make Video ERROR:" + error);
-                        }
-                    },
-                    error: function(xhr,status,error){
-                        console.error("Make Video ERROR:" + error);
-                    }
-            });
-        }
-
-*/
-
         // ================================================
         //
         // Refresh Cam Capture
@@ -519,30 +340,6 @@ console.log(100*progress);
 
                 // Random value after the image name helps to ignore the cache at refresh
                 $("#cam_" + camId).attr('src', '/greenwall/cam-capture/capture_' + camId + '.jpg?' + Math.random());
-
-//                $.ajax({type: "GET", url: "/cam/capture/url/camId/" + camId,
-//                    async: true,
-//                    indexValue: {camId:camId},
-//                    success: function(result){
-//
-//                        res = result.result;
-//
-//                        if(res == "OK"){
-//
-//                            captureUrl = result.captureUrl;
-//                            camId = this.indexValue.camId;
-//
-//                            // Random value after the image name helps to ignore the cache at refresh
-//                            $("#cam_" + camId).attr('src', captureUrl + "?" + Math.random());
-//
-//                        }else{
-//                            console.log("ERROR:" + error);
-//                        }
-//                    },
-//                    error: function(xhr,status,error){
-//                        console.log("ERROR:" + error);
-//                    }
-//                });
             });
         }
 
@@ -553,7 +350,8 @@ console.log(100*progress);
         // ================================================
         function constructChartCanvas(chartCanvasId, title, labelY){
 //            var myChart = new Chart(document.getElementById(chartCanvasId), {
-            myChart = new Chart($("#" + chartCanvasId), {
+
+            var myChart = new Chart($("#" + chartCanvasId), {
 
                 type: 'scatter',
                 data: {
@@ -715,12 +513,16 @@ console.log(100*progress);
                         //
                         // Water level CHART
                         //
-                        levelCanvasId = "levelCanvas";
-                        rowData = $('<canvas id="' + levelCanvasId + '" class="chart-canvas">');
+                        if(levelChart == null){
 
-                        div = $('<div class="flex-chart-item">');
-                        div.append(rowData);
-                        divChart.append(div);
+                            levelCanvasId = "levelCanvas";
+                            rowData = $('<canvas id="' + levelCanvasId + '" class="chart-canvas">');
+
+                            div = $('<div class="flex-chart-item">');
+                            div.append(rowData);
+                            divChart.append(div);
+                            levelChart=constructChartCanvas(levelCanvasId, "Water Level", "Level [mm]");
+                        }
 
                         // -----------
                         //
@@ -731,12 +533,16 @@ console.log(100*progress);
                         //
                         // Temperature CHART
                         //
-                        temperatureCanvasId = "temperatureCanvas";
-                        rowData = $('<canvas id="' + temperatureCanvasId + '" class="chart-canvas">');
+                        if(temperatureChart == null){
 
-                        div = $('<div class="flex-chart-item">');
-                        div.append(rowData);
-                        divChart.append(div);
+                            temperatureCanvasId = "temperatureCanvas";
+                            rowData = $('<canvas id="' + temperatureCanvasId + '" class="chart-canvas">');
+
+                            div = $('<div class="flex-chart-item">');
+                            div.append(rowData);
+                            divChart.append(div);
+                            temperatureChart=constructChartCanvas(temperatureCanvasId, "Temperature", "Temperature [C°]");
+                        }
 
                         // -----------
                         //
@@ -747,18 +553,19 @@ console.log(100*progress);
                         //
                         // Humidity CHART
                         //
-                        humidityCanvasId = "humidityCanvas";
-                        rowData = $('<canvas id="' + humidityCanvasId + '" class="chart-canvas">');
+                        if(humidityChart == null){
 
-                        div = $('<div class="flex-chart-item">');
-                        div.append(rowData);
-                        divChart.append(div);
+                            humidityCanvasId = "humidityCanvas";
+                            rowData = $('<canvas id="' + humidityCanvasId + '" class="chart-canvas">');
 
-                        // 
+                            div = $('<div class="flex-chart-item">');
+                            div.append(rowData);
+                            divChart.append(div);
 
-                        levelChart=constructChartCanvas(levelCanvasId, "Water Level", "Level [mm]");
-                        temperatureChart=constructChartCanvas(temperatureCanvasId, "Temperature", "Temperature [C°]");
-                        humidityChart=constructChartCanvas(humidityCanvasId, "Humidity", "Humidity [%]");
+                            humidityChart=constructChartCanvas(humidityCanvasId, "Humidity", "Humidity [%]");
+                        }
+
+
 
                         //
                         // === fill up the data lists for charts === //
@@ -865,8 +672,6 @@ console.log(100*progress);
             });
         }
 
-
-
         // ================================================
         //
         // check pump status
@@ -901,8 +706,6 @@ console.log(100*progress);
                     $("#lampSwitch").on('lcs-on', lampOnEvent);
                     $("#lampSwitch").on('lcs-off', lampOffEvent);
             });
-
-
 
         }
 
@@ -1008,7 +811,6 @@ console.log(100*progress);
             });
 
             constructCamCaptureSection();
-//            inactivateAllMakeVideoButtons();
 
             //-----------------------
             // Lamp Switch
@@ -1143,9 +945,6 @@ console.log(100*progress);
                 }
             });
 
-
-
-
         });
 
     </script>
@@ -1220,20 +1019,9 @@ console.log(100*progress);
         <!-- CAM -->
         <!--     -->
         <div id="tabs-cam">
-
-<!--            <div id="camCaptureDiv" class="flex-cam-container"></div> -->
-
-<!--            <video width="320" height="240" controls>
-                <source src="cam-video/5/video.webm" type="video/webm"> 
-            	    Your browser does not support the video tag.
-            </video> 
--->
-
         </div> 
 
-
     </div>
-
 
 </body>
 </html>

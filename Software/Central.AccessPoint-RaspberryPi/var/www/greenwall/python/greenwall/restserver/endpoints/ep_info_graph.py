@@ -69,20 +69,22 @@ class EPInfoGraph(EP):
 
         endDateStamp = None
 
+        remoteAddress = request.remote_addr
+
         if parameterEndDateString:
             endDateString = parser.parse(parameterEndDateString).astimezone().isoformat()
             endDateTime = parser.parse(endDateString)
             endDateStamp = datetime.timestamp(endDateTime)
 
-            logging.debug( "WEB request: {0} {1} ('{2}': {3}, {4}: {5} )".format(
-                    EPInfoGraph.METHOD, EPInfoGraph.URL,
+            logging.debug( "WEB request ({0}): {1} {2} ('{3}': {4}, {5}: {6} )".format(
+                    remoteAddress, EPInfoGraph.METHOD, EPInfoGraph.URL,
                     EPInfoGraph.ATTR_START_DATE, startDateString,
                     EPInfoGraph.ATTR_END_DATE, endDateString
                 )
             )
         else:
-            logging.debug( "WEB request: {0} {1} ('{2}': {3} )".format(
-                    EPInfoGraph.METHOD, EPInfoGraph.URL,
+            logging.debug( "WEB request ({0}): {1} {2} ('{3}': {4} )".format(
+                    remoteAddress, EPInfoGraph.METHOD, EPInfoGraph.URL,
                     EPInfoGraph.ATTR_START_DATE, startDateString
                 )
             )

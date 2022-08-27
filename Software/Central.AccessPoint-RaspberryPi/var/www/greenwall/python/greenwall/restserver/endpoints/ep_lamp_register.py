@@ -63,7 +63,7 @@ class EPLampRegister(EP):
         lampId = payload[EPLampRegister.ATTR_LAMP_ID]
         dateString = payload[EPLampRegister.ATTR_DATE_STRING]
 
-        logging.debug( "WEB request: {0} {1} ('{2}': {3}, '{4}': {5} )".format(
+        logging.debug( "SENSOR request: {0} {1} ('{2}': {3}, '{4}': {5} )".format(
                     EPLampRegister.METHOD, EPLampRegister.URL,
                     EPLampRegister.ATTR_LAMP_ID, lampId,
                     EPLampRegister.ATTR_DATE_STRING, dateString

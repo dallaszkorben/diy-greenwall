@@ -47,8 +47,10 @@ class EPCamCaptureList(EP):
 
     def executeByPayload(self, payload) -> dict:
 
-        logging.debug( "WEB request: {0} {1} ()".format(
-                    EPCamCaptureList.METHOD, EPCamCaptureList.URL,
+        remoteAddress = request.remote_addr
+
+        logging.debug( "WEB request ({0}): {1} {2} ()".format(
+                    remoteAddress if remoteAddress else "", EPCamCaptureList.METHOD, EPCamCaptureList.URL,
                 )
         )
 

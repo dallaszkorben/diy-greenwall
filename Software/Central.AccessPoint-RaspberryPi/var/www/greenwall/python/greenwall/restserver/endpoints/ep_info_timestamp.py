@@ -60,7 +60,7 @@ class EPInfoTimeStamp(EP):
         epocDateTime = parser.parse(epocDateString)
         epocDateStamp = datetime.timestamp(epocDateTime)
 
-        logging.debug( "WEB request: {0} {1} ('{2}': {3})".format(
+        logging.debug( "SENSOR request: {0} {1} ('{2}': {3})".format(
                     EPInfoTimeStamp.METHOD, EPInfoTimeStamp.URL,
                     EPInfoTimeStamp.ATTR_EPOC_DATE, epocDateString
                 )

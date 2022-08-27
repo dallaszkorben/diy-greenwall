@@ -42,8 +42,10 @@ class EPPumpStatus(EP):
 
     def executeByPayload(self, payload) -> dict:
 
-        logging.debug( "WEB request: {0} {1} ()".format(
-                    EPPumpStatus.METHOD, EPPumpStatus.URL
+        remoteAddress = request.remote_addr
+
+        logging.debug( "WEB request ({0}): {1} {2} ()".format(
+                    remoteAddress, EPPumpStatus.METHOD, EPPumpStatus.URL
                     )
             )
 

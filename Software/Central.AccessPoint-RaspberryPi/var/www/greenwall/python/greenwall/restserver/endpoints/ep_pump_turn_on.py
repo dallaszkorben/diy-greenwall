@@ -51,8 +51,10 @@ class EPPumpTurnOn(EP):
 
         lengthInSec = payload[EPPumpTurnOn.ATTR_LENGTH_IN_SEC]
 
-        logging.debug( "WEB request: {0} {1} ('{2}': {3} )".format(
-                    EPPumpTurnOn.METHOD, EPPumpTurnOn.URL,
+        remoteAddress = request.remote_addr
+
+        logging.debug( "WEB request ({0}): {1} {2} ('{3}': {4} )".format(
+                    remoteAddress, EPPumpTurnOn.METHOD, EPPumpTurnOn.URL,
                     EPPumpTurnOn.ATTR_LENGTH_IN_SEC, lengthInSec
                     )
             )

@@ -108,7 +108,7 @@ class EPSensorAdd(EP):
 #        temperatureValue = self.getOnlyNumber(temperatureValue)
 #        humidityValue = self.getOnlyNumber(humidityValue)
 
-        logging.debug( "WEB request: {0} {1} ('{2}': {3}, '{4}': {5}, '{6}': {7}, '{8}':'{9}', '{10}':'{11}', '{12}':'{13}')".format(
+        logging.debug( "SENSOR request: {0} {1} ('{2}': {3}, '{4}': {5}, '{6}': {7}, '{8}':'{9}', '{10}':'{11}', '{12}':'{13}')".format(
                     EPSensorAdd.METHOD, EPSensorAdd.URL,
                     EPSensorAdd.ATTR_STATION_ID, stationId,
                     EPSensorAdd.ATTR_DATE_STRING, dateString,

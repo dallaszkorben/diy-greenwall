@@ -42,8 +42,10 @@ class EPPumpTurnOff(EP):
 
     def executeByPayload(self, payload) -> dict:
 
-        logging.debug( "WEB request: {0} {1} ()".format(
-                    EPPumpTurnOff.METHOD, EPPumpTurnOff.URL
+        remoteAddress = request.remote_addr
+
+        logging.debug( "WEB request ({0}): {1} {2} ()".format(
+                    remoteAddress, EPPumpTurnOff.METHOD, EPPumpTurnOff.URL
                     )
             )
 

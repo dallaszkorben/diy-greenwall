@@ -63,7 +63,7 @@ class EPPumpRegister(EP):
         pumpId = payload[EPPumpRegister.ATTR_PUMP_ID]
         dateString = payload[EPPumpRegister.ATTR_DATE_STRING]
 
-        logging.debug( "WEB request: {0} {1} ('{2}': {3}, '{4}': {5} )".format(
+        logging.debug( "SENSOR request: {0} {1} ('{2}': {3}, '{4}': {5} )".format(
                     EPPumpRegister.METHOD, EPPumpRegister.URL,
                     EPPumpRegister.ATTR_PUMP_ID, pumpId,
                     EPPumpRegister.ATTR_DATE_STRING, dateString

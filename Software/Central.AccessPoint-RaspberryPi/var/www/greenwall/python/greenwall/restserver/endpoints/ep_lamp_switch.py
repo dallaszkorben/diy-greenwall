@@ -58,8 +58,10 @@ class EPLampSwitch(EP):
         status = payload[EPLampSwitch.ATTR_STATUS]
         lengthInSec = payload[EPLampSwitch.ATTR_LENGTH_IN_SEC]
 
-        logging.debug( "WEB request: {0} {1} ('{2}': {3} )".format(
-                    EPLampSwitch.METHOD, EPLampSwitch.URL,
+        remoteAddress = request.remote_addr
+
+        logging.debug( "WEB request ({0}): {1} {2} ('{3}': {4} )".format(
+                    remoteAddress, EPLampSwitch.METHOD, EPLampSwitch.URL,
                     EPLampSwitch.ATTR_STATUS, status,
                     EPLampSwitch.ATTR_LENGTH_IN_SEC, lengthInSec
                     )

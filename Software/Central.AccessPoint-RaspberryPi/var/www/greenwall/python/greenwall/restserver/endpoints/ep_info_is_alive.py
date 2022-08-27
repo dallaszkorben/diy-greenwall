@@ -39,6 +39,13 @@ class EPInfoIsAlive(EP):
 
     def executeByPayload(self, payload) -> dict:
 
+        remoteAddress = request.remote_addr
+
+        logging.debug( "WEB request ({0}): {1} {2}".format(
+                    remoteAddress, EPInfoReady.METHOD, EPInfoReady.URL
+                )
+        )
+
         return output_json( {'result': 'OK'}, EP.CODE_OK)
 
 #        logging.debug( "WEB request: {0} {1}".format(

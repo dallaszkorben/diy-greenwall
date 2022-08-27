@@ -42,8 +42,10 @@ class EPLampStatus(EP):
 
     def executeByPayload(self, payload) -> dict:
 
-        logging.debug( "WEB request: {0} {1} ()".format(
-                    EPLampStatus.METHOD, EPLampStatus.URL
+        remoteAddress = request.remote_addr
+
+        logging.debug( "WEB request ({0}): {1} {2} ()".format(
+                    remoteAddress, EPLampStatus.METHOD, EPLampStatus.URL
                     )
             )
 

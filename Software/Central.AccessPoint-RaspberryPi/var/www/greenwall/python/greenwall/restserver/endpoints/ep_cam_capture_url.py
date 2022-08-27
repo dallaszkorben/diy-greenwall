@@ -51,8 +51,10 @@ class EPCamCaptureUrl(EP):
 
         camId = payload[EPCamCaptureUrl.ATTR_ID]
 
-        logging.debug( "WEB request: {0} {1} ('{2}': {3} )".format(
-                    EPCamCaptureUrl.METHOD, EPCamCaptureUrl.URL,
+        remoteAddress = request.remote_addr
+
+        logging.debug( "WEB request ({0}): {1} {2} ('{3}': {4} )".format(
+                    remoteAddress, EPCamCaptureUrl.METHOD, EPCamCaptureUrl.URL,
                     EPCamCaptureUrl.ATTR_ID, camId
                     )
         )
