@@ -579,6 +579,10 @@
                             {line: "#42dbf6", fill: "rgba(66, 219, 246, 0.5)" },
                         ]
 
+                        levelChart.data.datasets=[];
+                        temperatureChart.data.datasets=[];
+                        humidityChart.data.datasets=[];
+
                         colorIndex=0;
                         charts = result.data;
                         $.map(charts,function(graph, index){
