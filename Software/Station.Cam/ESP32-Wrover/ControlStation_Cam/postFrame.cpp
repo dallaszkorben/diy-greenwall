@@ -19,7 +19,7 @@
 
 camera_fb_t* takePhoto();
 
-boolean postFrame(WiFiClient client, String clientIp, int clientPort, String clientPathToCamFrameSave){
+boolean postFrame(WiFiClient client, String clientIp, String clientPort, String clientPathToCamFrameSave){
   String getAll;
   String payload;
   String boundary = "XmyOwnBoundryX";
@@ -33,7 +33,7 @@ boolean postFrame(WiFiClient client, String clientIp, int clientPort, String cli
     return false;
   }
   
-  if (client.connect(clientIp.c_str(), clientPort)) {
+  if (client.connect(clientIp.c_str(), clientPort.toInt())) {
     Serial.println("   Connection successful!");    
     String head = "--" + boundary + "\r\nContent-Disposition: form-data; name=\"frameFile\"; filename=\"esp32-cam.jpg\"\r\nContent-Type: image/jpeg\r\n\r\n";
     String tail = "\r\n--" + boundary + "--\r\n";

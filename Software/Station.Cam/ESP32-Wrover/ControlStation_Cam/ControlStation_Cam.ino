@@ -1,19 +1,31 @@
 #include <WiFi.h>
 #include <TimeLib.h>
 #include <HTTPClient.h>
+#include <Preferences.h>
 
 //const char* ssid = "Central-Station-006";
 //const char* password = "viragfal";
 const char* ssid = "blabla2.4";
 const char* password = "Elmebetegek Almaiban";
 
-//const String clientIp = "192.168.50.3";                         // REPLACE WITH YOUR Raspberry Pi IP ADDRESS
-const String clientIp = "192.168.0.104";
-const int clientPort = 80;
-const String camId = "8";
+const String DEFAULT_CAMID = "default";
+const String DEFAULT_CAMQUALITY = "SVGA";          // 96X96,QQVGA,QCIF,HQVGA,240X240,QVGA,CIF,HVGA,VGA,SVGA,XGA,HD,SXGA,UXGA
+const String DEFAULT_CAMROTATE = "0";              //0, 1, 2, 3
+unsigned long DEFAULT_INTERVALFRAME = 20000;       //save 1 frame / minute
+
+const String DEFAULT_CLIENTIP = "192.168.0.104";   // REPLACE WITH YOUR Raspberry Pi IP ADDRESS !!! But it does not work
+const String DEFAULT_CLIENTPORT = "80";
+
+extern String camId = "";
+extern String camQuality = "";       // 96X96,QQVGA,QCIF,HQVGA,240X240,QVGA,CIF,HVGA,VGA,SVGA,XGA,HD,SXGA,UXGA
+extern String camRotate = "";        // 0, 1, 2, 3
+extern String clientIp = "";         // REPLACE WITH YOUR Raspberry Pi IP ADDRESS !!! But it does not work
+extern String clientPort = "";
+
 const String clientPathToInfoTimestamp = "info/timeStamp";
 const String clientPathToCamRegister = "cam/register";
-const String clientPathToCamFrameSave = "cam/save/frame/camId/" + camId;
+//const String clientPathToCamFrameSave = "cam/save/frame/camId/" + camId;
+String clientPathToCamFrameSave;
 
 unsigned long previousReconnectMillis = 0;
 unsigned long intervalReconnectMillis = 10000;
@@ -21,25 +33,33 @@ unsigned long intervalReconnectMillis = 10000;
 unsigned long previousRegisterMillis = 0;
 unsigned long intervalRegisterMillis = 60000; // register / 60 seconds
 
-unsigned long previousFrameSaveMillis = 0;
-unsigned long intervalFrameSaveMillis = 20000; //save 1 frame / minute
+unsigned long previousFrameMillis = 0;
+extern unsigned long intervalFrameMillis = 20000; //save 1 frame / minute
+
 
 HTTPClient http;
 WiFiClient wifiClient;
 
+Preferences camPref;
+Preferences clientPref;
+
 void startWebServer();
-void startWebServer();
-void configureCam();
-bool postFrame(WiFiClient wifiClient, String clientIp, int clientPort, String clientPathToCamFrameSave);
+bool configureCam();
+bool postFrame(WiFiClient wifiClient, String clientIp, String clientPort, String clientPathToCamFrameSave);
 
 void setup() {
+  
   Serial.begin(115200);
   Serial.setDebugOutput(true);
   Serial.println();
 
+  // --- Setup variables - Read Persistent data ---  
+  setupVariables();
+  
   Serial.println();
   Serial.print("MAC: ");
   Serial.println(WiFi.macAddress());
+  Serial.println();
 
   // --- Connect to Access Point --- //  
   if (!connectToApIfNotConnected()){
@@ -64,6 +84,7 @@ void setup() {
   
   // --- Start Camera Server --- //
   startWebServer();
+
 }
 
 int counter = 0;
@@ -87,6 +108,7 @@ void loop() {
     previousReconnectMillis = currentMillis;
   }
 
+
   //In every 60 seconds tries to REGISTER
   if(currentMillis - previousRegisterMillis >= intervalRegisterMillis){
 
@@ -97,16 +119,18 @@ void loop() {
       Serial.println("    !!! Cam register failed !!!");   
     } 
     Serial.println();   
-  }
+  
+  //In every 30 seconds tries to take photo and SAVE FRAME
+  }else if(currentMillis - previousFrameMillis >= intervalFrameMillis){
 
-  //In every 30 seconds tries to SAVE FRAME
-  else if(currentMillis - previousFrameSaveMillis >= intervalFrameSaveMillis){
+    clientPathToCamFrameSave = "cam/save/frame/camId/" + camId;
 
     if(postFrame(wifiClient, clientIp, clientPort, clientPathToCamFrameSave)){      
       Serial.println("   POST /cam/save/frame was sent");      
-      previousFrameSaveMillis = currentMillis;
+      previousFrameMillis = currentMillis;
     }else{
       Serial.println("   !!! Camera SAVE FRAME failed !!!");
+      previousFrameMillis = currentMillis;
     }
     Serial.println();    
   }

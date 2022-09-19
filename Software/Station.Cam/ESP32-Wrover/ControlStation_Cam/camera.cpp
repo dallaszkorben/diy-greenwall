@@ -1,7 +1,6 @@
 #include "esp_camera.h"
 #include <WiFi.h>
 
-
 // Select camera model
 #define CAMERA_MODEL_WROVER_KIT         // Has PSRAM
 //#define CAMERA_MODEL_ESP_EYE          // Has PSRAM
@@ -14,9 +13,12 @@
 
 #include "camera_pins.h"
 
-bool postFrame(camera_fb_t * fb, WiFiClient wifiClient, String clientIp, int clientPort, String clientPathToCamFrameSave);
+extern String camQuality;
+extern String camRotate;
 
-void configureCam(){
+bool postFrame(camera_fb_t * fb, WiFiClient wifiClient, String clientIp, String clientPort, String clientPathToCamFrameSave);
+
+bool configureCam(){
   camera_config_t config;
   config.ledc_channel = LEDC_CHANNEL_0;
   config.ledc_timer = LEDC_TIMER_0;
@@ -66,17 +68,49 @@ void configureCam(){
   //FRAMESIZE_P_FHD,    // 1080x1920
   //FRAMESIZE_QSXGA,    // 2560x1920
   
-  if(psramFound()){
-    config.frame_size = FRAMESIZE_XGA;
+  //if(psramFound()){
+
+    if(camQuality.compareTo("96X96") == 0){
+      config.frame_size = FRAMESIZE_96X96;
+    }else if(camQuality.compareTo("QQVGA") == 0){
+      config.frame_size = FRAMESIZE_QQVGA;
+    }else if(camQuality.compareTo("QCIF") == 0){
+      config.frame_size = FRAMESIZE_QCIF;
+    }else if(camQuality.compareTo("HQVGA") == 0){
+      config.frame_size = FRAMESIZE_HQVGA;
+    }else if(camQuality.compareTo("240X240") == 0){
+      config.frame_size = FRAMESIZE_240X240;
+    }else if(camQuality.compareTo("QVGA") == 0){
+      config.frame_size = FRAMESIZE_QVGA;
+    }else if(camQuality.compareTo("CIF") == 0){
+      config.frame_size = FRAMESIZE_CIF;
+    }else if(camQuality.compareTo("HVGA") == 0){
+      config.frame_size = FRAMESIZE_HVGA;
+    }else if(camQuality.compareTo("VGA") == 0){
+      config.frame_size = FRAMESIZE_VGA;
+    }else if(camQuality.compareTo("SVGA") == 0){
+      config.frame_size = FRAMESIZE_SVGA;
+    }else if(camQuality.compareTo("XGA") == 0){
+      config.frame_size = FRAMESIZE_XGA;
+    }else if(camQuality.compareTo("HD") == 0){      
+      config.frame_size = FRAMESIZE_HD;
+    }else if(camQuality.compareTo("SXGA") == 0){
+      config.frame_size = FRAMESIZE_SXGA;
+    }else if(camQuality.compareTo("UXGA") == 0){
+      config.frame_size = FRAMESIZE_UXGA;
+    }else{
+      config.frame_size = FRAMESIZE_SVGA;
+    }
+      
     //config.frame_size = FRAMESIZE_SVGA;    
     config.jpeg_quality = 10;
     config.fb_count = 1;
-  } else {
-    config.frame_size = FRAMESIZE_HD;
-    config.frame_size = FRAMESIZE_SVGA;    
-    config.jpeg_quality = 10;
-    config.fb_count = 1;
-  }
+//  } else {
+//    config.frame_size = FRAMESIZE_HD;
+//    config.frame_size = FRAMESIZE_SVGA;    
+//    config.jpeg_quality = 10;
+//    config.fb_count = 1;
+//  }
 
 #if defined(CAMERA_MODEL_ESP_EYE)
   pinMode(13, INPUT_PULLUP);
@@ -87,11 +121,11 @@ void configureCam(){
   esp_err_t err = esp_camera_init(&config);
   if (err != ESP_OK) {
     printf("Camera init failed with error 0x%x", err);
-    return;
+    return false;
   }
   
   sensor_t * s = esp_camera_sensor_get();
-  // initial sensors are flipped vertically and colors are a bit saturated
+/*  // initial sensors are flipped vertically and colors are a bit saturated
   if (s->id.PID == OV3660_PID) {
     s->set_vflip(s, 1); // flip it back
     s->set_brightness(s, 1); // up the brightness just a bit
@@ -104,6 +138,11 @@ void configureCam(){
   s->set_vflip(s, 1);
   s->set_hmirror(s, 1);
 #endif
+*/
+  s->set_vflip(s, 0);
+  s->set_hmirror(s, 0);
+
+  return true;
 }
 
 camera_fb_t* takePhoto() {
@@ -123,7 +162,7 @@ camera_fb_t* takePhoto() {
     return fb;     
 }
 
-boolean postPhoto(WiFiClient wifiClient, String clientIp, int clientPort, String clientPathToCamFrameSave){
+boolean postPhoto(WiFiClient wifiClient, String clientIp, String clientPort, String clientPathToCamFrameSave){
   camera_fb_t * fb = takePhoto();
   
   if (!fb) {
