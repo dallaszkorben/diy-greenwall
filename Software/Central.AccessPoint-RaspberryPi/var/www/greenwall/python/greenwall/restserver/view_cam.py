@@ -27,7 +27,7 @@ from greenwall.restserver.endpoints.ep import EP
 
 from greenwall.exceptions.invalid_api_usage import InvalidAPIUsage
 
-from PIL import Image
+#from PIL import Image
 
 # -----------------------------------
 #

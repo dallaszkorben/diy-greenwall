@@ -100,6 +100,23 @@ class EPCamSaveFrame(EP):
 
             img = Image.open(image)
 
+# cam rotate
+
+            #0
+
+            # 1
+            img = img.rotate(-90)
+#            # 2
+#            img = img.rotate(90)
+#            # 3
+#            img = img.rotate(180)
+
+            width, height = img.size
+
+            fontSize = height // 16
+            textVPos = height // 32
+            textHPos = height // 64
+
             try:
                 # add timestamp to the image
                 draw = ImageDraw.Draw(img)
@@ -107,9 +124,9 @@ class EPCamSaveFrame(EP):
                 logging.error("      {0} FRAME/CAPTURE was NOT saved. ImageDraw FAILE\n{1}".format(frameFileNamePath,e))
                 return output_json( {'result': 'ERROR'}, EP.CODE_BAD_REQUEST)
 
-            font = ImageFont.truetype("DejaVuSans.ttf", 32)
-            x=0
-            y=20
+            font = ImageFont.truetype("DejaVuSans.ttf", fontSize)
+            x=textHPos
+            y=textVPos
             outlineAmount=3
             #raw.text((0,20), dateString, (100,100,100), font=font)
             draw.text((x-1, y), dateString, font=font, fill="white")
