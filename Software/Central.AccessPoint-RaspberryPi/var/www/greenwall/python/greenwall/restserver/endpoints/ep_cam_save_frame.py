@@ -25,11 +25,12 @@ class EPCamSaveFrame(EP):
     URL = '/cam/save/frame'
 
     PATH_PAR_PAYLOAD = '/save/frame'
-    PATH_PAR_URL = '/save/frame/camId/<camId>'
+    PATH_PAR_URL = '/save/frame/camId/<camId>/camRotate/<camRotate>'
 
     METHOD = 'POST'
 
     ATTR_CAM_ID = 'camId'
+    ATTR_CAM_ROTATE = 'camRotate'
     ATTR_IMAGE = 'image'
 
 
@@ -53,11 +54,16 @@ class EPCamSaveFrame(EP):
         ret['parameters'][0]['type'] = 'string'
         ret['parameters'][0]['value'] = 255
 
+        ret['parameters'][1]['attribute'] = EPCamSaveFrame.ATTR_CAM_ROTATE
+        ret['parameters'][1]['type'] = 'string'
+        ret['parameters'][1]['value'] = 255
+
         return ret
 
-    def executeByParameters(self, camId, image=None) -> dict:
+    def executeByParameters(self, camId, camRotate='0', image=None) -> dict:
         payload = {}
         payload[EPCamSaveFrame.ATTR_CAM_ID] = camId
+        payload[EPCamSaveFrame.ATTR_CAM_ROTATE] = camRotate
         payload[EPCamSaveFrame.ATTR_IMAGE] = image
 
         with self.lockExecuteSave:
@@ -66,11 +72,13 @@ class EPCamSaveFrame(EP):
     def executeByPayload(self, payload) -> dict:
 
         camId = payload[EPCamSaveFrame.ATTR_CAM_ID]
+        camRotate = payload[EPCamSaveFrame.ATTR_CAM_ROTATE]
         image = payload[EPCamSaveFrame.ATTR_IMAGE]
 
-        logging.debug( "   REST request was received: {0} {1} ('{2}': {3}, '{4}': {5})".format(
+        logging.debug( "   REST request was received: {0} {1} ('{2}': {3}, {4}': {5}, '{6}': {7})".format(
                 EPCamSaveFrame.METHOD, EPCamSaveFrame.URL,
                 EPCamSaveFrame.ATTR_CAM_ID, camId,
+                EPCamSaveFrame.ATTR_CAM_ROTATE, camRotate,
                 EPCamSaveFrame.ATTR_IMAGE, image ))
 
         # 2022-07-29T23:59:55.960950+02:00
@@ -100,16 +108,17 @@ class EPCamSaveFrame(EP):
 
             img = Image.open(image)
 
-# cam rotate
-
+            # cam rotate
             #0
-
             # 1
-            img = img.rotate(-90)
-#            # 2
-#            img = img.rotate(90)
-#            # 3
-#            img = img.rotate(180)
+            if camRotate == "1":
+                img = img.rotate(-90)
+            # 2
+            elif camRotate == "2":
+                img = img.rotate(-180)
+            # 3
+            elif camRotate == "3":
+                img = img.rotate(-270)
 
             width, height = img.size
 

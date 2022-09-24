@@ -92,22 +92,25 @@ class CamView(FlaskView):
 
 
 
-# === POST /cam/save/frame/camId/{camId} ===
+# === POST /cam/save/frame/camId/{camId}/camRotate/{camRotate} ===
 
 
     #
-    # Save frame - with parameters
+    # Save frame - with parameters - called from the cam module
     #
-    # curl  --header "Content-Type: img/jpeg" --request POST --data '...' http://localhost:5000/cam/save/frame/camId/5
+    # curl  --header "Content-Type: multipart/form-data; boundary=XmyOwnBoundryX" --header "X-camRotate: 0" --request POST --data '...' http://localhost:5000/cam/save/frame/camId/5/camRotate/0
     #
-    #@route('/save/frame/camId/<camId>', methods=['POST'])
+    #@route('/save/frame/camId/<camId>/camRotate/<camRotate>', methods=['POST'])
     @route(EPCamSaveFrame.PATH_PAR_URL, methods=[EPCamSaveFrame.METHOD])
-    def saveCamFrameWithParameter(self, camId):
+    def saveCamFrameWithParameter(self, camId, camRotate):
 
 #        from pprint import pprint
 #        print("!!! Request: !!!")
 #        print(request)
+#        print("---")
 #        print(vars(request))
+#        print()
+#        print("!!! Headers: !!!")
 #        if hasattr(request, 'headers'):
 #            pprint(request.headers)
 #        if hasattr(request, 'data'):
@@ -130,7 +133,7 @@ class CamView(FlaskView):
 #            print("NO file was sent")
 #        print()
 
-        logging.debug("POST cam/save/frame/ node was called")
+        logging.debug("POST cam/save/frame/ node was called from the cam module")
 
         image = None
         try:
@@ -143,7 +146,11 @@ class CamView(FlaskView):
         except:
             logging.error("   !!! POST cam/save/frame node DID NOT receive the image file !!!")
 
-        out = self.epCamSaveFrame.executeByParameters(camId=camId, image=image)
+        #camRotate=request.headers.get('X-Camrotate')
+        #if not camRotate:
+        #    camRotate = "0"
+
+        out = self.epCamSaveFrame.executeByParameters(camId=camId, camRotate=camRotate, image=image)
         return out
 
 
