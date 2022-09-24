@@ -8,6 +8,8 @@
 const char* ssid = "blabla2.4";
 const char* password = "Elmebetegek Almaiban";
 
+const bool DEFAULT_NEED_TO_RESET = false;
+
 const String DEFAULT_CAMID = "default";
 const String DEFAULT_CAMQUALITY = "SVGA";          // 96X96,QQVGA,QCIF,HQVGA,240X240,QVGA,CIF,HVGA,VGA,SVGA,XGA,HD,SXGA,UXGA
 const String DEFAULT_CAMROTATE = "0";              //0, 1, 2, 3
@@ -15,6 +17,8 @@ unsigned long DEFAULT_INTERVALFRAME = 20000;       //save 1 frame / minute
 
 const String DEFAULT_CLIENTIP = "192.168.0.104";   // REPLACE WITH YOUR Raspberry Pi IP ADDRESS !!! But it does not work
 const String DEFAULT_CLIENTPORT = "80";
+
+extern bool needToReset = false;
 
 extern String camId = "";
 extern String camQuality = "";       // 96X96,QQVGA,QCIF,HQVGA,240X240,QVGA,CIF,HVGA,VGA,SVGA,XGA,HD,SXGA,UXGA
@@ -24,7 +28,7 @@ extern String clientPort = "";
 
 const String clientPathToInfoTimestamp = "info/timeStamp";
 const String clientPathToCamRegister = "cam/register";
-//const String clientPathToCamFrameSave = "cam/save/frame/camId/" + camId;
+//const String clientPathToCamFrameSave = "cam/save/frame/camId/" + camId + "/camRotate/" + camRotate;
 String clientPathToCamFrameSave;
 
 unsigned long previousReconnectMillis = 0;
@@ -94,6 +98,15 @@ bool brokenRegister = false;
 
 void loop() {
 
+  delay(10);
+
+  if(needToReset){
+    needToReset = false;
+    saveVariable("needToReset"); 
+    delay(2000);   
+    ESP.restart();
+  }
+  
   unsigned long currentMillis = millis();
 
   //In every 10 seconds tries to RECONNECT if necessarry
@@ -107,7 +120,6 @@ void loop() {
     }
     previousReconnectMillis = currentMillis;
   }
-
 
   //In every 60 seconds tries to REGISTER
   if(currentMillis - previousRegisterMillis >= intervalRegisterMillis){
@@ -123,7 +135,7 @@ void loop() {
   //In every 30 seconds tries to take photo and SAVE FRAME
   }else if(currentMillis - previousFrameMillis >= intervalFrameMillis){
 
-    clientPathToCamFrameSave = "cam/save/frame/camId/" + camId;
+    clientPathToCamFrameSave = "cam/save/frame/camId/" + camId + "/camRotate/" + camRotate;
 
     if(postFrame(wifiClient, clientIp, clientPort, clientPathToCamFrameSave)){      
       Serial.println("   POST /cam/save/frame was sent");      
@@ -135,5 +147,4 @@ void loop() {
     Serial.println();    
   }
 
-  delay(10);
 }   

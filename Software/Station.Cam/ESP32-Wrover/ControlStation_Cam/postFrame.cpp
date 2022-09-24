@@ -17,6 +17,8 @@
 //HTTPC_ERROR_READ_TIMEOUT (-11)
 //To get the meaning of code use: htt.errorToString(responseCode)
 
+extern String camRotate;
+
 camera_fb_t* takePhoto();
 
 boolean postFrame(WiFiClient client, String clientIp, String clientPort, String clientPathToCamFrameSave){
@@ -32,6 +34,7 @@ boolean postFrame(WiFiClient client, String clientIp, String clientPort, String 
     Serial.println("   Camera capture failed");
     return false;
   }
+  Serial.println("   Image was taken...");
   
   if (client.connect(clientIp.c_str(), clientPort.toInt())) {
     Serial.println("   Connection successful!");    
@@ -45,6 +48,7 @@ boolean postFrame(WiFiClient client, String clientIp, String clientPort, String 
     client.println("POST /" + clientPathToCamFrameSave + " HTTP/1.1");
     client.println("Host: " + clientIp);
     client.println("Content-Length: " + String(totalLen));
+    //client.println("X-camRotate: " + camRotate);
     client.println("Content-Type: multipart/form-data; boundary=" + boundary);
     client.println();
     client.print(head);
@@ -65,14 +69,14 @@ boolean postFrame(WiFiClient client, String clientIp, String clientPort, String 
     
     esp_camera_fb_return(fb);
     
-    int timoutTimer = 2000;
+    int timoutTimer = 4000;
     long startTimer = millis();
     boolean state = false;
 
     Serial.print("   Waiting for the response: ");
     while ((startTimer + timoutTimer) > millis()) {
       Serial.print("+");
-      delay(100);      
+      delay(500);      
       while (client.available()) {
         char c = client.read();
         if (c == '\n') {

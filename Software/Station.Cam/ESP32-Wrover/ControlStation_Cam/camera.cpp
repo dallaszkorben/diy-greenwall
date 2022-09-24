@@ -50,7 +50,7 @@ bool configureCam(){
   //FRAMESIZE_240X240,  // 240x240
   //FRAMESIZE_QVGA,     // 320x240
   //FRAMESIZE_CIF,      // 400x296
-  //FRAMESIZE_HVGA,     // 480x320
+  //FRAMESIZE_HVGA,     // 480x320  
   //FRAMESIZE_VGA,      // 640x480
   //FRAMESIZE_SVGA,     // 800x600
   //FRAMESIZE_XGA,      // 1024x768
