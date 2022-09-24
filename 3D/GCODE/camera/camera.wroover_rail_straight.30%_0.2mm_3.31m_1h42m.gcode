@@ -10,7 +10,7 @@
 ;MAXZ:32.2
 ;Generated with Cura_SteamEngine master
 M82 ;absolute extrusion mode
-;Sliced at: Thu 15-09-2022 00:17:53
+;Sliced at: Fri 23-09-2022 13:54:55
 ;Basic settings: Layer height: 0.2 Walls: 0.8 Fill: 30.0
 G21 ;metric values
 G90 ;absolute positioning

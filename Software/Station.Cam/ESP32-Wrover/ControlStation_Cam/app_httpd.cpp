@@ -3,6 +3,7 @@
 #include <ArduinoJson.h>
 #include "esp_camera.h"
 
+extern bool needToReset;
 extern String camId;
 extern String camQuality;
 extern String camRotate;
@@ -70,7 +71,8 @@ void saveVariables();
     
     String statusJson = "'status': 'OK'";
     String valueJson = 
-    "'value': {'camId': '" + camId + 
+    "'value': {'needToReset': '" + String(needToReset) + 
+    "', 'camId': '" + camId + 
     "', 'camQuality': '" + camQuality + 
     "', 'camRotate': '" + camRotate + 
     "', 'intervalFrameMillis': '" + intervalFrameMillis + 
@@ -116,7 +118,6 @@ esp_err_t handler_post_configure(httpd_req_t *req){
    * In case of string data, null termination will be absent, and
    * content length would give length of string */
   char payload[payloadLength];
-//  payload.trim();      
 
   /* Truncate if content length larger than the buffer */
   size_t recv_size = min(req->content_len, sizeof(payload));
@@ -179,19 +180,13 @@ Serial.println(payload);
       clientPort = String(myClientPort);
     }
 
+    needToReset = true;
     saveVariables();
-
   }
 
   esp_err_t res = httpd_resp_send(req, resp, strlen(resp));
   printf("   Request \"POST /configure\" was served\n\n", "");    
   return res;
-
-//  // Response Header
-//  httpd_resp_set_type(req, "image/jpeg");
-//  httpd_resp_set_hdr(req, "Content-Disposition", "inline; filename=capture.jpg");
-//  httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
-
 }
 
 httpd_handle_t startWebServer(){

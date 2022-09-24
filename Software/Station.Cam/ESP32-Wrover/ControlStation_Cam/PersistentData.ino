@@ -5,6 +5,8 @@ void setupVariables(){
   // Open "cam" namespace in read/write mode
   camPref.begin("cam", false); 
 
+  needToReset = camPref.getBool("needToReset", DEFAULT_NEED_TO_RESET);
+
   camId = camPref.getString("camId", DEFAULT_CAMID);
   camQuality = camPref.getString("camQuality", DEFAULT_CAMQUALITY);
   camRotate = camPref.getString("camRotate", DEFAULT_CAMROTATE);
@@ -22,12 +24,30 @@ void setupVariables(){
   // --- Show new values ---
 
   Serial.println("Mutable value variables:");
+  Serial.println("   needToReset: " + String(needToReset));
   Serial.println("   camId: " + camId );
   Serial.println("   camQuality: " + camQuality );
   Serial.println("   camRotate: " + camRotate );
   Serial.println("   intervalFrameMillis: " + String(intervalFrameMillis) );
   Serial.println("   clientIp: " + clientIp );
   Serial.println("   clientPort: " + clientPort ); 
+}
+
+void saveVariable(String variable){
+
+  if(variable.compareTo("needToReset") == 0){
+  
+    // Open "cam" namespace in read/write mode
+    camPref.begin("cam", false); 
+
+    // persist the needToReset variable
+    camPref.putBool("needToReset", needToReset);
+
+    // Close the name space
+    camPref.end();
+    
+  }
+  
 }
 
 void saveVariables(){
@@ -72,6 +92,7 @@ void saveVariables(){
   // Open "cam" namespace in read/write mode
   camPref.begin("cam", false); 
 
+  camPref.putBool("needToReset", needToReset);
   camPref.putString("camId", camId);
   camPref.putString("camQuality", camQuality);
   camPref.putString("camRotate", camRotate);
@@ -82,6 +103,7 @@ void saveVariables(){
   // --- Show new values ---
   
   Serial.println("   New Mutable value variables:");
+  Serial.println("      needToReset: " + String(needToReset));
   Serial.println("      camId: " + camId );
   Serial.println("      camQuality: " + camQuality );
   Serial.println("      camRotate: " + camRotate );
