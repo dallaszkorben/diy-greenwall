@@ -22,6 +22,8 @@ from greenwall.restserver.endpoints.ep_cam_capturelist import EPCamCaptureList
 from greenwall.restserver.endpoints.ep_cam_video_construct import EPCamVideoConstruct
 from greenwall.restserver.endpoints.ep_cam_video_status import EPCamVideoStatus
 from greenwall.restserver.endpoints.ep_cam_frame_files import EPCamFrameFiles
+from greenwall.restserver.endpoints.ep_cam_configure import EPCamConfigure
+from greenwall.restserver.endpoints.ep_cam_get_configure import EPCamGetConfigure
 
 from greenwall.restserver.endpoints.ep import EP
 
@@ -50,6 +52,8 @@ class CamView(FlaskView):
         self.epCamCaptureList = EPCamCaptureList(web_gadget)
         self.epCamVideoStatus = EPCamVideoStatus(web_gadget)
         self.epCamFrameFiles = EPCamFrameFiles(web_gadget)
+        self.epCamConfigure = EPCamConfigure(web_gadget)
+        self.epCamGetConfigure = EPCamGetConfigure(web_gadget)
 
     #
     # GET http://localhost:5000/sensor/
@@ -61,20 +65,23 @@ class CamView(FlaskView):
 # === POST /register ===
 
     #
-    # Register Cam with payload
+    # Register Cam with payload - called from cam module
     #
-    # curl  --header "Content-Type: application/json" --request POST --data '{"camId": "5","streamUrl":"http://192.168.50.123:81/stream", "captureUrl": "http://192.168.50.123:80/capture" }' http://localhost:5000/cam/register
+    # curl  --header "Content-Type: application/json" --request POST --data '{"camId": "5","configureUrl": "http://192.168.0.23:80/configure", "streamUrl":"http://192.168.0.23:81/stream", "captureUrl": "http://192.168.0.23:80/capture" }' http://localhost:5000/cam/register
     #
     # POST http://localhost:5000/cam/register
     #      body: {
     #        "camId":"5"
-    #        "streamUrl": "http://192.168.50.123:81/stream",
-    #        "captureUrl": "http://192.168.50.123:80/capture",
+    #        "configureUrl": "http://192.168.0.23:81/configure",
+    #        "streamUrl": "http://192.168.0.23:81/stream",
+    #        "captureUrl": "http://192.168.0.23:80/capture",
     #      }
     #
     #@route('/register', methods=['POST'])
     @route(EPCamRegister.PATH_PAR_PAYLOAD, methods=[EPCamRegister.METHOD])
     def registerCamWithPayload(self):
+
+        logging.debug("POST cam/register node was called from the cam module")
 
         # WEB
         if request.form:
@@ -152,6 +159,62 @@ class CamView(FlaskView):
 
         out = self.epCamSaveFrame.executeByParameters(camId=camId, camRotate=camRotate, image=image)
         return out
+
+
+# === GET /cam/configure/ ===
+
+    #
+    # Get the Configuration of the Cam module
+    #
+    # curl  --request GET http://localhost:5000/cam/configure/
+    #
+    # GET http://localhost:5000/cam/configure/
+
+    #@route('/configure/ip/{ip}', methods=['GET'])
+    @route(EPCamGetConfigure.PATH_PAR_URL, methods=[EPCamGetConfigure.METHOD])
+    def camGetConfigureWithParameter(self, ip):
+
+        out = self.epCamGetConfigure.executeByParameters(ip=ip)
+
+        return out
+
+
+# === POST /cam/configure/ ===
+
+    #
+    # Configure the Cam module - with parameters
+    #
+    # curl  --request POST --data '{"ip": "192.168.0.27", "camId": "newCamId","camQuality": "SXGA","camRotate": "1","intervalFrameMillis":"20000","clientIp": "192.168.0.104", "clientPort": "80"}' http://localhost:5000/cam/configure/
+    #
+    # POST http://localhost:5000/cam/configure/
+    #      body: {
+    #        "ip": "192.168.0.27",
+    #        "camId": "newCamId",
+    #        "camQuality": "SXGA",
+    #        "camRotate": "1",
+    #        "intervalFrameMillis":"20000",
+    #        "clientIp": "192.168.0.104", 
+    #        "clientPort": "80"
+    #      }
+
+    #@route('/configure', methods=['POST'])
+    @route(EPCamConfigure.PATH_PAR_PAYLOAD, methods=[EPCamConfigure.METHOD])
+    def camConfigureWithPayload(self):
+
+        # WEB
+        if request.form:
+            json_data = request.form
+
+        # CURL
+        elif request.json:
+            json_data = request.json
+
+        else:
+            return "Not valid request", EP.CODE_BAD_REQUEST
+
+        out = self.epCamConfigure.executeByPayload(json_data)
+        return out
+
 
 
 # === POST /cam/video/construct/ ===

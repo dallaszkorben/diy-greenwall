@@ -61,6 +61,124 @@ class Cam:
 
         return webFilePath
 
+
+    def getConfigure(self, ip):
+        """
+        Send GET /configure request to the CAM module (identified by the IP)
+        It is called from the web page
+        """
+
+        # if the camIP is registered
+        value = self.webGadget.registerCam.getCamDictValueByIp(ip)
+
+        if value:
+
+            address = value["configureUrl"]
+            data = {}
+
+            try:
+                logging.debug("cam.py Sends request: GET {0}".format(address))
+
+                # Send request to configure CAM
+                res = requests.get(address, timeout=20)
+
+                if res.status_code == 200:
+                    logging.debug("Get Camera Configuration request was successful")
+                else:
+                    logging.error("Get Camera Configuration failed. Status code: {0}".format(res.status_code))
+
+                res_json = res.json()
+
+                # res_json looks like this: {'status': 'OK', 'value': {'camId': 'C8', 'camQuality': 'SXGA', 'camRotate': '1', 'intervalFrameMillis': '30000', 'clientIp': '192.168.0.104', 'clientPort': '80'}}
+                response = res_json
+
+                logging.debug("Camera Configuration's Status: {0}".format(res_json["status"]))
+
+            except Exception as e:
+                logging.error("Exception while sending request 'GET {0}' to the camera: {1}.".format(address, e))
+
+                response = {"status": "ERROR", "message": "Exception while sending request 'GET {0}' to the camera: {1}.".format(address, e)}
+
+        else:
+
+            response = {"status": "ERROR", "message": "The IP {ip} is not registered".format(ip=ip)}
+
+        return response
+
+
+    def postConfigure(self, ip, camId=None, camQuality=None, camRotate=None, intervalFrameMillis=None, clientIp=None, clientPort=None):
+        """
+        Send POST /configure request to the CAM module (identified by the IP)
+        It is called from the web page
+        """
+
+        payload = {}
+        if camId:
+            payload['camId'] = camId
+        if camQuality:
+            payload['camQuality'] = camQuality
+        if camRotate:
+            payload['camRotate'] = camRotate
+        if intervalFrameMillis:
+            payload['intervalFrameMillis'] = intervalFrameMillis
+        if clientIp:
+            payload['clientIp'] = clientIp
+        if clientPort:
+            payload['clientPort'] = clientPort
+
+#        response = False
+        
+
+        # if the camId is registered
+        value = self.webGadget.registerCam.getCamDictValueByIp(ip)
+
+        if value:
+
+            address = value["configureUrl"]
+            data = {}
+
+            try:
+                logging.debug("cam.py Sends request: POST {0}".format(address))
+
+                # Send request to configure CAM
+                res = requests.post(address, json=payload, timeout=20)
+
+#                logging.error("!!!!!!!!!!!!!!!!!!!!!")
+#                logging.error("")
+#                logging.error("")
+#        
+#                logging.error(res)
+#                logging.error(type(res))
+#                logging.error(vars(res))
+#                logging.error("status_code:")
+#                logging.error(res.status_code)
+#
+#        
+#                logging.error("")
+#                logging.error("")
+#                logging.error("!!!!!!!!!!!!!!!!!!!!!")
+
+                if res.status_code == 200:
+                    logging.debug("Camera Configuration was successful")
+                else:
+                    logging.error("Camera Configuration failed Status code: {0}".format(res.status_code))
+
+                res_json = res.json()
+
+                # res_json looks like this: {'status': 'OK'}
+                response = res_json
+
+                logging.debug("Camera Configuration's StatusCode: {0}".format(res.status_code))
+
+            except Exception as e:
+                logging.error("Exception while sending request 'POST {0}' to the camera: {1}.".format(address, e))
+                response = {"status": "ERROR", "message": "Exception while sending request 'POST {0}' to the camera: {1}.".format(address, e)}
+
+        else:
+            response = {"status": "ERROR", "message": "The IP {ip} is not registered".format(ip=ip)}
+
+        return response
+
     def videoConstruct(self, camId, startDate, endDate, fps):
         """
             Construct webm video for the web by the parameters and place it into the folder configure in the config.ini:

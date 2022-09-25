@@ -20,6 +20,7 @@ class EPCamRegister(EP):
     METHOD = 'POST'
 
     ATTR_ID = 'camId'
+    ATTR_CONFIGURE_URL = 'configureUrl'
     ATTR_STREAM_URL = 'streamUrl'
     ATTR_CAPTURE_URL = 'captureUrl'
     ATTR_DATE_STRING = 'dateString'
@@ -36,29 +37,34 @@ class EPCamRegister(EP):
         ret['path-parameter-in-payload'] = EPCamRegister.PATH_PAR_PAYLOAD
 #        ret['path-parameter-in-url'] = EPCamCaptureRegister.PATH_PAR_URL
 
-        ret['parameters'] = [{},{},{},{}]
+        ret['parameters'] = [{},{},{},{},{}]
 
         ret['parameters'][0]['attribute'] = EPCamRegister.ATTR_ID
         ret['parameters'][0]['type'] = 'string'
         ret['parameters'][0]['value'] = 255
 
-        ret['parameters'][1]['attribute'] = EPCamRegister.ATTR_STREAM_URL
+        ret['parameters'][1]['attribute'] = EPCamRegister.ATTR_CONFIGURE_URL
         ret['parameters'][1]['type'] = 'string'
         ret['parameters'][1]['value'] = 255
 
-        ret['parameters'][2]['attribute'] = EPCamRegister.ATTR_CAPTURE_URL
+        ret['parameters'][2]['attribute'] = EPCamRegister.ATTR_STREAM_URL
         ret['parameters'][2]['type'] = 'string'
         ret['parameters'][2]['value'] = 255
 
-        ret['parameters'][3]['attribute'] = EPCamRegister.ATTR_DATE_STRING
+        ret['parameters'][3]['attribute'] = EPCamRegister.ATTR_CAPTURE_URL
         ret['parameters'][3]['type'] = 'string'
         ret['parameters'][3]['value'] = 255
 
+        ret['parameters'][4]['attribute'] = EPCamRegister.ATTR_DATE_STRING
+        ret['parameters'][4]['type'] = 'string'
+        ret['parameters'][4]['value'] = 255
+
         return ret
 
-    def executeByParameters(self, camId, streamUrl, captureUrl, dateString) -> dict:
+    def executeByParameters(self, camId, configureUrl, streamUrl, captureUrl, dateString) -> dict:
         payload = {}
         payload[EPCamRegister.ATTR_ID] = camId
+        payload[EPCamRegister.ATTR_CONFIGURE_URL] = configureUrl
         payload[EPCamRegister.ATTR_CAPTURE_URL] = captureUrl
         payload[EPCamRegister.ATTR_STREAM_URL] = streamUrl
         payload[EPCamRegister.ATTR_DATE_STRING] = dateString
@@ -68,13 +74,15 @@ class EPCamRegister(EP):
     def executeByPayload(self, payload) -> dict:
 
         camId = payload[EPCamRegister.ATTR_ID]
+        configureUrl = payload[EPCamRegister.ATTR_CONFIGURE_URL]
         streamUrl = payload[EPCamRegister.ATTR_STREAM_URL]
         captureUrl = payload[EPCamRegister.ATTR_CAPTURE_URL]
         dateString = payload[EPCamRegister.ATTR_DATE_STRING]
 
-        logging.debug( "SENSOR request: {0} {1} ('{2}': {3}, '{4}': {5}, '{6}': {7} )".format(
+        logging.debug( "SENSOR request: {0} {1} ('{2}': {3}, '{4}': {5}, '{6}': {7}, '{8}': {9} )".format(
                     EPCamRegister.METHOD, EPCamRegister.URL,
                     EPCamRegister.ATTR_ID, camId,
+                    EPCamRegister.ATTR_CONFIGURE_URL, configureUrl,
                     EPCamRegister.ATTR_STREAM_URL, streamUrl,
                     EPCamRegister.ATTR_CAPTURE_URL, captureUrl,
                     EPCamRegister.ATTR_DATE_STRING, dateString
@@ -86,7 +94,7 @@ class EPCamRegister(EP):
 
         camIp = request.remote_addr
 
-        self.web_gadget.registerCam.register(dateString, camIp, camId, streamUrl, captureUrl)
+        self.web_gadget.registerCam.register(dateString, camIp, camId, configureUrl, streamUrl, captureUrl)
 
         # print out to LCD
 #        self.web_gadget.controlBox.refreshData(stationId)

@@ -31,8 +31,8 @@ from copy import deepcopy
 class RegisterCam:
 
     #   camDict[
-    #      "5": {"ip":"192.168.0.112", "timestamp": 35779, "streamUrl": "http://192.168.50.123:81/stream", "captureUrl": "http://192.168.50.123:80/capture" },
-    #      "9": {"ip":"192.168.0.117", "timestamp": 35787, "streamUrl": "http://192.168.50.123:81/stream", "captureUrl": "http://192.168.50.123:80/capture" },
+    #      "5": {"ip":"192.168.0.26", "timestamp": 35779, "configureUrl": "http://192.168.0.26:80/configure", "streamUrl": "http://192.168.0.26:81/stream", "captureUrl": "http://192.168.0.26:80/capture" },
+    #      "9": {"ip":"192.168.0.27", "timestamp": 35787, "configureUrl": "http://192.168.0.27:80/configure", "streamUrl": "http://192.168.0.27:81/stream", "captureUrl": "http://192.168.0.27:80/capture" },
     #   ]
 
     def __init__(self,  web_gadget, registerPath):
@@ -71,12 +71,28 @@ class RegisterCam:
         x = threading.Thread(target=self.cleanRegister, args=())
         x.start()
 
+    def getCamDictValueByIp(self, ip):
+        """
+        Gives back the values of the registered camera by its IP
+        If the camera is not registered then it gives back None
+        The returned value is a dict like this:
+            {"ip":"192.168.0.26", "timestamp": 35779, "configureUrl": "http://192.168.0.26:80/configure", "streamUrl": "http://192.168.0.26:81/stream", "captureUrl": "http://192.168.0.26:80/capture" }
+        """
+        with self.lockRegister:
+
+            value = None
+            for camId, value in self.camDict.items():
+                if value["ip"] == ip:
+                    value = self.camDict[camId]
+                    break
+            return value
+
     def getCamDictValue(self, camId):
         """
         Gives back the values of the registered camera by its camId
         If the camera is not registered then it gives back None
         The returned value is a dict like this:
-            {"ip":"192.168.0.112", "timestamp": 35779, "streamUrl": "http://192.168.50.123:81/stream", "captureUrl": "http://192.168.50.123:80/capture" }
+            {"ip":"192.168.0.26", "timestamp": 35779, "configureUrl": "http://192.168.0.26:80/configure", "streamUrl": "http://192.168.0.26:81/stream", "captureUrl": "http://192.168.0.26:80/capture" }
         """
         with self.lockRegister:
 
@@ -118,7 +134,7 @@ class RegisterCam:
 
                     for key, value in self.camDict.copy().items():
                         dateString = datetime.fromtimestamp(value['timeStamp']).astimezone().isoformat()
-                        fileObject.write("{dateString}{sep}{camId}{sep}{camIp}{sep}{captureUrl}{sep}{streamUrl}{sep}\n".format(dateString=dateString, camId=key, camIp=value["ip"], streamUrl=value["streamUrl"], captureUrl=value["captureUrl"], sep=self.separator))
+                        fileObject.write("{dateString}{sep}{camId}{sep}{camIp}{sep}{configureUrl}{sep}{captureUrl}{sep}{streamUrl}{sep}\n".format(dateString=dateString, camId=key, camIp=value["ip"], configureUrl=value["configureUrl"], streamUrl=value["streamUrl"], captureUrl=value["captureUrl"], sep=self.separator))
 
 
                         logging.error("   Add key to cam_register.log: " + key)
@@ -128,7 +144,7 @@ class RegisterCam:
 
             time.sleep(70)
 
-    def register(self, dateString, camIp, camId, streamUrl, captureUrl):
+    def register(self, dateString, camIp, camId, configureUrl, streamUrl, captureUrl):
         """
         Registers the camera in the cam_register.log and in the self.camDict dictionary
         """
@@ -154,13 +170,13 @@ class RegisterCam:
 
             # delete every record from cam
             # register the cam - if it exists then updates
-            self.camDict[camId] = {"ip": camIp, "timeStamp": timeStamp, "streamUrl": streamUrl, "captureUrl": captureUrl}
+            self.camDict[camId] = {"ip": camIp, "timeStamp": timeStamp, "configureUrl": configureUrl, "streamUrl": streamUrl, "captureUrl": captureUrl}
             with open(self.registerPath, 'w') as fileObject:
                 for key, value in self.camDict.items():
                     dateString = datetime.fromtimestamp(value['timeStamp']).astimezone().isoformat()
-                    fileObject.write("{dateString}{sep}{camId}{sep}{camIp}{sep}{captureUrl}{sep}{streamUrl}{sep}\n".format(dateString=dateString, camId=key, camIp=value["ip"], streamUrl=value["streamUrl"], captureUrl=value["captureUrl"], sep=self.separator))
+                    fileObject.write("{dateString}{sep}{camId}{sep}{camIp}{sep}{configureUrl}{sep}{captureUrl}{sep}{streamUrl}{sep}\n".format(dateString=dateString, camId=key, camIp=value["ip"], configureUrl=value["configureUrl"], streamUrl=value["streamUrl"], captureUrl=value["captureUrl"], sep=self.separator))
 
-    def getValueList(self, capture=True, stream=False, camId=None ):
+    def getValueList(self, configure=False, capture=True, stream=False, camId=None ):
         output = []
 
         # TODO if the record is outdated: remove it from the list
@@ -169,11 +185,15 @@ class RegisterCam:
 
             if not camId or (camId==ci):
                 camIp=value['ip']
+                configureUrl=value['configureUrl']
                 streamUrl=value['streamUrl']
                 captureUrl=value['captureUrl']
                 dateString = value['timeStamp']
 
                 app = {"camId": ci}
+                if configure:
+                    app["configureUrl"] = configureUrl
+
                 if capture:
                     app["captureUrl"] = captureUrl
 
@@ -182,7 +202,7 @@ class RegisterCam:
 
                 output.append(app)
 
-#                output.append({"camId": si, "capIp": camIp, "streamUrl": streamUrl, "captureUrl": captureUrl,"timeStamp": dateString   })
+#                output.append({"camId": si, "capIp": camIp, "configureUrl": configureUrl, "streamUrl": streamUrl, "captureUrl": captureUrl,"timeStamp": dateString   })
         return output
 
 #    def getRawReportCopy(self):
