@@ -129,8 +129,9 @@ void loop() {
       previousRegisterMillis = currentMillis;      
     }else{
       Serial.println("    !!! Cam register failed !!!");   
+      delay(1000);
     } 
-    Serial.println();   
+    Serial.println();     
   
   //In every 30 seconds tries to take photo and SAVE FRAME
   }else if(currentMillis - previousFrameMillis >= intervalFrameMillis){

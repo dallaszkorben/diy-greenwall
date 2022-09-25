@@ -13,6 +13,7 @@ bool registerCam() {
   // Construct the payload
   StaticJsonDocument<1024> doc;
   doc["camId"] = camId;
+  doc["configureUrl"] = "http://" + WiFi.localIP().toString() + ":80/configure";
   doc["streamUrl"] = "http://" + WiFi.localIP().toString() + ":81/stream";
   doc["captureUrl"] = "http://" + WiFi.localIP().toString() + ":80/capture";
   doc["dateString"] = getOffsetDateString();
