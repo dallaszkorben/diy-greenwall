@@ -148,6 +148,8 @@ Serial.println(payload);
     strcpy(resp,"{'status': 'ERROR'}");
   }else{
 
+    String originalCamQuality = camQuality;
+    
     const char* myCamId = doc["camId"];
     if (myCamId){
       camId = String(myCamId);
@@ -180,7 +182,12 @@ Serial.println(payload);
       clientPort = String(myClientPort);
     }
 
-    needToReset = true;
+    // If the camQuality was modified, then RESET needed to be able to initiate the CAM
+    // In the CAM initiatin you configure the FRAMESIZE (what I call camQuality): esp_camera_init(&config);
+    // But it is not possibel to run the initiation twice. That is why the RESET is needed
+    if(camQuality.compareTo(originalCamQuality) != 0){
+      needToReset = true;
+    }
     saveVariables();
   }
 

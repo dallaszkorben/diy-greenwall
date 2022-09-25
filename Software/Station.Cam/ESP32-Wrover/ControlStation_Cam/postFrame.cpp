@@ -34,7 +34,7 @@ boolean postFrame(WiFiClient client, String clientIp, String clientPort, String 
     Serial.println("   Camera capture failed");
     return false;
   }
-  Serial.println("   Image was taken...");
+  Serial.println("   Image was taken.");
   
   if (client.connect(clientIp.c_str(), clientPort.toInt())) {
     Serial.println("   Connection successful!");    
@@ -52,20 +52,35 @@ boolean postFrame(WiFiClient client, String clientIp, String clientPort, String 
     client.println("Content-Type: multipart/form-data; boundary=" + boundary);
     client.println();
     client.print(head);
-  
+
+    Serial.println("   Header was sent.");
+
+    Serial.println("   Image is sending...");
+    
     uint8_t *fbBuf = fb->buf;
     size_t fbLen = fb->len;
     for (size_t n=0; n<fbLen; n=n+1024) {
       if (n+1024 < fbLen) {
         client.write(fbBuf, 1024);
+
+        //Serial.print(".");
+        
         fbBuf += 1024;
       }
       else if (fbLen%1024>0) {
         size_t remainder = fbLen%1024;
         client.write(fbBuf, remainder);
+
+        //Serial.print(".");
+
       }
     }   
+
+    Serial.println("   Image was sent.");
+    
     client.print(tail);
+
+    Serial.println("   Tail was sent.");
     
     esp_camera_fb_return(fb);
     
