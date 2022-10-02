@@ -181,6 +181,7 @@ esp_err_t handler_post_configure(httpd_req_t *req) {
     const char* myCamId = doc["camId"];
     if (myCamId) {
       camId = String(myCamId);
+      camId.replace(" ", "_");
     }
 
     // 96X96,QQVGA,QCIF,HQVGA,240X240,QVGA,CIF,HVGA,VGA,SVGA,XGA,HD,SXGA,UXGA
