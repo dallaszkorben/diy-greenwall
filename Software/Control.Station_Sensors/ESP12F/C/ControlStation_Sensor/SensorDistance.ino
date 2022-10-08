@@ -76,7 +76,7 @@ double getAverageDistance(int sample){
 }
 
 double avgHcsrDist = NULL;
-double avgHcsrCounter = 0;
+//double avgHcsrCounter = 0;
 /////////////////////////////////////////////////
 //
 // Dinamically calculate average (moving average)

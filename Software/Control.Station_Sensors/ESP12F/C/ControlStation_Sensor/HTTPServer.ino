@@ -32,7 +32,7 @@ void handleGetConfigure(){
 void handleGetPressure(){
   Serial.println("'GET /pressure' request");
 
-  struct BMP180_Struct bmp180Result = getAveragePressure(1);
+  struct BMP180_Struct bmp180Result = getPressure(false); //getAveragePressure(1);
   double pressure = bmp180Result.pressure;
   
   String contentJson = 
@@ -49,7 +49,7 @@ void handleGetPressure(){
 void handleGetTemperature(){
   Serial.println("'GET /tepmerature' request");
 
-  struct BMP180_Struct bmp180Result = getAveragePressure(1);
+  struct BMP180_Struct bmp180Result = getPressure(false); //getAveragePressure(1);
   double temp1 = bmp180Result.temperature;
 
   struct DHT_Struct dhtResult = getAverageTempHum(1);
@@ -71,7 +71,7 @@ void handleGetTemperature(){
 void handleGetHumidity(){
   Serial.println("'GET /humidity' request");
 
-  struct DHT_Struct dhtResult = getAverageTempHum(1);
+  struct DHT_Struct dhtResult = getTemperature(false); //getAverageTempHum(1);
 
   String contentJson = 
     String("{") +
@@ -87,7 +87,7 @@ void handleGetHumidity(){
 void handleGetDistance(){
   Serial.println("'GET /distance' request");
 
-  double distance = getAverageDistance(1);
+  double distance = getDistanceByDuration(getDuration(false)); //getAverageDistance(1);
 
   String contentJson = 
     String("{") +

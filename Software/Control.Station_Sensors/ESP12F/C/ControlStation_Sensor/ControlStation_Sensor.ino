@@ -40,6 +40,10 @@ int validSensorPressureValue;
 int validSensorTempHumValue;
 int validSensorDistanceValue;
 
+double avgBmpCounter = 0;
+double avgDhtCounter = 0;
+double avgHcsrCounter = 0;
+
 //--- define functions ---
 double getPressure();
 struct BMP180_Struct getMovingAveragePressure(bool reset);
@@ -168,7 +172,10 @@ void loop() {
       Serial.print(bmp180Result.pressure);
       Serial.print(" Pa, ");
     }
-    if(validSensorPressureValue){      
+    if(validSensorPressureValue){  
+      Serial.print("   (");
+      Serial.print(avgBmpCounter);
+      Serial.print(")");    
       Serial.println();
     }
     
@@ -198,6 +205,10 @@ void loop() {
     }
     
     if(validSensorTempHumValue){
+      Serial.print("   (");
+      Serial.print(avgDhtCounter);
+      Serial.print(")");    
+
       Serial.println();
     }
   }
@@ -220,6 +231,10 @@ void loop() {
     }
     
     if(validSensorDistanceValue){
+      Serial.print("   (");
+      Serial.print(avgHcsrCounter);
+      Serial.print(")");    
+
       Serial.println();
     }
   }
@@ -238,18 +253,7 @@ void loop() {
   }
 */
 
-
-
   server.handleClient();          //Handle client requests
-
-
-
-
-
-
-
-
-
   
-  //delay(10);
+  delay(100);
 }
