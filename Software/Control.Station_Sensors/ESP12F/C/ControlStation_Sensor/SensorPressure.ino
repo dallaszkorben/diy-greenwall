@@ -132,7 +132,7 @@ struct BMP180_Struct getAveragePressure(int sample){
 
 double avgBmpTemp = NULL;
 double avgBmpPress = NULL;
-double avgBmpCounter = 0;
+//double avgBmpCounter = 0;
 /////////////////////////////////////////////////
 //
 // Dinamically calculate average (moving average)

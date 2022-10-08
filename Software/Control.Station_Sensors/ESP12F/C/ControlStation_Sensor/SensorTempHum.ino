@@ -98,7 +98,7 @@ struct DHT_Struct getAverageTempHum(int sample){
 
 double avgDhtTemp = NULL;
 double avgDhtHum = NULL;
-double avgDhtCounter = 0;
+//double avgDhtCounter = 0;
 /////////////////////////////////////////////////
 //
 // Dinamically calculate average (moving average)
