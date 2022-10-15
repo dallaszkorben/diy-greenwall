@@ -158,12 +158,14 @@ class Controlbox:
             levelMenu =       LcdSubElement("levl: ")
             temperatureMenu = LcdSubElement("temp: ")
             humidityMenu =    LcdSubElement("relh: ")
+            pressureMenu =    LcdSubElement("pres: ")
             dateMenu =        LcdSubElement("date: ")
             ipMenu =          LcdSubElement("ip:   ")
 
             stationMenu.addLcdMenu(levelMenu)
             stationMenu.addLcdMenu(temperatureMenu)
             stationMenu.addLcdMenu(humidityMenu)
+            stationMenu.addLcdMenu(pressureMenu)
             stationMenu.addLcdMenu(dateMenu)
             stationMenu.addLcdMenu(ipMenu)
 
@@ -185,6 +187,7 @@ class Controlbox:
             levelValue = i['levelValue']
             temperatureValue = i['temperatureValue']
             humidityValue = i['humidityValue']
+            pressureValue = i['pressureValue']
 
             dateString = datetime.fromtimestamp(timeStamp).astimezone().isoformat()
 
@@ -199,13 +202,17 @@ class Controlbox:
             # humidity
             stationMenu.menuList[3].setText("relh: {0} %".format(humidityValue))
 
+            # pressure
+            stationMenu.menuList[4].setText("press: {0} Pa".format(pressureValue))
+            stationMenu.menuList[4].setRotateAt(7)
+
             # date
-            stationMenu.menuList[4].setText("date: {0}".format(dateString))
-            stationMenu.menuList[4].setRotateAt(6)
+            stationMenu.menuList[5].setText("date: {0}".format(dateString))
+            stationMenu.menuList[5].setRotateAt(6)
 
             # ip
-            stationMenu.menuList[5].setText("ip: {0}".format(ip))
-            stationMenu.menuList[5].setRotateAt(4)
+            stationMenu.menuList[6].setText("ip: {0}".format(ip))
+            stationMenu.menuList[6].setRotateAt(4)
 
             if stationMenu.activeMenu and not stationMenu.startRelativeWindow == None:
 #                stationMenu.showMenu()

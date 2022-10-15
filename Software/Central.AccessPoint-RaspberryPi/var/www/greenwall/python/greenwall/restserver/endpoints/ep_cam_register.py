@@ -79,7 +79,7 @@ class EPCamRegister(EP):
         captureUrl = payload[EPCamRegister.ATTR_CAPTURE_URL]
         dateString = payload[EPCamRegister.ATTR_DATE_STRING]
 
-        logging.debug( "SENSOR request: {0} {1} ('{2}': {3}, '{4}': {5}, '{6}': {7}, '{8}': {9} )".format(
+        logging.debug( "CAMERA request: {0} {1} ('{2}': {3}, '{4}': {5}, '{6}': {7}, '{8}': {9} )".format(
                     EPCamRegister.METHOD, EPCamRegister.URL,
                     EPCamRegister.ATTR_ID, camId,
                     EPCamRegister.ATTR_CONFIGURE_URL, configureUrl,

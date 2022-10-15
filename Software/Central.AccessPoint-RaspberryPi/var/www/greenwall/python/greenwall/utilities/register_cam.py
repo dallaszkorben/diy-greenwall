@@ -130,14 +130,14 @@ class RegisterCam:
                 # delete every record from cam_register.log
                 with open(self.registerPath, 'w') as fileObject:
 
-                    logging.error("   Clear the cam_register.log file")
+                    logging.debug("   Clear the cam_register.log file")
 
                     for key, value in self.camDict.copy().items():
                         dateString = datetime.fromtimestamp(value['timeStamp']).astimezone().isoformat()
                         fileObject.write("{dateString}{sep}{camId}{sep}{camIp}{sep}{configureUrl}{sep}{captureUrl}{sep}{streamUrl}{sep}\n".format(dateString=dateString, camId=key, camIp=value["ip"], configureUrl=value["configureUrl"], streamUrl=value["streamUrl"], captureUrl=value["captureUrl"], sep=self.separator))
 
 
-                        logging.error("   Add key to cam_register.log: " + key)
+                        logging.debug("   Add key to cam_register.log: " + key)
 
 
             logging.debug("Cam Register Check - Waiting 70 sec for the next check")

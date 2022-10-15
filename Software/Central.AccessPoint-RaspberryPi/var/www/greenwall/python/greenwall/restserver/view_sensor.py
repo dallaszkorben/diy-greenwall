@@ -52,16 +52,15 @@ class SensorView(FlaskView):
     #
     # Add sensor data to list with payload
     #
-    # curl  --header "Content-Type: application/json" --request POST --data '{"stationId": "5", "dateString": "2021.12.03T11:34", "levelValue":23.4, "sensorVariance":0.0 "temperatureValue": 12, "humidityValue": 20}' http://localhost:5000/sensor/add
+    # curl  --header "Content-Type: application/json" --request POST --data '{"stationId": "5", "levelValue":23.4, "temperatureValue": 12, "humidityValue": 20, "pressureValue": 123}' http://localhost:5000/sensor/add
     #
     # POST http://localhost:5000/sensor/add
     #      body: {
-    #        "stationId": "5",
-    #        "dateString": "2021.12.03T11:34",
+    #        "stationId": "S05",
     #        "levelValue":23.4,
-    #        "levelVariance":0.0
     #        "temperatureValue": 12,
-    #        "humidityValue": 20
+    #        "humidityValue": 20,
+    #        "pressureValue": 150
     #      }
     #
     #@route('/add', methods=['POST'])
@@ -82,77 +81,30 @@ class SensorView(FlaskView):
         out = self.epSensorAdd.executeByPayload(json_data)
         return out
 
+
     #
     # Add sensor data to list - with parameters
     #
-    # curl  --header "Content-Type: application/json" --request POST http://localhost:5000/sensor/add/stationId/5/dateString/2021.12.03T11:34/levelValue/23.4/sensorVariance/0.0/temperatureValue/12/humidityValue/2
+    # New Input structure:
+    #	dateString:	NO
+    #	sensorVariance:	NO
+    #	pressureValue:	YES
     #
-    # POST http://localhost:5000/sensor/add/stationId/5/dateString/2021.12.03T11:34/levelValue/23.4/sensorVariance/0.0/teperatureValue/12/humidityValue/2
+    # curl  --header "Content-Type: application/json" --request POST http://localhost:5000/sensor/add/stationId/5/levelValue/23.4/temperatureValue/12/humidityValue/2/pressureValue/123
     #
-    #@route('/add/stationId/<stationId>/dateString/<dateString>/levelValue/<levelValue>/sensorVariance/<sensorVariance>/temperatureValue/<temperatureValue>/humidityValue/<humidityValue>, methods=['POST'])
+    # POST http://localhost:5000/sensor/add/stationId/5/levelValue/23.4/teperatureValue/12/humidityValue/2/pressureValue/123
+    #
+    #@route('/add/stationId/<stationId>/levelValue/<levelValue>/temperatureValue/<temperatureValue>/humidityValue/<humidityValue>/pressureValue/<pressureValue>, methods=['POST'])
     @route(EPSensorAdd.PATH_PAR_URL, methods=[EPSensorAdd.METHOD])
-    def setWithParameter(self, stationId, dateString, levelValue, levelVariance, temperatureValue, humidityValue):
+    def setWithParameter(self, stationId, levelValue, temperatureValue, humidityValue, pressureValue):
 
-        out = self.epSensorAdd.executeByParameters(stationId=stationId, levelValue=levelValue, levelVariance=levelVariance, temperatureValue=temperatureValue, humidityValue=humidityValue)
+        out = self.epSensorAdd.executeByParameters(stationId=stationId, levelValue=levelValue, temperatureValue=temperatureValue, humidityValue=humidityValue, pressureValue=pressureValue)
         return out
 
 
-
-
-
-
-
-
 # ===
 
-    #
-    # Read the sensor - with payload
-    #
-    # curl  --header "Content-Type: application/json" --request GET --data '{"startDate":"2021.11.07T20:15:123+01:00"}' http://localhost:5000/sensor/read
-    #
-    # GET http://localhost:5000/sensor/read
-    #      body: {
-    #            "startDate":"2021.11.07T20:15:123+01:00"
-    #           }
-    #
-    #@route('/read', methods=['GET'])
-#    @route(EPInfoSensor.PATH_PAR_PAYLOAD, methods=[EPInfoSensor.METHOD])
-#    def readWithPayload(self):
-#
-#        # WEB
-#        if request.form:
-#            json_data = request.form
-#
-#        # CURL
-#        elif request.json:
-#            json_data = request.json
-#
-#        else:
-#            return "Not valid request", EP.CODE_BAD_REQUEST
-#
-#        out = self.epInfoSensor.executeByPayload(json_data)
-#        return out
-
-    #
-    # Read the sensor - with parameters
-    #
-    # curl  --header "Content-Type: application/json" --request GET http://localhost:5000/sensor/read/startDate/2021.11.07T20:15:123+01:00
-    #
-    # READ http://localhost:5000/sensor/read/startDate/2021.11.07T20:15:123+01:00
-    #
-    #@route('/read/startDate/<startDate>', methods=['GET'])
-#    @route(EPInfoSensor.PATH_PAR_URL, methods=[EPInfoSensor.METHOD])
-#    def readWithParameter(self, startDate):
-#
-#        out = self.epInfoSensor.executeByParameters(startDate=startDate)
-#        return out
-
-
 # ===
-
-
-
-
 
     #
     # Fetch sensor data - with parameters
@@ -181,5 +133,4 @@ class SensorView(FlaskView):
 
         out = self.epSensorDataList.executeByParameters(startDate=startDate, endDate=endDate)
         return out
-
 
