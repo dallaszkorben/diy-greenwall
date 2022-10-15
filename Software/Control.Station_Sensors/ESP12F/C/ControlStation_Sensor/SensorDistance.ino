@@ -7,7 +7,7 @@ bool configureDistanceSensor(){
   pinMode(sensorDistanceTrigGPIO, OUTPUT); // Sets the trigPin as an Output
   pinMode(sensorDistanceEchoGPIO, INPUT);  // Sets the echoPin as an Input
 
-  double dist = getAverageDistance(10);
+  double dist = getSampleOfDistance(10);
 
   if(dist == NULL){
     ret = false;  
@@ -47,7 +47,7 @@ double getDuration(bool needToPrint){
   return ret;
 }
 
-double getAverageDistance(int sample){
+double getSampleOfDistance(int sample){
   double ret;
   double sumDur = 0;
   double incDur = 0;
@@ -75,7 +75,7 @@ double getAverageDistance(int sample){
   return ret;
 }
 
-double avgHcsrDist = NULL;
+//double avgHcsrDist = NULL;
 //double avgHcsrCounter = 0;
 /////////////////////////////////////////////////
 //
@@ -90,7 +90,7 @@ double avgHcsrDist = NULL;
 //        b = 1 - a
 //        avg = a * V + b * avg
 /////////////////////////////////////////////////
-double getMovingAverageDistance(bool reset){
+double add1SampleToMovingAverageDistance(bool reset){
   double ret;
   double actualDist;
 
@@ -100,7 +100,7 @@ double getMovingAverageDistance(bool reset){
   }
 
   double result;
-  result = getAverageDistance(1); 
+  result = getSampleOfDistance(1); 
   actualDist = result;
 
   avgHcsrCounter++;

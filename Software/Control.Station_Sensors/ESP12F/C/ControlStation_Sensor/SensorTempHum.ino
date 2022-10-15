@@ -25,7 +25,7 @@ bool configureTempHumSensor(){
 }
 
 
-struct DHT_Struct getTemperature(bool needToPrint){
+struct DHT_Struct getTempHum(bool needToPrint){
   struct DHT_Struct ret;
   ret.temperature = NULL;
   ret.humidity = NULL;
@@ -55,7 +55,7 @@ struct DHT_Struct getTemperature(bool needToPrint){
 }
 
 
-struct DHT_Struct getAverageTempHum(int sample){
+struct DHT_Struct getSampleOfTempHum(int sample){
   struct DHT_Struct ret;
   double sumTemp = 0;
   double sumHum = 0;
@@ -67,7 +67,7 @@ struct DHT_Struct getAverageTempHum(int sample){
   struct DHT_Struct result;
 
   for(int i = 0; i < sample; i++){
-    result = getTemperature(false);
+    result = getTempHum(false);
     actualTemp = result.temperature;
     actualHum = result.humidity;
 
@@ -96,8 +96,8 @@ struct DHT_Struct getAverageTempHum(int sample){
   return ret;
 }
 
-double avgDhtTemp = NULL;
-double avgDhtHum = NULL;
+//double avgDhtTemp = NULL;
+//double avgDhtHum = NULL;
 //double avgDhtCounter = 0;
 /////////////////////////////////////////////////
 //
@@ -112,7 +112,7 @@ double avgDhtHum = NULL;
 //        b = 1 - a
 //        avg = a * V + b * avg
 /////////////////////////////////////////////////
-struct DHT_Struct getMovingAverageTempHum(bool reset){
+struct DHT_Struct add1SampleToMovingAverageTempHum(bool reset){
   struct DHT_Struct ret;
   double actualTemp;
   double actualHum;
@@ -124,7 +124,7 @@ struct DHT_Struct getMovingAverageTempHum(bool reset){
   }
 
   struct DHT_Struct result;
-  result = getAverageTempHum(1);
+  result = getSampleOfTempHum(1);
  
   actualTemp = result.temperature;
   actualHum = result.humidity;

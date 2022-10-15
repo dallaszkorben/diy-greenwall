@@ -16,7 +16,7 @@
 //create an BMP180 object using the I2C interface
 BMP180I2C bmp180(I2C_ADDRESS);
 
-bool configurePressureSensor(){
+bool configurePressTempSensor(){
   bool ret = true;
 
   Wire.begin();
@@ -41,7 +41,7 @@ bool configurePressureSensor(){
   return ret;
 }
 
-struct BMP180_Struct getPressure(bool needToPrint){
+struct BMP180_Struct getPressTemp(bool needToPrint){
   struct BMP180_Struct ret;
   ret.temperature = NULL;
   ret.pressure = NULL;
@@ -88,7 +88,7 @@ struct BMP180_Struct getPressure(bool needToPrint){
   return ret;  
 }
 
-struct BMP180_Struct getAveragePressure(int sample){
+struct BMP180_Struct getSampleOfPressTemp(int sample){
   struct BMP180_Struct ret;
   double sumTemp = 0;
   double sumPress = 0;
@@ -100,7 +100,7 @@ struct BMP180_Struct getAveragePressure(int sample){
   struct BMP180_Struct result;
 
   for(int i = 0; i < sample; i++){
-    result = getPressure(false);
+    result = getPressTemp(false);
     actualTemp = result.temperature;
     actualPress = result.pressure;
 
@@ -130,8 +130,8 @@ struct BMP180_Struct getAveragePressure(int sample){
 }
 
 
-double avgBmpTemp = NULL;
-double avgBmpPress = NULL;
+//double avgBmpTemp = NULL;
+//double avgBmpPress = NULL;
 //double avgBmpCounter = 0;
 /////////////////////////////////////////////////
 //
@@ -146,7 +146,7 @@ double avgBmpPress = NULL;
 //        b = 1 - a
 //        avg = a * V + b * avg
 /////////////////////////////////////////////////
-struct BMP180_Struct getMovingAveragePressure(bool reset){
+struct BMP180_Struct add1SampleToMovingAveragePressTemp(bool reset){
   struct BMP180_Struct ret;
   double actualTemp;
   double actualPress;
@@ -158,7 +158,7 @@ struct BMP180_Struct getMovingAveragePressure(bool reset){
   }
 
   struct BMP180_Struct result;
-  result = getAveragePressure(1);
+  result = getSampleOfPressTemp(1);
  
   actualTemp = result.temperature;
   actualPress = result.pressure;
