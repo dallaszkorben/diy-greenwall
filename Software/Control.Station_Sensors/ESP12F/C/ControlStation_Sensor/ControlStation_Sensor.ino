@@ -39,9 +39,9 @@ const String        DEFAULT_CLIENT_PATH_TO_REGISTER = "sensor/register";
 const String        DEFAULT_CLIENT_PATH_TO_REPORT   = "sensor/add";
 
 const String        DEFAULT_STATION_ID                = "default";
-const unsigned long DEFAULT_INTERVAL_REPORT_MILLIS    = 60300;  //600000;    // 10 min
+const unsigned long DEFAULT_INTERVAL_REPORT_MILLIS    = 600300;              // 10 min
 const unsigned long DEFAULT_INTERVAL_REGISTER_MILLIS  = 120600;              // 2 min
-const unsigned long DEFAULT_INTERVAL_RESET_MILLIS     = 1800900;             // 30 min
+const unsigned long DEFAULT_INTERVAL_RESET_MILLIS     = 3600900;             // 60 min
 const unsigned long DEFAULT_INTERVAL_CONNECTION_MILLIS= 60200;               // 1 min
 const int           DEFAULT_SENSOR_TEMPHUM_OUT_GPIO   = 0;
 const int           DEFAULT_SENSOR_DISTANCE_ECHO_GPIO = 14;

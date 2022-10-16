@@ -10,7 +10,7 @@ const char* password = "Elmebetegek Almaiban";
 
 const bool DEFAULT_NEED_TO_RESET = false;
 
-const String DEFAULT_CAMID = "default";
+const String DEFAULT_CAMID = "C9";
 const String DEFAULT_CAMQUALITY = "SVGA";          // 96X96,QQVGA,QCIF,HQVGA,240X240,QVGA,CIF,HVGA,VGA,SVGA,XGA,HD,SXGA,UXGA
 const String DEFAULT_CAMROTATE = "0";              //0, 1, 2, 3
 unsigned long DEFAULT_INTERVALFRAME = 20000;       //save 1 frame / minute
