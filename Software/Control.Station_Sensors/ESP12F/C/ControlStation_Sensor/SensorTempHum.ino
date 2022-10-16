@@ -54,7 +54,14 @@ struct DHT_Struct getTempHum(bool needToPrint){
   return ret;
 }
 
-
+/*
+ * Returns the average value of the Temperature/Humidity
+ * 
+ * return:  
+ *    .temp=NULL      - missing sensor
+ *    .humidity=NULL  - missing sensor
+  * 
+ */
 struct DHT_Struct getSampleOfTempHum(int sample){
   struct DHT_Struct ret;
   double sumTemp = 0;
@@ -96,22 +103,27 @@ struct DHT_Struct getSampleOfTempHum(int sample){
   return ret;
 }
 
-//double avgDhtTemp = NULL;
-//double avgDhtHum = NULL;
-//double avgDhtCounter = 0;
-/////////////////////////////////////////////////
-//
-// Dinamically calculate average (moving average)
-//
-//    N = 0
-//    avg = 0
-//    
-//    For each new value: V
-//        N=N+1
-//        a = 1/N
-//        b = 1 - a
-//        avg = a * V + b * avg
-/////////////////////////////////////////////////
+/********************************************************
+*
+* Dinamically calculate average (moving average) Temperature/Humidity
+* The calculated average Temp/Hum are stored in the avgDhtTemp/avgDhtHum 
+* variable.
+* When you call this function, it will take a new Temp/Hum
+* measurement and calculates new average value including
+* this new value.
+* 
+* Calculation of moving average:
+* 
+*     N = 0
+*     avg = 0
+*    
+*     For each new value: V
+*        N=N+1
+*        a = 1/N
+*        b = 1 - a
+*        avg = a * V + b * avg
+*        
+*********************************************************/
 struct DHT_Struct add1SampleToMovingAverageTempHum(bool reset){
   struct DHT_Struct ret;
   double actualTemp;
@@ -120,7 +132,8 @@ struct DHT_Struct add1SampleToMovingAverageTempHum(bool reset){
   if(reset){
     avgDhtTemp = NULL;
     avgDhtHum = NULL;
-    avgDhtCounter = 0;
+    avgDhtTempCounter = 0;
+    avgDhtHumCounter = 0;
   }
 
   struct DHT_Struct result;
@@ -129,19 +142,39 @@ struct DHT_Struct add1SampleToMovingAverageTempHum(bool reset){
   actualTemp = result.temperature;
   actualHum = result.humidity;
 
-  avgDhtCounter++;
-  double a = 1/avgDhtCounter;
-  double b = 1 - a;
-  if(avgDhtTemp == NULL){
-    avgDhtTemp = actualTemp;
-  }else if(actualTemp != NULL){
+  // ---
+
+  if(actualTemp != NULL && avgDhtTemp != NULL){
+    avgDhtTempCounter++;
+    double a = 1/avgDhtTempCounter;
+    double b = 1 - a;
     avgDhtTemp = a * actualTemp + b * avgDhtTemp;
+  }else if(actualTemp != NULL){
+    avgDhtTempCounter = 1;
+    avgDhtTemp = actualTemp;
+  // If the recent measurement was not evaluable
+  }else{
+    avgDhtTempCounter = 0;
+    avgDhtTemp = NULL;
   }
-  if(avgDhtHum == NULL){
-    avgDhtHum = actualHum;
-  }else if(actualHum != NULL){
+
+  // ---
+
+  if(actualHum != NULL && avgDhtHum != NULL){
+    avgDhtHumCounter++;
+    double a = 1/avgDhtHumCounter;
+    double b = 1 - a;
     avgDhtHum = a * actualHum + b * avgDhtHum;
+  }else if(actualHum != NULL){
+    avgDhtHumCounter = 1;
+    avgDhtHum = actualHum;
+  // If the recent measurement was not evaluable
+  }else{
+    avgDhtHumCounter = 0;
+    avgDhtHum = NULL;
   }
+
+  // ---
 
   ret.temperature = avgDhtTemp;
   ret.humidity = avgDhtHum;

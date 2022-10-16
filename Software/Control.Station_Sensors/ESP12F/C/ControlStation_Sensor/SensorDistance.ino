@@ -21,10 +21,19 @@ bool configureDistanceSensor(){
   return ret;
 }
 
+/*
+ * Calculates and returns the distance by the duration
+ */
 double getDistanceByDuration(double duration){
   return duration * 0.034 / 2.0;
 }
 
+/*
+ * Measure and returns the latency of the returned signal
+ * 
+ * return: 0 - sensor is not connected
+ * 
+ */
 double getDuration(bool needToPrint){
   double ret = 0.0;  
 
@@ -47,6 +56,12 @@ double getDuration(bool needToPrint){
   return ret;
 }
 
+/*
+ * Returns the calculated the distance of the measured average latency
+ * 
+ * return:  NULL - missing sensor
+ * 
+ */
 double getSampleOfDistance(int sample){
   double ret;
   double sumDur = 0;
@@ -75,44 +90,53 @@ double getSampleOfDistance(int sample){
   return ret;
 }
 
-//double avgHcsrDist = NULL;
-//double avgHcsrCounter = 0;
-/////////////////////////////////////////////////
-//
-// Dinamically calculate average (moving average)
-//
-//    N = 0
-//    avg = 0
-//    
-//    For each new value: V
-//        N=N+1
-//        a = 1/N
-//        b = 1 - a
-//        avg = a * V + b * avg
-/////////////////////////////////////////////////
+/********************************************************
+*
+* Dinamically calculate average (moving average) distance
+* The calculated average distance is stored in the avgHcsrdist 
+* variable.
+* When you call this function, it will take a new distance 
+* measurement and calculates new average value including
+* this new value.
+* 
+* Calculation of moving average:
+*    N = 0
+*    avg = 0
+*    
+*    For each new value: V
+*        N=N+1
+*        a = 1/N
+*        b = 1 - a
+*        avg = a * V + b * avg
+*        
+*********************************************************/
 double add1SampleToMovingAverageDistance(bool reset){
-  double ret;
-  double actualDist;
 
   if(reset){
     avgHcsrDist = NULL;
     avgHcsrCounter = 0;
   }
 
-  double result;
-  result = getSampleOfDistance(1); 
-  actualDist = result;
-
-  avgHcsrCounter++;
-  double a = 1/avgHcsrCounter;
-  double b = 1 - a;
-  if(avgHcsrDist == NULL){
-    avgHcsrDist = actualDist;
-  }else if(actualDist != NULL){
+  double actualDist = getSampleOfDistance(1); 
+  
+  // If there was evaluable result and there was already an evaluable result before
+  if(actualDist != NULL && avgHcsrDist != NULL){
+    avgHcsrCounter++;
+    double a = 1/avgHcsrCounter;
+    double b = 1 - a;
     avgHcsrDist = a * actualDist + b * avgHcsrDist;
+  
+  // If this result or the previous result was NULL => NO sensor
+  // The recent measurement in evaluable, but before there was not
+  }else if(actualDist != NULL){
+    avgHcsrCounter = 1;
+    avgHcsrDist = actualDist;
+
+  // If the recent measurement was not evaluable
+  }else{
+    avgHcsrCounter = 0;
+    avgHcsrDist = NULL;
   }
 
-  ret = avgHcsrDist;
-
-  return ret; 
+  return avgHcsrDist;
 }

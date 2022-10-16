@@ -132,23 +132,18 @@ void handleGetAllActual(){
 void handleGetAllAggregated(){
   Serial.print("'GET /all/aggregated' request - ");
 
-//  double avgTemp = NULL;
-//  if(avgBmpTemp != NULL && avgDhtTemp != NULL){
-//    avgTemp = (avgBmpTemp + avgDhtTemp) / 2;
-//  }else if(avgBmpTemp != NULL){
-//    avgTemp = avgBmpTemp;
-//  }else if(avgDhtTemp != NULL){
-//    avgTemp = avgDhtTemp;
-//  }
-
+  String levelValue = (avgHcsrDist != NULL) ? String(avgHcsrDist) : "";
+  String pressureValue = (avgBmpPress != NULL) ? String(avgBmpPress) : "";
+  String humidityValue = (avgDhtHum != NULL) ? String(avgDhtHum) : "";
   double avgTemp = getAvgTemp();
+  String temperatureValue = (avgTemp != NULL) ? String(avgTemp) : "";
   
   String contentJson = 
     String("{") +
-      "\"temperature\": \"" + String(avgTemp) + "\"," + 
-      "\"humidity\": \"" + String(avgDhtHum) + "\"," + 
-      "\"pressure\": \"" + String(avgBmpPress) + "\"," + 
-      "\"distance\": \"" + String(avgHcsrDist) + "\"," + 
+      "\"temperature\": \"" + temperatureValue + "\"," + 
+      "\"humidity\": \"" + humidityValue + "\"," + 
+      "\"pressure\": \"" + pressureValue + "\"," + 
+      "\"distance\": \"" + levelValue + "\"," + 
     "}";
   
   server.send(200, "application/json", contentJson);
