@@ -1,0 +1,183 @@
+<meta charset="UTF-8" comntent="text/html;charset=utf-8" http-equiv="Content-Type">
+
+<meta name="viewport" content="width=device-width, user-scalable=yes, initial-scale=1">
+
+<html>
+    <head>
+
+    <title>Graph</title>
+
+    <!-- favicon -->
+    <link rel="shortcut icon" href="favicon.ico">
+
+    <!-- JQuery -->
+    <script src="script/jquery/jquery-3.6.0.min.js"></script>
+    <script src="script/jquery-ui/jquery-ui.min.js"></script>
+    <link rel="stylesheet" href="script/jquery-ui/jquery-ui.css">
+
+    <!-- Chart -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/date-fns/1.30.1/date_fns.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+
+    <!-- Touch-Punch - needed for jQuery-slider on android -->
+    <script src="script/touch-punch/jquery.ui.touch-punch.min.js"></script>
+
+    <style>
+
+        /* For mobiles - not allowed to select the button */
+        .no-pointer {
+            pointer-events: none;
+        }
+        .no-selector {
+            user-select: none;
+        }
+
+        .flex-chart-container{
+            position: relative;
+            margin: auto;
+            height: 100vh; //calc(100vh-2em);
+            width: 100vw; //calc(100vw-0em);
+        }
+
+        .flex-chart-item{
+            margin: auto;
+            height: 99vh; //calc(100vh-20px);
+            width: 99vw; //calc(100vw-0em);
+        }
+
+        .chart-canvas{
+            min-height:auto;
+            background-color: rgb(152, 251, 152);
+            padding: 0px;
+            border: 1px solid;
+        }
+
+    </style>
+
+    <script>
+
+        var graphId;
+        var graph;
+
+        $(document).ready(function(){
+
+            datasets = window.opener.prePopObj.data.datasets;
+            title = window.opener.prePopObj.options.plugins.title.text
+            x = window.opener.prePopObj.options.scales.x;
+            y = window.opener.prePopObj.options.scales.y;
+
+            chartCanvasId = "chartCanvas";
+            divChart = $("#chartDiv");
+            rowData = $('<canvas id="' + chartCanvasId + '" class="chart-canvas">');
+            div = $('<div class="flex-chart-item">');
+            div.append(rowData);
+            divChart.append(div);
+
+            var myChart = new Chart($("#" + chartCanvasId), {
+
+                type: 'scatter',
+                data: {
+                    datasets: datasets
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    responsive: true,
+                    plugins:{
+                        title: {
+                            display: true,
+                            text: title
+                        },
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                usePointStyle: true
+                            }
+                        },
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                borderWidth: 2,
+                                borderColor: '#000000',
+                            },
+
+                            type: 'time',
+                            //distribution: 'series',
+                            time: {
+                                //unitStepSize: 10,
+                                //parser: 'yy.MM.dd',
+                                unit: 'day',
+                                tooltipFormat: 'yyyy.MM.dd HH:mmzzz',
+                                displayFormats: {
+                                    'hour': 'HH:mmzzz',
+                                    'day': 'yyyy.MM.dd',
+                                    'week': 'yyyy.MM.dd',
+                                    'month': 'yyyy.MM',
+                                    'quarter': 'yyyy.MM',
+                                    'year': 'yyyy',
+                                },
+                            },
+                            title: {
+                                display: false,
+                                text: 'Date',
+                            },
+                            ticks: {
+
+                                // Bold on Sunday
+                                font:{
+                                    weight: (c) => {
+                                        day = new Date(c.tick.value).getDay()
+                                        return day == 0 ? 'bold' : 'normal';
+                                    }
+                                },
+
+                                display: true,
+                                minRotation: 20,
+                                align: 'center',
+
+                                // Red color on Sunday
+                                color: (c) => {
+                                    day = new Date(c.tick.value).getDay()
+                                    return day == 0 ? 'red' : 'black';
+                                }
+
+                            },
+                        },
+                        y: y
+                    },
+                }
+            });
+
+
+            //
+            // Fetch graphId
+            //
+            graphId = window.name;
+
+            //
+            // Title of new window
+            //
+            $(document).find("title").html(graphId);
+
+            //
+            // Write camId
+            //
+            $(document).find("#title").html(graphId);
+
+        });
+
+    </script>
+
+    </head>
+
+    <body>
+
+            <div id="chartDiv" class="flex-chart-container">
+                <!-- <div class=flex-chart-item"> -->
+                    <!-- <canvas id="levelCanvas" class="chart-canvas" style="display: block; box-sizing: border-box; height: 409.75px; width: 616px;"></canvas> -->
+                <!-- </div> -->
+            </div>
+
+    </body>
+</html>

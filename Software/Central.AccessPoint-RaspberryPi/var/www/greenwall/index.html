@@ -159,6 +159,7 @@
         var levelData = [];
         var temperatureData = [];
         var humidityData = [];
+        var pressureData = [];
 
         var camCaptureList = [];
 
@@ -170,6 +171,7 @@
         var levelChart = null;
         var temperatureChart = null;
         var humidityChart = null;
+        var pressureChart = null;
 
         $( function() {
             $( "#tabs" ).tabs();
@@ -276,7 +278,7 @@
                                 // So I just substring it from the <img id>
                                 // The click will be executed on <img> so the 'this' value will refer to the <img>
                                 // In the function I will substring the camId value from the parameter
-                                openWindow(this.id);
+                                openCaptureWindow(this.id);
                             });
                         });
 
@@ -301,7 +303,7 @@
         //
         // Open Capture Window
         //
-        // That part if pretty tricky
+        // That part is pretty tricky
         // The imgId is the <img id> of the capture image which looks like this: cam_4
         // So I have to substring it to get the camId
         //
@@ -313,7 +315,7 @@
         // Plus I had to solve the problem to NOT to open the already opened cam's window, BUT still have to select it
         //
         // ========================================================================================================================
-        function openWindow(imgId){
+        function openCaptureWindow(imgId){
             var camId = imgId.substring(4);
             var url = 'capture.html';
 
@@ -349,8 +351,6 @@
         //
         // ================================================
         function constructChartCanvas(chartCanvasId, title, labelY){
-//            var myChart = new Chart(document.getElementById(chartCanvasId), {
-
             var myChart = new Chart($("#" + chartCanvasId), {
 
                 type: 'scatter',
@@ -359,6 +359,7 @@
                     ]
                 },
                 options: {
+                    onClick: function (evt, i) {openChartWindow(myChart, evt, i)},
                     aspectRatio:1.5,
                     plugins:{
                         title: {
@@ -498,6 +499,36 @@
 
                     $("#spinner").hide();
 
+                    //result = 
+                    //{
+                    //    'result': 'OK', 
+                    //    'data':
+                    //        [
+                    //            "S5":
+                    //                {
+                    //                    "ip":"192.168.0.117", 
+                    //                    "record": 
+                    //                        [
+                    //                            {"timestamp": 35729, "levelValue": 27.3, "temperatureValue": 20.1, "humidityValue": 30, "pressureValue": 103234.45}, 
+                    //                            {"timestamp": 35871, "levelValue": 27.1, "temperatureValue": 20.7, "humidityValue": 35, "pressureValue": 103453.62}, 
+                    //                            {"timestamp": 35923, "levelValue": 27.9, "temperatureValue": 20.2, "humidityValue": 37, "pressureValue": 103273.25}, 
+                    //                            {"timestamp": 36012, "levelValue": 27.5, "temperatureValue": 20.6, "humidityValue": 31, "pressureValue": 103385.64}, 
+                    //                        ]
+                    //                },
+                    //            "S9":
+                    //                {
+                    //                    "ip":"192.168.0.112", 
+                    //                    "record": 
+                    //                        [
+                    //                            {"timestamp": 35729, "levelValue": 27.3, "temperatureValue": 20.1, "humidityValue": 30, "pressureValue": 103234.45}, 
+                    //                            {"timestamp": 35871, "levelValue": 27.1, "temperatureValue": 20.7, "humidityValue": 35, "pressureValue": 103453.62}, 
+                    //                            {"timestamp": 35923, "levelValue": 27.9, "temperatureValue": 20.2, "humidityValue": 37, "pressureValue": 103273.25}, 
+                    //                            {"timestamp": 36012, "levelValue": 27.5, "temperatureValue": 20.6, "humidityValue": 31, "pressureValue": 103385.64}, 
+                    //                        ]
+                    //                },
+                    //        ]
+                    //}
+
                     res = result.result
 
                     if(res == "OK"){
@@ -521,7 +552,7 @@
                             div = $('<div class="flex-chart-item">');
                             div.append(rowData);
                             divChart.append(div);
-                            levelChart=constructChartCanvas(levelCanvasId, "Water Level", "Level [mm]");
+                            levelChart=constructChartCanvas(levelCanvasId, "Water Level", "Level [cm]");
                         }
 
                         // -----------
@@ -565,6 +596,26 @@
                             humidityChart=constructChartCanvas(humidityCanvasId, "Humidity", "Humidity [%]");
                         }
 
+                        // -----------
+                        //
+                        // PRESSURE
+                        //
+                        // -----------
+
+                        //
+                        // Pressure CHART
+                        //
+                        if(pressureChart == null){
+
+                            pressureCanvasId = "pressureCanvas";
+                            rowData = $('<canvas id="' + pressureCanvasId + '" class="chart-canvas">');
+
+                            div = $('<div class="flex-chart-item">');
+                            div.append(rowData);
+                            divChart.append(div);
+
+                            pressureChart=constructChartCanvas(pressureCanvasId, "Pressure", "Pressure [mmHg]");
+                        }
 
 
                         //
@@ -582,17 +633,46 @@
                         levelChart.data.datasets=[];
                         temperatureChart.data.datasets=[];
                         humidityChart.data.datasets=[];
+                        pressureChart.data.datasets=[];
 
                         colorIndex=0;
+                        // Here takes the the data list
+                        // charts =
+                        //        [
+                        //            "S5":
+                        //                {
+                        //                    "ip":"192.168.0.117", 
+                        //                    "record": 
+                        //                        [
+                        //                            {"timestamp": 35729, "levelValue": 27.3, "temperatureValue": 20.1, "humidityValue": 30, "pressureValue": 103234.45}, 
+                        //                            {"timestamp": 35871, "levelValue": 27.1, "temperatureValue": 20.7, "humidityValue": 35, "pressureValue": 103453.62}, 
+                        //                            {"timestamp": 35923, "levelValue": 27.9, "temperatureValue": 20.2, "humidityValue": 37, "pressureValue": 103273.25}, 
+                        //                            {"timestamp": 36012, "levelValue": 27.5, "temperatureValue": 20.6, "humidityValue": 31, "pressureValue": 103385.64}, 
+                        //                        ]
+                        //                },
+                        //            "S9":
+                        //                {
+                        //                    "ip":"192.168.0.112", 
+                        //                    "record": 
+                        //                        [
+                        //                            {"timestamp": 35729, "levelValue": 27.3, "temperatureValue": 20.1, "humidityValue": 30, "pressureValue": 103234.45}, 
+                        //                            {"timestamp": 35871, "levelValue": 27.1, "temperatureValue": 20.7, "humidityValue": 35, "pressureValue": 103453.62}, 
+                        //                            {"timestamp": 35923, "levelValue": 27.9, "temperatureValue": 20.2, "humidityValue": 37, "pressureValue": 103273.25}, 
+                        //                            {"timestamp": 36012, "levelValue": 27.5, "temperatureValue": 20.6, "humidityValue": 31, "pressureValue": 103385.64}, 
+                        //                        ]
+                        //                },
+                        //        ]
                         charts = result.data;
                         $.map(charts,function(graph, index){
 
                             id=index;
                             record=graph.record
 
+
                             levelDataList = [];
                             temperatureDataList = [];
                             humidityDataList = [];
+                            pressureDataList = [];
 
                             $.map(record,function(rec){
                                 record = {}
@@ -609,6 +689,11 @@
                                 record.x=new Date(rec.timeStamp*1000);
                                 record.y=rec.humidityValue;
                                 humidityDataList.push(record);
+
+                                record = {}
+                                record.x=new Date(rec.timeStamp*1000);
+                                record.y=(rec.pressureValue)/133.322;
+                                pressureDataList.push(record);
 
                             });
 
@@ -648,9 +733,22 @@
                                 data: humidityDataList,
                             };
 
+                            pressureData = {
+                                lineTension: 0,
+                                label: id,
+                                showLine: true,
+                                fill: false,
+                                borderColor: chartColorList[colorIndex].line,
+                                backgroundColor: chartColorList[colorIndex].fill,
+                                pointRadius: 2,
+                                pointStyle: 'circle',
+                                data: pressureDataList,
+                            };
+
                             levelChart.data.datasets.push(levelData);
                             temperatureChart.data.datasets.push(temperatureData);
                             humidityChart.data.datasets.push(humidityData);
+                            pressureChart.data.datasets.push(pressureData);
 
                             colorIndex = (colorIndex + 1) % chartColorList.length;
 
@@ -659,6 +757,7 @@
                         levelChart.update();
                         temperatureChart.update();
                         humidityChart.update();
+                        pressureChart.update();
 
                     }else{
                         //$("#value").html("");
@@ -674,6 +773,26 @@
                     $("#spinner").hide();
                 }
             });
+        }
+
+        // =========================================================================================================================
+        //
+        // Open Chart Window
+        //
+        // I pass chart object as parameter
+        //
+        // Plus I had to solve the problem to NOT to open the already opened cam's window, BUT still have to select it
+        //
+        // ========================================================================================================================
+        function openChartWindow(chart, event, index){
+            console.log(chart);
+
+            var url = 'chart.html';
+            window.prePopObj = chart;
+            var newWindow = window.open('', chart.options.plugins.title.text, '');
+            newWindow.location.href = url;
+            newWindow.focus();
+
         }
 
         // ================================================
