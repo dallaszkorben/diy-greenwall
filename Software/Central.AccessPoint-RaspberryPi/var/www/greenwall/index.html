@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <meta charset="UTF-8" comntent="text/html;charset=utf-8" http-equiv="Content-Type">
 
 <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1">
@@ -279,6 +278,7 @@
                                 // The click will be executed on <img> so the 'this' value will refer to the <img>
                                 // In the function I will substring the camId value from the parameter
                                 openCaptureWindow(this.id);
+
                             });
                         });
 
@@ -315,10 +315,13 @@
         // Plus I had to solve the problem to NOT to open the already opened cam's window, BUT still have to select it
         //
         // ========================================================================================================================
+//!!!!
         function openCaptureWindow(imgId){
             var camId = imgId.substring(4);
             var url = 'capture.html';
 
+            // Here I pass the camId as parameter to the new window
+            window.prePopObj = camId;
             var newWindow = window.open('', camId, '');
             if(newWindow.location.href === 'about:blank'){
                 newWindow.location.href = url;
@@ -709,6 +712,7 @@
                                 data: levelDataList,
                             };
 
+                            // --- Temperature ---
                             temperatureData = {
                                 lineTension: 0,
                                 label: id,
@@ -721,6 +725,7 @@
                                 data: temperatureDataList,
                             };
 
+                            // --- Humidity ---
                             humidityData = {
                                 lineTension: 0,
                                 label: id,
@@ -732,7 +737,11 @@
                                 pointStyle: 'circle',
                                 data: humidityDataList,
                             };
+                            humidityBeginAtZero = false;
+                            humiditySuggestedMin = 20;
+                            humiditySuggestedMax = 100;
 
+                            // --- Pressure ---
                             pressureData = {
                                 lineTension: 0,
                                 label: id,
@@ -744,11 +753,23 @@
                                 pointStyle: 'circle',
                                 data: pressureDataList,
                             };
+                            pressureBeginAtZero = false;
+                            pressureSuggestedMin = 750;
+                            pressureSuggestedMax = 770;
 
                             levelChart.data.datasets.push(levelData);
+
                             temperatureChart.data.datasets.push(temperatureData);
+
                             humidityChart.data.datasets.push(humidityData);
+                            humidityChart.options.scales.y.beginAtZero = humidityBeginAtZero;
+                            humidityChart.options.scales.y.suggestedMin = humiditySuggestedMin;
+                            humidityChart.options.scales.y.suggestedMax = humiditySuggestedMax;
+
                             pressureChart.data.datasets.push(pressureData);
+                            pressureChart.options.scales.y.beginAtZero = pressureBeginAtZero;
+                            pressureChart.options.scales.y.suggestedMin = pressureSuggestedMin;
+                            pressureChart.options.scales.y.suggestedMax = pressureSuggestedMax;
 
                             colorIndex = (colorIndex + 1) % chartColorList.length;
 
@@ -779,9 +800,7 @@
         //
         // Open Chart Window
         //
-        // I pass chart object as parameter
-        //
-        // Plus I had to solve the problem to NOT to open the already opened cam's window, BUT still have to select it
+        // I pass chart object as parameter to the new window
         //
         // ========================================================================================================================
         function openChartWindow(chart, event, index){
