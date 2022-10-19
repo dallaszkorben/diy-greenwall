@@ -5,6 +5,16 @@ The code is written in C under Arduino.
 ## Needed libraries in Arduino
 
 ## WebServer entry points
+You can send direct REST requests to the SensorStation
+
+### GET /configure
+### POST /configure
+### GET /temperature
+### GET /humidity
+### GET /pressure
+### GET /distance
+### GET /all/actual
+### GET /all/aggregated
 
 
 ## Configure Sensor Station
