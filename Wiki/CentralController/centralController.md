@@ -267,9 +267,9 @@ pi@raspberrypi:/var/www/greenwall/python $ python3 -m venv env
   $ sudo apt-get install python3-sklearn python3-sklearn-lib  
   $ pip3 install opencv-python
   ```
-### Clone the diy-greenwall  
+### Clone the diy-greenwall project
 
-First you should clone the diy-greenwall.
+First you should clone the diy-greenwall project from the GitHub.
  ```sh
   $ cd
   $ mkdir Projects
@@ -490,9 +490,8 @@ participant WEB browser
     end
   ```
 
-
 #### LAMP-PUMP
-#### Sensors
+#### SENSORS
 
 
 ### Port forwarding
@@ -613,6 +612,65 @@ Unfortunatelly this settings will disappear after a reset, so you have to make i
     ```
     
 
+## Wiring
+
+```sh
+                                         
+   Raspberry PI   LCD    Rotary                                         
+   ____________________________                                         
+   pin Function                                         
+     3 GPIO 2     SDA                                               
+     5 GPIO 3     SCL                                                        
+     4 5V         VCC                                              
+     9 GND        GND                                   Rotary encoder
+                                                     _______________
+     2 5V                +                          /        _       \
+     6 GND               GND                       |     /       \    |
+    29 GPIO 5            CLK                       |                  |
+    31 GPIO 6            TD                        |    |    o    |   |
+    33 GPIO 13           SW                        |                  |
+                                                   |     \       /    |
+                                                   |         -        |
+                                                   |   C           G  |
+     Raspberry PI W Zero                           |   L  T  S     N  |
+    __________________                             |   K  D  W  +  D  |
+   /     |      |     \                            |                  |
+  |      |      |      |                           |   o  o  o  o  o  |
+  |       ------       |                            \__|__|__|__|__|_/
+  |             1  2   |                               |  |  |  |  |
+  |             o  o-----------------------------------|--|--|--'  |
+  | .-----------o  o------------------------.          |  |  |     |
+  | |  .--------o  o-----------------------------------|--|--|-----'
+  | | |         o  o   |                    |          |  |  |
+  | | | .-------o  o   |             .-----------------'  |  |
+  | | | |       o  o   |             |      |             |  |
+  | | | |       o  o   |           .----------------------'  |
+  | | | |       o  o   |           | |      |                |
+  | | | |       o  o   |         .---------------------------'
+  | | | |       o  o   |         | | |      |
+  | | | |       o  o   |         | | |      |
+  | | | |       o  o   |         | | |      |
+  | | | |       o  o   |         | | |      |
+  | | | |       o  o   |         | | |      |          LCD Display
+  | | | | .-----o  o   |         | | |      |     ____________________
+  | | | | | .---o  o   |         | | |      |    /      S  S  V  G    \ 
+  | | | | | | .-o  o   |         | | |      |   |       C  D  C  N     | 
+  | | | | | | | o  o   |         | | |      |   |       L  A  C  D     |
+  | | | | | | | o  o   |         | | |      |   |                      |
+  | | | | | | | o  o   |         | | |      |   |       o  o  o  o     |
+  | | | | | | | 39 40  |         | | |      |   |       |  |  |  |     |
+   \|_|_|_|_|_|_______/          | | |      |    \______|__|__|__|____/
+    | | | | | |                  | | |      |           |  |  |  |
+    | | | | | `------------------' | |      |           |  |  |  |
+    | | | | `----------------------' |      |           |  |  |  |
+    | | | `--------------------------'      |           |  |  |  |
+    | | |                                   |           |  |  |  |
+    | | |                                    `----------|--|-'   |
+    | | |                                               |  |     |
+    | | `-----------------------------------------------|--|----'
+    | `-------------------------------------------------'  | 
+    `------------------------------------------------------'
+``` 
 
 
 

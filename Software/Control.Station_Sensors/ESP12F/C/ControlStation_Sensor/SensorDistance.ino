@@ -1,4 +1,4 @@
-
+double temp = 20; //must be taken from the sensor Temp
 
 bool configureDistanceSensor(){
 
@@ -25,7 +25,10 @@ bool configureDistanceSensor(){
  * Calculates and returns the distance by the duration
  */
 double getDistanceByDuration(double duration){
-  return duration * 0.034 / 2.0;
+  //return duration * 0.034 / 2.0;
+  //return duration * ( (temp * 0.606) + 331.3 ) / 200000.0;
+  //return duration * ( (temp * 0,0000303) + 0,016565 );
+  return duration * 0,017171;
 }
 
 /*
