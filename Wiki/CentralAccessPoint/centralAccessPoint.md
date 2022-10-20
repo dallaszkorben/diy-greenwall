@@ -1,5 +1,5 @@
-# Central Controller unit
-The Central Controller is running on a Raspberry Pi Zero W
+# Central Access Point
+The Central Access Point is running on a Raspberry Pi Zero W
 
 ## Network configuration
 
