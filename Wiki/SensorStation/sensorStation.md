@@ -14,8 +14,8 @@ The code does 4 main things:
 
 ## Used sensors
 
- * DHT22 - Temperature/Humidity sensor
-![sensor_dht22](https://github.com/dallaszkorben/diy-greenwall/blob/master/Wiki/SensorStation/sensor_dht22.jpg?raw=true)
+ * DHT22 - Temperature/Humidity sensor  
+![sensor_dht22](sensor_dht22.jpg?raw=true)
  * BMP180 - Barometric Pressure/Temperature sensor
  * HCSR04 - Ultrasonic sensor to measure water level
 
