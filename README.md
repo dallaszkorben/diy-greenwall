@@ -11,7 +11,7 @@ The Green Wall consist of many elements:
 * Cameras
 * Controller units for light, water pump
 * [Central controller unit](Wiki/CentralController/centralController.md)
-* 3D printed accessories
+* [3D printed accessories](Wiki/3D/3d.md)
 			
 </td>
 <td>

@@ -5,7 +5,7 @@ The code does 4 main things:
  * Runs a Web Server and serves the requests
  * Periodically makes measurements on the sensors, calculates an average value and stores those values. In one loop it makes measurement only on one sensor to reduce time delay.
  * Periodically (configurable) sends the stored values to the server, and then reset the stored values
- * For safety's sake, the module periodically (configurable) reset itself.
+ * For safety's sake, the module periodically (configurable) resets itself.
 
 ## Needed libraries in Arduino
 
