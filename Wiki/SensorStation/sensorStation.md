@@ -1,8 +1,16 @@
 # Sensor Station
-The Sensor Station units are ESP12F modules.
+The Sensor Station units are ESP12F modules.  
 The code is written in C under Arduino.
+The code does 3 main things:
+ * Runs a Web Server and serves the requests
+ * Periodically makes measurements on the sensors, calculates an average value and stores those values
+ * Periodically sends the stored values to the server, and then reset the stored values
 
 ## Needed libraries in Arduino
+
+ * DHT sensor library
+ * BMP180MI
+
 
 ## WebServer entry points
 You can send direct REST requests to the SensorStation
@@ -22,17 +30,17 @@ You can provide all values or a sub-set of the values in the json format
 ```
 
 ### GET /temperature
-```sh
 Measure the temperature - taking 1 sample only - on all connected termometer (BMP180/DHT22), and gives back the calculated average value in json format
 If no termometer module connected, it gives back EMPTY ("") value
+```sh
 pi@raspberrypi:~ $ curl -s --request GET http://192.168.50.101:80/temperature
 {"temperature": "24.15"}
 ```
 
 ### GET /humidity
-```sh
 Measure the humidity (DHT22) - taking 1 sample only - and gives back it in json format.
 If the humidity module is not connected, it gives back EMPTY ("") value
+```sh
 pi@raspberrypi:~ $ curl -s --request GET http://192.168.50.101:80/humidity
 {"humidity": "45.00"}
 ```
