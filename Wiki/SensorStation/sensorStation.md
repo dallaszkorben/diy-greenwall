@@ -8,14 +8,50 @@ The code is written in C under Arduino.
 You can send direct REST requests to the SensorStation
 
 ### GET /configure
-### POST /configure
-### GET /temperature
-### GET /humidity
-### GET /pressure
-### GET /distance
-### GET /all/actual
-### GET /all/aggregated
+```sh
+pi@raspberrypi:~ $ curl -s --request GET http://192.168.50.101:80/configure
+{"stationId": "default","sensorTempHumOutGPIO": "0","sensorDistanceTrigGPIO": "12","sensorDistanceEchoGPIO": "14","intervalReportMillis": "600300","intervalRegisterMillis": "120600",}
+```
 
+### POST /configure
+```sh
+```
+
+### GET /temperature
+```sh
+pi@raspberrypi:~ $ curl -s --request GET http://192.168.50.101:80/temperature
+{"temperature": "24.15"}
+```
+
+### GET /humidity
+```sh
+pi@raspberrypi:~ $ curl -s --request GET http://192.168.50.101:80/humidity
+{"humidity": "45.00"}
+```
+
+### GET /pressure
+```sh
+pi@raspberrypi:~ $ curl -s --request GET http://192.168.50.101:80/pressure
+{"pressure": "102545.00"}
+```
+
+### GET /distance
+```sh
+pi@raspberrypi:~ $ curl -s --request GET http://192.168.50.101:80/distance
+{"distance": "7.21"}
+```
+
+### GET /all/actual
+```sh
+pi@raspberrypi:~ $ curl -s --request GET http://192.168.50.101:80/all/actual
+{"temperature": "24.20","humidity": "45.70","pressure": "102549.00","distance": "7.62",}
+```
+
+### GET /all/aggregated
+```sh
+pi@raspberrypi:~ $ curl -s --request GET http://192.168.50.101:80/all/aggregated
+{"temperature": "24.17","humidity": "45.92","pressure": "102546.05","distance": "7.27",}
+```
 
 ## Configure Sensor Station
 
