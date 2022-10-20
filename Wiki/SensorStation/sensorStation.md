@@ -15,9 +15,12 @@ The code does 4 main things:
 ## Used sensors
 
  * DHT22 - Temperature/Humidity sensor  
-![sensor_dht22](sensor_dht22.jpg?raw=true)
- * BMP180 - Barometric Pressure/Temperature sensor
+    ![sensor_dht22](sensor_dht22.jpg | width 200)
+ * BMP180 - Barometric Pressure/Temperature sensor  
+    ![sensor_bmp180](sensor_bmp180.jpg | width 200)
  * HCSR04 - Ultrasonic sensor to measure water level
+    ![sensor_hcsr04](sensor_hcsr04.jpg | width 200)
+
 
 ## WebServer entry points
 You can send direct REST requests to the SensorStation
