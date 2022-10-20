@@ -36,7 +36,7 @@ pi@raspberrypi:~ $ curl -s --request GET http://192.168.50.101:80/configure
 Sets values of the configuration collection.
 You can provide all values or a sub-set of the values in the json format
 ```sh
-
+curl  --header "Content-Type: application/json" --request POST --data '{"stationId": "default","sensorTempHumOutGPIO": "0","sensorDistanceTrigGPIO": "12","sensorDistanceEchoGPIO": "14","intervalReportMillis": "600300","intervalRegisterMillis": "120600",}' http://192.168.50.101:80/configure
 ```
 
 ### GET /temperature
@@ -85,17 +85,6 @@ This request gives back the stored average values. The point is that in this req
 pi@raspberrypi:~ $ curl -s --request GET http://192.168.50.101:80/all/aggregated
 {"temperature": "24.17","humidity": "45.92","pressure": "102546.05","distance": "7.27",}
 ```
-
-## Configure Sensor Station
-
-
-## Sensors
-
-### Temperature and Humidity
-
-### Air pressure and Temperature
-
-### Distance/Water level
 
 
 ## Wiring
