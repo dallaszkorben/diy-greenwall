@@ -1,16 +1,23 @@
 # Sensor Station
-The Sensor Station units are ESP12F modules.  
-The code is written in C under Arduino.
-The code does 3 main things:
+The Sensor Station units are ESP12F modules with connected sensors.  
+The code is written in C under Arduino.  
+The code does 4 main things:
  * Runs a Web Server and serves the requests
- * Periodically makes measurements on the sensors, calculates an average value and stores those values
- * Periodically sends the stored values to the server, and then reset the stored values
+ * Periodically makes measurements on the sensors, calculates an average value and stores those values. In one loop it makes measurement only on one sensor to reduce time delay.
+ * Periodically (configurable) sends the stored values to the server, and then reset the stored values
+ * For safety's sake, the module periodically (configurable) reset itself.
 
 ## Needed libraries in Arduino
 
  * DHT sensor library
  * BMP180MI
 
+## Used sensors
+
+ * DHT22 - Temperature/Humidity sensor
+![sensor_dht22](https://github.com/dallaszkorben/diy-greenwall/blob/master/Wiki/SensorStation/sensor_dht22.jpg?raw=true)
+ * BMP180 - Barometric Pressure/Temperature sensor
+ * HCSR04 - Ultrasonic sensor to measure water level
 
 ## WebServer entry points
 You can send direct REST requests to the SensorStation
@@ -31,7 +38,7 @@ You can provide all values or a sub-set of the values in the json format
 
 ### GET /temperature
 Measure the temperature - taking 1 sample only - on all connected termometer (BMP180/DHT22), and gives back the calculated average value in json format
-If no termometer module connected, it gives back EMPTY ("") value
+If no termometer sensor connected, it gives back EMPTY ("") value
 ```sh
 pi@raspberrypi:~ $ curl -s --request GET http://192.168.50.101:80/temperature
 {"temperature": "24.15"}
@@ -39,7 +46,7 @@ pi@raspberrypi:~ $ curl -s --request GET http://192.168.50.101:80/temperature
 
 ### GET /humidity
 Measure the humidity (DHT22) - taking 1 sample only - and gives back it in json format.
-If the humidity module is not connected, it gives back EMPTY ("") value
+If the humidity sensor is not connected, it gives back EMPTY ("") value
 ```sh
 pi@raspberrypi:~ $ curl -s --request GET http://192.168.50.101:80/humidity
 {"humidity": "45.00"}
@@ -47,7 +54,7 @@ pi@raspberrypi:~ $ curl -s --request GET http://192.168.50.101:80/humidity
 
 ### GET /pressure
 Measure the pressure (BMP180) - taking 1 sample only - and gives back it in json format.
-If the pressure module is not connected, it gives back EMPTY ("") value
+If the pressure sensor is not connected, it gives back EMPTY ("") value
 ```sh
 pi@raspberrypi:~ $ curl -s --request GET http://192.168.50.101:80/pressure
 {"pressure": "102545.00"}
@@ -55,21 +62,21 @@ pi@raspberrypi:~ $ curl -s --request GET http://192.168.50.101:80/pressure
 
 ### GET /distance
 Measure the distance (HCSR04) - taking 1 sample only - and gives back it in json format.
-If the  sonar module is not connected, it gives back EMPTY ("") value
+If the  sonar sensor is not connected, it gives back EMPTY ("") value
 ```sh
 pi@raspberrypi:~ $ curl -s --request GET http://192.168.50.101:80/distance
 {"distance": "7.21"}
 ```
 
 ### GET /all/actual
-Measures all measurable quntities - if the modules are connected - and gives back all results in one request
+Measures all measurable quntities, from the connected sensors, and gives back the results in one request
 ```sh
 pi@raspberrypi:~ $ curl -s --request GET http://192.168.50.101:80/all/actual
 {"temperature": "24.20","humidity": "45.70","pressure": "102549.00","distance": "7.62",}
 ```
 
 ### GET /all/aggregated
-The ESP module continously collects all measurable quantities, calculates the average values and store them.
+The ESP module continously collects all measurable quantities from the sensors, calculates the average values and store them.
 This request gives back the stored average values. The point is that in this request there is NO measurement.
 ```sh
 pi@raspberrypi:~ $ curl -s --request GET http://192.168.50.101:80/all/aggregated
