@@ -11,14 +11,14 @@
 int ledStatus = LED_INITIATE;
 /*
  * Call services:
- *    curl -s http://192.168.50.101:80/all/aggregated
- *    curl -s http://192.168.50.101:80/all/actual
- *    curl -s http://192.168.50.101:80/all/pressure
- *    curl -s http://192.168.50.101:80/all/temperature
- *    curl -s http://192.168.50.101:80/all/humidity
- *    curl -s http://192.168.50.101:80/all/distance
+ *    curl -s --request GET http://192.168.50.101:80/all/aggregated
+ *    curl -s --request GET http://192.168.50.101:80/all/actual
+ *    curl -s --request GET http://192.168.50.101:80/all/pressure
+ *    curl -s --request GET http://192.168.50.101:80/all/temperature
+ *    curl -s --request GET http://192.168.50.101:80/all/humidity
+ *    curl -s --request GET http://192.168.50.101:80/all/distance
  *    
- *    curl -s http://192.168.50.101:80/configure
+ *    curl -s --request POST --header "Content-Type: application/json" http://192.168.50.101:80/configure --data {"stationId": "S02"} 
  * 
  * Continously read the values from this module on the same network 
  *    for i in $(seq 1 10000); do echo -n "$i `date -I'seconds'`: "; result=`curl -s -w "%{http_code}"  --max-time 20 http://192.168.50.101:80/all/aggregated `; code=`echo $result|grep -Po "\\d{3}$"`; if [[ $code == "200" ]] ; then echo $result; else echo $code; continue; fi; sleep 20; done
@@ -83,6 +83,14 @@ double avgHcsrCounter = 0;
 double avgHcsrDist    = NULL;
 
 //--- define functions ---
+bool registerSensorStation(bool needToPrint);
+bool reportSensors(bool needToPrint);
+
+void ledSignalInitiate();
+void ledSignalNetworkError();
+void ledSignalCommunicate();
+void ledSignalHealthy();
+
 double getAvgTemp();
 void setupVariables();
 void wifiEvent(WiFiEvent_t event);
@@ -211,6 +219,7 @@ unsigned long previousRegisterMillis = millis();  //Reason to fill up with the a
 unsigned long previousReportMillis = millis();    //Reason to fill up with the actual time is to take sample at the first time in the loop
 unsigned long currentMillis = millis();           //Reason to fill up with the actual time is to take sample at the first time in the loop
 
+
 void loop() {
   
   int actualMeasureLoop = loopCounter % numberOfMeasure; //range: 0-29. In the first 0. 1. 2. loop will be taken 1-1 sample
@@ -287,6 +296,13 @@ void loop() {
   //In every 600 seconds (10min) tries to REPORT
   //
   // --------------------------------------------
+
+//  Serial.print(currentMillis); 
+//  Serial.print("-");
+//  Serial.print(previousReportMillis); 
+//  Serial.print(">=");
+//  Serial.println(intervalReportMillis); 
+    
   if(currentMillis - previousReportMillis >= intervalReportMillis){
 //    Serial.println(); 
 

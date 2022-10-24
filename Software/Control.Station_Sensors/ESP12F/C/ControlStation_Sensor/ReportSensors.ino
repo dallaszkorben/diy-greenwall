@@ -11,7 +11,7 @@ bool reportSensors(bool needToPrint){
   String levelValue = (avgHcsrDist != NULL) ? String(avgHcsrDist) : "";
   String pressureValue = (avgBmpPress != NULL) ? String(avgBmpPress) : "";
   String humidityValue = (avgDhtHum != NULL) ? String(avgDhtHum) : "";
-  double avgTemp = getAvgTemp();
+  double avgTemp = getAvgTemp(avgBmpTemp, avgDhtTemp);
   String temperatureValue = (avgTemp != NULL) ? String(avgTemp) : "";
 
   // !!! You can not send the parameters in the URL !!!

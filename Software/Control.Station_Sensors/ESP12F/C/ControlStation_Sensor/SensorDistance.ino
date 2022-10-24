@@ -1,4 +1,5 @@
-double temp = 20; //must be taken from the sensor Temp
+//--- define functions ---
+double getAvgTemp();
 
 bool configureDistanceSensor(){
 
@@ -25,10 +26,20 @@ bool configureDistanceSensor(){
  * Calculates and returns the distance by the duration
  */
 double getDistanceByDuration(double duration){
+  double ret;
+  
   //return duration * 0.034 / 2.0;
+  //double temp = 20; //must be taken from the sensor Temp
   //return duration * ( (temp * 0.606) + 331.3 ) / 200000.0;
-  //return duration * ( (temp * 0,0000303) + 0,016565 );
-  return duration * 0,017171;
+
+  double avgTemp = getAvgTemp(avgDhtTemp,avgBmpTemp);
+  if(avgTemp != NULL){
+    ret = duration * ( (avgTemp * 0.0000303) + 0.016565 );
+  }else{
+    ret = duration * 0.017171;
+  }
+
+  return ret;
 }
 
 /*
@@ -83,13 +94,14 @@ double getSampleOfDistance(int sample){
     avgDur = sumDur / incDur;
     
     if(avgDur > 0.0){
-      ret = getDistanceByDuration(avgDur);
+      ret = getDistanceByDuration(avgDur);      
     }else{
       ret = NULL;
     }
   }else{
     ret = NULL;
   }
+
   return ret;
 }
 

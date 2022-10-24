@@ -50,7 +50,7 @@ struct DHT_Struct getTempHum(bool needToPrint){
     Serial.print(ret.humidity); 
     Serial.println(" %");
   }
-
+  
   return ret;
 }
 
