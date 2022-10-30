@@ -490,23 +490,29 @@ void handleGetAllAggregated(){
 
 bool configureHttpServer(){
   bool ret = true;
+
+  if(connectToAccessPoint(false)){  
+    server.on("/configure", HTTP_GET, handleGetConfigure);
+    server.on("/configure", HTTP_POST, handlePostConfigure);
+
+    server.on("/pressure", HTTP_GET, handleGetPressure);
+    server.on("/temperature", HTTP_GET, handleGetTemperature);
+    server.on("/humidity", HTTP_GET, handleGetHumidity);
+    server.on("/distance", HTTP_GET, handleGetDistance);
+
+    server.on("/all/actual", HTTP_GET, handleGetAllActual);
+    server.on("/all/aggregated", HTTP_GET, handleGetAllAggregated);
   
-  server.on("/configure", HTTP_GET, handleGetConfigure);
-  server.on("/configure", HTTP_POST, handlePostConfigure);
-
-  server.on("/pressure", HTTP_GET, handleGetPressure);
-  server.on("/temperature", HTTP_GET, handleGetTemperature);
-  server.on("/humidity", HTTP_GET, handleGetHumidity);
-  server.on("/distance", HTTP_GET, handleGetDistance);
-
-  server.on("/all/actual", HTTP_GET, handleGetAllActual);
-  server.on("/all/aggregated", HTTP_GET, handleGetAllAggregated);
-
-  server.onNotFound(handleNotFound);
+    server.onNotFound(handleNotFound);
   
-  server.begin();                  //Start server
+    server.begin();                  //Start server
 
-  Serial.println("HTTP server started");
+    Serial.println("HTTP server started");
+
+  }else{
+    ret = false;
+    Serial.println("HTTP server did not start because the connection is not OK");
+  }
   
   return ret;
 }
