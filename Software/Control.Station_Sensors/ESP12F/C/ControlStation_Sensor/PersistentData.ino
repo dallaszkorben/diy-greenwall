@@ -31,12 +31,13 @@ void setupVariables(){
   clientPort = stationPref.getString("clientPort", DEFAULT_CLIENT_PORT);
   clientPathToRegister = stationPref.getString("clientPathToRegister", DEFAULT_CLIENT_PATH_TO_REGISTER);
   clientPathToReport = stationPref.getString("clientPathToReport", DEFAULT_CLIENT_PATH_TO_REPORT);
+  clientPathToInfoTimestamp = stationPref.getString("clientPathToInfoTimestamp", DEFAULT_CLIENT_PATH_TO_INFO_TIMESTAMP);
   stationPref.end();
 
 
   // --- Show new values ---
   Serial.println();
-  Serial.println("==================");
+  Serial.println("========== Setup variable ==========");
   Serial.println("Mutable value variables:");
   
   Serial.println("   intervalReportMillis: " + String(intervalReportMillis));
@@ -51,9 +52,10 @@ void setupVariables(){
   Serial.println("   clientPort: " + String(clientPort) );
   Serial.println("   clientPathToRegister: " + String(clientPathToRegister) );
   Serial.println("   clientPathToReport: " + String(clientPathToReport) );
+  Serial.println("   clientPathToInfoTimestamp: " + String(clientPathToInfoTimestamp) );
   
   Serial.println("   needToReset: " + String(needToReset ));
-  Serial.println("==================");
+  Serial.println("====================================");  
 }
 
 /*
@@ -118,6 +120,8 @@ void persistVariables(){
   stationPref.putString("clientPort", clientPort);
   stationPref.putString("clientPathToRegister", clientPathToRegister);
   stationPref.putString("clientPathToReport", clientPathToReport);
+  stationPref.putString("clientPathToInfoTimestamp", clientPathToInfoTimestamp);
+    
   stationPref.end();
   
   stationPref.begin("general", false); 
@@ -139,6 +143,7 @@ void persistVariables(){
   Serial.println("      clientPort: " + String(clientPort) );
   Serial.println("      clientPathToRegister: " + String(clientPathToRegister) );
   Serial.println("      clientPathToReport: " + String(clientPathToReport) );
+  Serial.println("      clientPathToInfoTimestamp: " + String(clientPathToInfoTimestamp) );
   
   Serial.println("      needToReset: " + String(needToReset));
   Serial.println("===============================");

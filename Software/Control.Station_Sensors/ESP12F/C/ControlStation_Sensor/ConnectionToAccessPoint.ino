@@ -5,6 +5,8 @@ bool connectToAccessPoint(bool needToPrint){
     if(loop == 0){
       if(needToPrint){
         Serial.print("Restore the connection ");
+      }else{
+        Serial.print("   ");
       }
       WiFi.reconnect();
     }

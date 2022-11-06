@@ -16,7 +16,7 @@ bool configureDistanceSensor(){
     Serial.println("!!! HCSR04 sensor configuration failed !!!");
 
   }else{
-    Serial.println("HCSR04 Ultrasonic Distance Sensor has been Configured");
+    Serial.println("   HCSR04 Ultrasonic Distance Sensor has been Configured");
   }
   
   return ret;

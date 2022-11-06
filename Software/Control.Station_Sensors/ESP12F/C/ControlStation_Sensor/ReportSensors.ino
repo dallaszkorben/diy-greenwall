@@ -1,8 +1,7 @@
 #include <ESP8266HTTPClient.h>
 #include <WiFiClient.h>
 
-WiFiClient client;
-HTTPClient http;
+
   
 bool reportSensors(bool needToPrint){
   bool res = true;

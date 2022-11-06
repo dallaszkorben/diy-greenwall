@@ -1,5 +1,7 @@
 #include <ESP8266WiFi.h>        //WiFI related functionalities
 #include <ESP8266WebServer.h>   //Handles HTTP protocols
+#include <ESP8266HTTPClient.h>
+#include <WiFiClient.h>
 #include <Preferences.h>
 
 #define MAX_RECONNECTION_LOOP 50
@@ -37,6 +39,7 @@ const String        DEFAULT_CLIENT_PORT = "80";
 
 const String        DEFAULT_CLIENT_PATH_TO_REGISTER = "sensor/register";
 const String        DEFAULT_CLIENT_PATH_TO_REPORT   = "sensor/add";
+const String        DEFAULT_CLIENT_PATH_TO_INFO_TIMESTAMP = "info/timeStamp";
 
 const String        DEFAULT_STATION_ID                = "default";
 const unsigned long DEFAULT_INTERVAL_REPORT_MILLIS    = 600300;              // 10 min
@@ -49,7 +52,7 @@ const int           DEFAULT_SENSOR_DISTANCE_TRIG_GPIO = 12;
 
 // --- Preferences values ---
 unsigned long intervalReportMillis      = 0;
-unsigned long intervalRegisterMillis    = 0;
+long intervalRegisterMillis    = 0;
 unsigned long intervalResetMillis       = 0;
 unsigned long intervalConnectionMillis  = 0;
 
@@ -65,6 +68,7 @@ String clientPort = "";
 
 String clientPathToRegister;
 String clientPathToReport;
+String clientPathToInfoTimestamp;
 
 // ---
 
@@ -116,6 +120,10 @@ bool configureHttpServer();
 
 Preferences stationPref;
 
+ESP8266WebServer server(serverPort); //Server on port 80
+WiFiClient client;
+HTTPClient http;
+
 struct DHT_Struct {
   double humidity;
   double temperature;
@@ -126,7 +134,12 @@ struct BMP180_Struct {
   double temperature;
 };
 
-ESP8266WebServer server(serverPort); //Server on port 80
+int loopCounter;
+int numberOfMeasure;
+unsigned long previousConnectionMillis;
+long previousRegisterMillis;
+unsigned long previousReportMillis;
+unsigned long currentMillis;
 
 void setup() {
     Serial.begin(115200);
@@ -140,7 +153,7 @@ void setup() {
     setupVariables();
 
     Serial.println();
-    Serial.println("==================");
+    Serial.println("===== Connect to acceess Point =====");  
     Serial.println("Module information:");
     Serial.print("   MAC: ");
     Serial.println(WiFi.macAddress());
@@ -155,7 +168,7 @@ void setup() {
     Serial.print("   RSSI: ");
     Serial.println(WiFi.RSSI());
 
-    Serial.print("   IP address: ");
+    // --- Connect to Access Point --- ///
     if(!connectToAccessPoint(false)){
       ledSignalInitiate();
       Serial.println();
@@ -169,29 +182,43 @@ void setup() {
     WiFi.setAutoReconnect(true);
     WiFi.persistent(true);
     WiFi.setSleep(false);
-    
+
+    Serial.print("   IP address: ");
     Serial.println(WiFi.localIP());
-    Serial.println("==================");
+    Serial.println("====================================");
     Serial.println();
 
+    // --- Sync Time --- //
+    if( !syncTime() ){
+      Serial.println("    !!! Sync Time failed -> reboot !!!");  
+      delay(10000); 
+      ESP.restart();
+    }
+
+    Serial.println("======== Configure Sensors =========");
+
+    // --- Configure Pressure Temperature sensor --- //
     if( !configurePressTempSensor()){
       Serial.println("!!! Not possible to configure Pressure/Temperature Sensor. It will be ignored !!!");      
       Serial.println();
-      Serial.println();
     }
 
+    // --- Configure Temperature Humidity sensor --- //
     if( !configureTempHumSensor()){
       Serial.println("!!! Not possible to configure Temperature/Humidity Sensor. It will be ignored !!!");
       Serial.println();
-      Serial.println();
     }
 
+    // --- Configure Distance sensor --- //
     if( !configureDistanceSensor()){
       Serial.println("!!! Not possible to configure Sonic Sensor. It will be ignored !!!");
       Serial.println();
-      Serial.println();
     }
+    Serial.println("====================================");
+    Serial.println();
 
+    // --- Configure HTTP server --- //
+    Serial.println("========= Start WEB server =========");
     if( !configureHttpServer()){
       ledSignalNetworkError();
       Serial.println("!!! Not possible to configure HTTP server. The Module will be restarted !!!");
@@ -200,25 +227,21 @@ void setup() {
       delay(10000);
       ESP.restart();
     } 
+    Serial.printf("Web server started, open %s in a web browser\n", WiFi.localIP().toString().c_str());
+    Serial.println("====================================");
+    Serial.println();
 
-    Serial.println();
-    Serial.println();
+    ledSignalHealthy();
 
     //Serial.setDebugOutput(true);
 
-    Serial.println("==================");
-    Serial.printf("Web server started, open %s in a web browser\n", WiFi.localIP().toString().c_str());
-
-    ledSignalHealthy();
+  loopCounter = 0;
+  numberOfMeasure = 30;
+  previousConnectionMillis = millis();
+  previousRegisterMillis = -(intervalRegisterMillis); //Reason to fill up with the -interval length is to take sample at the first time in the loop
+  previousReportMillis = millis();                    
+  currentMillis = millis();                           
 }
-
-int loopCounter = 0;
-int numberOfMeasure = 30;
-unsigned long previousConnectionMillis = millis();
-unsigned long previousRegisterMillis = millis();  //Reason to fill up with the actual time is to take sample at the first time in the loop
-unsigned long previousReportMillis = millis();    //Reason to fill up with the actual time is to take sample at the first time in the loop
-unsigned long currentMillis = millis();           //Reason to fill up with the actual time is to take sample at the first time in the loop
-
 
 void loop() {
   
@@ -277,10 +300,9 @@ void loop() {
   //
   // --------------------------------------------
   if(currentMillis - previousRegisterMillis >= intervalRegisterMillis){
-    ledSignalCommunicate();
-//    Serial.println();    
+    ledSignalCommunicate();   
     if ( registerSensorStation(false) ){
-//      Serial.println("Sensor Station was registered"); 
+      Serial.println("Sensor Station was registered"); 
       previousRegisterMillis = currentMillis;      
     }else{
       ledSignalNetworkError();
@@ -288,7 +310,6 @@ void loop() {
       delay(1000);
     } 
     ledSignalHealthy();
-//    Serial.println();   
   }
   
   // --------------------------------------------
@@ -304,7 +325,6 @@ void loop() {
 //  Serial.println(intervalReportMillis); 
     
   if(currentMillis - previousReportMillis >= intervalReportMillis){
-//    Serial.println(); 
 
     ledSignalCommunicate();
     if ( reportSensors(false) ){

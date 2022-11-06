@@ -37,7 +37,7 @@ bool configurePressTempSensor(){
     bmp180.setSamplingMode(BMP180MI::MODE_UHR);
   
     isSensorBmp = true;
-    Serial.println("BMP Pressure Sensor has been Configured");
+    Serial.println("   BMP Pressure Sensor has been Configured");
 
   }
   return ret;

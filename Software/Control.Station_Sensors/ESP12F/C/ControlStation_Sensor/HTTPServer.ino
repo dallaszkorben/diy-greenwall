@@ -15,24 +15,28 @@ void handleNotFound(){
 }
 
 void handleGetConfigure(){
+  DynamicJsonDocument result(512);
+  String buf;
+  
   Serial.print("'GET /configure' request - ");
 
-  String contentJson = 
-    String("{") +
-      "\"stationId\": \"" + stationId + "\"," + 
-      
-      "\"sensorTempHumOutGPIO\": \"" + sensorTempHumOutGPIO + "\"," + 
-      "\"sensorDistanceTrigGPIO\": \"" + sensorDistanceTrigGPIO + "\"," + 
-      "\"sensorDistanceEchoGPIO\": \"" + sensorDistanceEchoGPIO + "\"," + 
-
-     "\"intervalReportMillis\": \"" + intervalReportMillis + "\"," + 
-     "\"intervalRegisterMillis\": \"" + intervalRegisterMillis + "\"," +
-     "\"intervalResetMillis\": \"" + intervalResetMillis + "\"," + 
-     "\"intervalConnectionMillis\": \"" + intervalConnectionMillis + "\"," +     
-
-    "}";
+  result["success"] = true;
+  result["status"] = "OK";
+  result["message"] = "OK";
   
-  server.send(200, "application/json", contentJson);
+  result["data"]["stationId"] = stationId;
+      
+  result["data"]["sensorTempHumOutGPIO"] = sensorTempHumOutGPIO;
+  result["data"]["sensorDistanceTrigGPIO"] = sensorDistanceTrigGPIO; 
+  result["data"]["sensorDistanceEchoGPIO"] = sensorDistanceEchoGPIO;
+
+  result["data"]["intervalReportMillis"] = intervalReportMillis;
+  result["data"]["intervalRegisterMillis"] = intervalRegisterMillis;
+  result["data"]["intervalResetMillis"] = intervalResetMillis;
+  result["data"]["intervalConnectionMillis"] = intervalConnectionMillis;
+
+  serializeJson(result, buf);
+  server.send(200, "application/json", buf);  
   
   Serial.println("Served");
   //Serial.println();
@@ -73,25 +77,6 @@ void handleGetConfigure(){
 void handlePostConfigure(){
   Serial.print("'POST /configure' request - ");
 
-/*  String contentJson = 
-    String("{") +
-      "\"stationId\": \"" + stationId + "\"," + 
-      
-      "\"sensorTempHumOutGPIO\": \"" + sensorTempHumOutGPIO + "\"," + 
-      "\"sensorDistanceTrigGPIO\": \"" + sensorDistanceTrigGPIO + "\"," + 
-      "\"sensorDistanceEchoGPIO\": \"" + sensorDistanceEchoGPIO + "\"," + 
-
-     "\"intervalReportMillis\": \"" + intervalReportMillis + "\"," + 
-     "\"intervalRegisterMillis\": \"" + intervalRegisterMillis + "\"," + 
-
-    "}";
-  
-  server.send(200, "application/json", contentJson);
-  
-  Serial.println("Served");
-  //Serial.println();  
-*/
-
   String resultJson; 
   String postBody = server.arg("plain");
   Serial.println(postBody);
@@ -107,7 +92,7 @@ void handlePostConfigure(){
     Serial.print("Error parsing JSON: ");    
     Serial.println(msg); 
 
-    result["success"] =  false;
+    result["status"] = "ERROR";
     result["message"] = msg;
     serializeJson(result, buf);
     server.send(400, "application/json", buf);
@@ -305,45 +290,53 @@ void handlePostConfigure(){
     if(errorStationId.length()!=0 || errorSensorTempHumOutGPIO.length() != 0 || errorSensorDistanceTrigGPIO.length() != 0 || errorIntervalReportMillis.length() != 0 || errorIntervalRegisterMillis.length() != 0 || errorIntervalResetMillis.length() != 0 || errorIntervalConnectionMillis.length() != 0){
       resultCode = 400;    
       if(errorStationId.length()!=0){
-        result["success"] =  false;
+        result["success"] = false;
+        result["status"] = "ERROR";
         result["message"] = "Wrong parameter(s) provided";
         result["data"]["stationId"] = errorStationId;      
       }
       if(errorSensorTempHumOutGPIO.length() != 0){
-        result["success"] =  false;
+        result["success"] = false;
+        result["status"] = "ERROR";
         result["message"] = "Wrong parameter(s) provided";
         result["data"]["sensorTempHumOutGPIO"] = errorSensorTempHumOutGPIO;      
       }
       if(errorSensorDistanceTrigGPIO.length() != 0){
-        result["success"] =  false;
+        result["success"] = false;
+        result["status"] = "ERROR";
         result["message"] = "Wrong parameter(s) provided";
         result["data"]["sensorDistanceTrigGPIO"] = errorSensorDistanceTrigGPIO;      
       }
       if(errorIntervalReportMillis.length() != 0){
-        result["success"] =  false;
+        result["success"] = false;
+        result["status"] = "ERROR";
         result["message"] = "Wrong parameter(s) provided";
         result["data"]["intervalReportMillis"] = errorIntervalReportMillis;      
       }
       if(errorIntervalRegisterMillis.length() != 0){
-        result["success"] =  false;
+        result["success"] = false;
+        result["status"] = "ERROR";
         result["message"] = "Wrong parameter(s) provided";
         result["data"]["intervalRegisterMillis"] = errorIntervalRegisterMillis;      
       }
       if(errorIntervalResetMillis.length() != 0){
-        result["success"] =  false;
+        result["success"] = false;
+        result["status"] = "ERROR";
         result["message"] = "Wrong parameter(s) provided";
         result["data"]["intervalResetMillis"] = errorIntervalResetMillis;      
       }      
       if(errorIntervalConnectionMillis.length() != 0){
-        result["success"] =  false;
+        result["success"] = false;
+        result["status"] = "ERROR";
         result["message"] = "Wrong parameter(s) provided";
         result["data"]["intervalConnectionMillis"] = errorIntervalConnectionMillis;      
       }        
 
     // No error in the existing provided parameters
     }else if(updateNeeded){
-      resultCode = 201;    
-      result["success"] =  true;
+      resultCode = 201;
+      result["success"] = true;
+      result["status"] = "OK";
       result["message"] = "OK";
 
       persistVariables();
@@ -351,7 +344,8 @@ void handlePostConfigure(){
     // No existing parameter was provided
     }else{
       resultCode = 400;
-      result["success"] =  false;
+      result["success"] = false;
+      result["status"] = "ERROR";
       result["message"] = "No existing parameter was provided";
     }
     
@@ -363,22 +357,29 @@ void handlePostConfigure(){
 }
 
 void handleGetPressure(){
+  DynamicJsonDocument result(512);
+  String buf;
+  
   Serial.print("'GET /pressure' request - ");
 
   struct BMP180_Struct bmp180Result = getPressTemp(false); //getSampleOfPressTemp(1);
   double pressure = bmp180Result.pressure;
-  
-  String contentJson = 
-    String("{") +
-      "\"pressure\": \"" + String(pressure) + "\"" + 
-    "}";
-  
-  server.send(200, "application/json", contentJson);
+
+  result["success"] = true;
+  result["status"] = "OK";
+  result["message"] = "OK";
+  result["data"]["pressure"] = String(pressure);
+
+  serializeJson(result, buf);  
+  server.send(200, "application/json", buf);
   
   Serial.println("Served");
 }
 
 void handleGetTemperature(){
+  DynamicJsonDocument result(512);
+  String buf;
+  
   Serial.print("'GET /tepmerature' request - ");
 
   struct BMP180_Struct bmp180Result = getSampleOfPressTemp(1); //getPressTemp(false);
@@ -388,49 +389,61 @@ void handleGetTemperature(){
   double temp2 = dhtResult.temperature;
 
   double temperature = getAvgTemp(temp1, temp2);
-  
-  String contentJson = 
-    String("{") +
-      "\"temperature\": \"" + String(temperature) + "\"" + 
-    "}";
-  
-  server.send(200, "application/json", contentJson);
+
+  result["success"] = true;
+  result["status"] = "OK";
+  result["message"] = "OK";
+  result["data"]["temperature"] = String(temperature);
+
+  serializeJson(result, buf);  
+  server.send(200, "application/json", buf);
   
   Serial.println("Served");
 }
 
 void handleGetHumidity(){
+  DynamicJsonDocument result(512);
+  String buf;
+  
   Serial.print("'GET /humidity' request - ");
 
   struct DHT_Struct dhtResult = getTempHum(false); //getSampleOfTempHum(1);
 
-  String contentJson = 
-    String("{") +
-      "\"humidity\": \"" + String(dhtResult.humidity) + "\"" + 
-    "}";
+  result["success"] = true;
+  result["status"] = "OK";
+  result["message"] = "OK";
+  result["data"]["humidity"] = String(dhtResult.humidity);
   
-  server.send(200, "application/json", contentJson);
+  serializeJson(result, buf);  
+  server.send(200, "application/json", buf);
   
   Serial.println("Served");
   Serial.println();
 }
 
 void handleGetDistance(){
+  DynamicJsonDocument result(512);
+  String buf;
+  
   Serial.print("'GET /distance' request - ");
 
   double distance = getDistanceByDuration(getDuration(false)); //getSampleOfDistance(1);
-
-  String contentJson = 
-    String("{") +
-      "\"distance\": \"" + String(distance) + "\"" + 
-    "}";
   
-  server.send(200, "application/json", contentJson);
+  result["success"] = true;
+  result["status"] = "OK";
+  result["message"] = "OK";
+  result["data"]["distance"] = String(distance);
+  
+  serializeJson(result, buf);  
+  server.send(200, "application/json", buf);
   
   Serial.println("Served");
 }
 
 void handleGetAllActual(){
+  DynamicJsonDocument result(512);
+  String buf;
+  
   Serial.print("'GET /all/actual' request - ");
 
   //===
@@ -449,20 +462,24 @@ void handleGetAllActual(){
   double distance = getDistanceByDuration(getDuration(false));
   //===
   
-  String contentJson = 
-    String("{") +
-      "\"temperature\": \"" + String(temperature) + "\"," + 
-      "\"humidity\": \"" + String(humidity) + "\"," + 
-      "\"pressure\": \"" + String(pressure) + "\"," + 
-      "\"distance\": \"" + String(distance) + "\"," + 
-    "}";
+  result["success"] = true;
+  result["status"] = "OK";
+  result["message"] = "OK";
+  result["data"]["temperature"] = String(temperature);
+  result["data"]["humidity"] = String(humidity);
+  result["data"]["pressure"] = String(pressure);
+  result["data"]["distance"] = String(distance);
   
-  server.send(200, "application/json", contentJson);
+  serializeJson(result, buf);  
+  server.send(200, "application/json", buf);
   
   Serial.println("Served");
 }
 
 void handleGetAllAggregated(){
+  DynamicJsonDocument result(512);
+  String buf;
+  
   Serial.print("'GET /all/aggregated' request - ");
 
   String levelValue = (avgHcsrDist != NULL) ? String(avgHcsrDist) : "";
@@ -475,15 +492,16 @@ void handleGetAllAggregated(){
   
   String temperatureValue = (avgTemp != NULL) ? String(avgTemp) : "";
   
-  String contentJson = 
-    String("{") +
-      "\"temperature\": \"" + temperatureValue + "\"," + 
-      "\"humidity\": \"" + humidityValue + "\"," + 
-      "\"pressure\": \"" + pressureValue + "\"," + 
-      "\"distance\": \"" + levelValue + "\"," + 
-    "}";
+  result["success"] = true;
+  result["status"] = "OK";
+  result["message"] = "OK";
+  result["data"]["temperature"] = temperatureValue;
+  result["data"]["humidity"] = humidityValue;
+  result["data"]["pressure"] = pressureValue;
+  result["data"]["distance"] = levelValue;
   
-  server.send(200, "application/json", contentJson);
+  serializeJson(result, buf);  
+  server.send(200, "application/json", buf);
   
   Serial.println("Served");
 }

@@ -18,7 +18,7 @@ bool configureTempHumSensor(){
     Serial.println("!!! dht.begin() failed. check your DHT Interface !!!");
     ret = false;
   }else{
-    Serial.println("DHT Temerature & Humidity Sensor has been Configured");
+    Serial.println("   DHT Temerature & Humidity Sensor has been Configured");
   }
   
   return ret;
