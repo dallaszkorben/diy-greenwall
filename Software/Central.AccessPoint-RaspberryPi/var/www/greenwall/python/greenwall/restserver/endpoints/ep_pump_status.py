@@ -52,4 +52,3 @@ class EPPumpStatus(EP):
         status = self.web_gadget.pump.getPumpStatus()
 
         return output_json( {'result': 'OK', 'status': status}, EP.CODE_OK)
-

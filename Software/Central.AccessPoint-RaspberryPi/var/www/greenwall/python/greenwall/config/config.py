@@ -17,6 +17,7 @@ class Config( Property ):
     DEFAULT_LOG_FILE_NAME = ("log", "file-name", "greenwall.log")
     DEFAULT_LOG_FOLDER_NAME = ("log", "folder-name", "DEBUG")
 
+    DEFAULT_LOG_REGISTER_SENSOR_FILE_NAME = ("log.register", "sensor-file-name", "sensor_register.log")
     DEFAULT_LOG_REGISTER_LAMP_FILE_NAME = ("log.register", "lamp-file-name", "lamp_register.log")
     DEFAULT_LOG_REGISTER_PUMP_FILE_NAME = ("log.register", "pump-file-name", "pump_register.log")
     DEFAULT_LOG_REGISTER_CAM_FILE_NAME = ("log.register", "cam-file-name", "cam_register.log")
@@ -36,6 +37,7 @@ class Config( Property ):
 
 
     TIMING_CAM_LATE_REGISTER_TIME_LIMIT_SECONDS = ("timing", "cam-late-register-time-limit_seconds", 200)
+    TIMING_SENSOR_LATE_REGISTER_TIME_LIMIT_SECONDS = ("timing", "sensor-late-register-time-limit_seconds", 200)
 
     __instance = None
 
@@ -68,6 +70,9 @@ class Config( Property ):
 
     def getLogFolderName(self):
         return self.get(self.DEFAULT_LOG_FOLDER_NAME[0], self.DEFAULT_LOG_FOLDER_NAME[1], self.DEFAULT_LOG_FOLDER_NAME[2])
+
+    def getLogRegisterSensorFileName(self):
+        return self.get(self.DEFAULT_LOG_REGISTER_SENSOR_FILE_NAME[0], self.DEFAULT_LOG_REGISTER_SENSOR_FILE_NAME[1], self.DEFAULT_LOG_REGISTER_SENSOR_FILE_NAME[2])
 
     def getLogRegisterLampFileName(self):
         return self.get(self.DEFAULT_LOG_REGISTER_LAMP_FILE_NAME[0], self.DEFAULT_LOG_REGISTER_LAMP_FILE_NAME[1], self.DEFAULT_LOG_REGISTER_LAMP_FILE_NAME[2])
@@ -111,6 +116,9 @@ class Config( Property ):
     def getTimingCamLateRegisterTimeLimitSeconds(self):
         return self.get(self.TIMING_CAM_LATE_REGISTER_TIME_LIMIT_SECONDS[0], self.TIMING_CAM_LATE_REGISTER_TIME_LIMIT_SECONDS[1], self.TIMING_CAM_LATE_REGISTER_TIME_LIMIT_SECONDS[2])
 
+    def getTimingSensorLateRegisterTimeLimitSeconds(self):
+        return self.get(self.TIMING_SENSOR_LATE_REGISTER_TIME_LIMIT_SECONDS[0], self.TIMING_SENSOR_LATE_REGISTER_TIME_LIMIT_SECONDS[1], self.TIMING_SENSOR_LATE_REGISTER_TIME_LIMIT_SECONDS[2])
+
 
 #    def getPumpId(self):
 #        return int(self.get(self.DEFAULT_PUMP_ID[0], self.DEFAULT_PUMP_ID[1], self.DEFAULT_PUMP_ID[2]))
@@ -131,6 +139,9 @@ class Config( Property ):
 
     def setLogFolderName(self, logFolderName):
         self.update(self.DEFAULT_LOG_FOLDER_NAME[0], self.DEFAULT_LOG_FOLDER_NAME[1], logFolderName)
+
+    def setLogRegisterSensorFileName(self, registerFileName):
+        self.update(self.DEFAULT_LOG_REGISTER_SENSOR_FILE_NAME[0], self.DEFAULT_LOG_REGISTER_SENSOR_FILE_NAME[1], registerFileName)
 
     def setLogRegisterLampFileName(self, registerFileName):
         self.update(self.DEFAULT_LOG_REGISTER_LAMP_FILE_NAME[0], self.DEFAULT_LOG_REGISTER_LAMP_FILE_NAME[1], registerFileName)
@@ -174,6 +185,9 @@ class Config( Property ):
     def setTimingCamLateRegisterTimeLimitSeconds(self, timeLimit):
         self.update(self.TIMING_CAM_LATE_REGISTER_TIME_LIMIT_SECONDS[0], self.TIMING_CAM_LATE_REGISTER_TIME_LIMIT_SECONDS[1], timeLimit)
 
+    def setTimingSensorLateRegisterTimeLimitSeconds(self, timeLimit):
+        self.update(self.TIMING_SENSOR_LATE_REGISTER_TIME_LIMIT_SECONDS[0], self.TIMING_SENSOR_LATE_REGISTER_TIME_LIMIT_SECONDS[1], timeLimit)
+
 #    def setPumpId(self, actuatorId):
 #        self.update(self.DEFAULT_PUMP_ID[0], self.DEFAULT_PUMP_ID[1], actuatorId)
 #
@@ -195,6 +209,7 @@ def getConfig():
 
     config["sensor-report-file-name"] = cb.getSensorReportFileName()
 
+    config["log-register-sensor-file-name"] = cb.getLogRegisterSensorFileName()
     config["log-register-lamp-file-name"] = cb.getLogRegisterLampFileName()
     config["log-register-pump-file-name"] = cb.getLogRegisterPumpFileName()
     config["log-register-cam-file-name"] = cb.getLogRegisterCamFileName()
@@ -211,6 +226,7 @@ def getConfig():
     config["absolute-cam-frame-folder"] = cb.getAbsoluteCamFrameFolder()
 
     config["timing-cam-late-register-time-seconds"] = cb.getTimingCamLateRegisterTimeLimitSeconds()
+    config["timing-sensor-late-register-time-seconds"] = cb.getTimingSensorLateRegisterTimeLimitSeconds()
 
 #    config["pump-id"] = cb.getPumpId()
 #    config["pump-gpio"] = cb.getPumpGpio()
@@ -234,6 +250,9 @@ def setConfig(config):
 
     if "sensor-report-file-name" in config:
         cb.setSensorReportFileName(config["sensor-report-file-name"])
+
+    if "log-register-sensor-file-name" in config:
+        cb.setLogRegisterSensorFileName(config["log-register-sensor-file-name"])
 
     if "log-register-lamp-file-name" in config:
         cb.setLogRegisterLampFileName(config["log-register-lamp-file-name"])
@@ -273,6 +292,9 @@ def setConfig(config):
 
     if "timing-cam-late-register-time-seconds" in config:
         cp.setTimingCamLateRegisterTimeLimitSeconds(config["timing-cam-late-register-time-seconds"])
+
+    if "timing-sensor-late-register-time-seconds" in config:
+        cp.setTimingSensorLateRegisterTimeLimitSeconds(config["timing-sensor-late-register-time-seconds"])
 
 #    if "pump-id" in config:
 #        cb.setPumpId(config["pump-id"])

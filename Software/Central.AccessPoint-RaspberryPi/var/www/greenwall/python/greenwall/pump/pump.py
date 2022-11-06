@@ -11,8 +11,8 @@ class Pump:
 
     def turnPumpOn(self, lengthInSec=0):
 
-        from pprint import pprint
-        pprint(self.webGadget.registerPump.pumpDict)
+#        from pprint import pprint
+#        pprint(self.webGadget.registerPump.pumpDict)
 
         for key, value in self.webGadget.registerPump.pumpDict.items():
 

@@ -46,6 +46,8 @@ from greenwall.controlbox.controlbox import Controlbox
 from greenwall.lamp.lamp import Lamp
 from greenwall.pump.pump import Pump
 from greenwall.cam.cam import Cam
+from greenwall.sensor.sensor import Sensor
+
 
 from greenwall.restserver.view_info import InfoView
 from greenwall.restserver.view_sensor import SensorView
@@ -54,6 +56,8 @@ from greenwall.restserver.view_lamp import LampView
 from greenwall.restserver.view_pump import PumpView
 
 from greenwall.utilities.report_sensor import ReportSensor
+
+from greenwall.utilities.register_sensor import RegisterSensor
 from greenwall.utilities.register_lamp import RegisterLamp
 from greenwall.utilities.register_pump import RegisterPump
 from greenwall.utilities.register_cam import RegisterCam
@@ -72,6 +76,7 @@ class WSGreenWall(Flask):
         logLevel = cg["log-level"]
         logFileName = cg["log-file-name"]
 
+        sensorRegisterFileName = cg["log-register-sensor-file-name"]
         lampRegisterFileName = cg["log-register-lamp-file-name"]
         pumpRegisterFileName = cg["log-register-pump-file-name"]
         camRegisterFileName = cg["log-register-cam-file-name"]
@@ -90,6 +95,7 @@ class WSGreenWall(Flask):
         self.absoluteCamVideoFolder = cg["absolute-cam-video-folder"]
 
         self.timingCamLateRegisterTimeLimit = cg["timing-cam-late-register-time-seconds"]
+        self.timingSensorLateRegisterTimeLimit = cg["timing-sensor-late-register-time-seconds"]
 
         # LOG 
         logFolder = IniLocation.get_path_to_config_folder()
@@ -105,6 +111,7 @@ class WSGreenWall(Flask):
 
         # REGISTER
         registerFolder = IniLocation.get_path_to_config_folder()
+        self.sensorRegisterPath = os.path.join(registerFolder, sensorRegisterFileName)
         self.lampRegisterPath = os.path.join(registerFolder, lampRegisterFileName)
         self.pumpRegisterPath = os.path.join(registerFolder, pumpRegisterFileName)
         self.camRegisterPath = os.path.join(registerFolder, camRegisterFileName)
@@ -140,6 +147,7 @@ class WSGreenWall(Flask):
 
         self.reportSensor = ReportSensor(self.reportPath)
 
+        self.registerSensor = RegisterSensor(self.app, self.sensorRegisterPath)
         self.registerLamp = RegisterLamp(self.lampRegisterPath)
         self.registerPump = RegisterPump(self.pumpRegisterPath)
         self.registerCam = RegisterCam(self.app, self.camRegisterPath)
@@ -161,6 +169,9 @@ class WSGreenWall(Flask):
 
         # CAM
         self.cam = Cam(self.app)
+
+       # SENSOR STATION
+        self.sensor = Sensor(self.app)
 
     def getThreadControllerStatus(self):
         return self.gradualThreadController.getStatus()

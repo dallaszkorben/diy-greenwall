@@ -1,3 +1,5 @@
+import logging
+
 import json
 
 #from flask_api import status
@@ -16,20 +18,14 @@ from greenwall.exceptions.invalid_api_usage import InvalidAPIUsage
 from greenwall.restserver.representations import output_json
 
 from greenwall.restserver.endpoints.ep_sensor_add import EPSensorAdd
+from greenwall.restserver.endpoints.ep_sensor_register import EPSensorRegister
 from greenwall.restserver.endpoints.ep_sensor_data_list import EPSensorDataList
+
+from greenwall.restserver.endpoints.ep_sensor_registered_list import EPSensorRegisteredList
+from greenwall.restserver.endpoints.ep_sensor_data_average_by_id import EPSensorDataAverageById
+
 from greenwall.restserver.endpoints.ep import EP
 
-
-# -----------------------------------
-#
-# POST Contorl the sensor of the light
-#
-# curl  --header "Content-Type: application/json" --request POST http://localhost:5000/sensor/add/sensorId/5/value/23.4/variance/0.0
-# curl  --header "Content-Type: application/json" --request POST --data '{"sensorId": "5", "value":23.4,"variance":0.0}' http://localhost:5000/sensor/add
-#
-# -----------------------------------
-#
-# POST http://localhost:5000/sensor
 class SensorView(FlaskView):
     representations = {'application/json': output_json}
     inspect_args = False
@@ -38,8 +34,12 @@ class SensorView(FlaskView):
 
         self.web_gadget = web_gadget
 
+        self.epSensorRegister = EPSensorRegister(web_gadget)
         self.epSensorAdd = EPSensorAdd(web_gadget)
         self.epSensorDataList = EPSensorDataList(web_gadget)
+        self.epSensorDataAverageById = EPSensorDataAverageById(web_gadget)
+        self.epSensorRegisteredList = EPSensorRegisteredList(web_gadget)
+
 
     #
     # GET http://localhost:5000/sensor/
@@ -47,7 +47,44 @@ class SensorView(FlaskView):
     def index(self):
         return {}
 
-# ===
+
+# === POST /sensor/register ===
+
+    #
+    # Register Sensor Station with payload - called from station module
+    #
+    # curl  --header "Content-Type: application/json" --request POST --data '{"stationId": "5","configureUrl": "http://192.168.0.23:80/configure", "measureActualUrl": "http://192.168.0.23:80/all/actuall", "collectAverageUrl": "http://192.168.0.23:80/all/average" }' http://localhost:5000/sensor/register
+    #
+    # POST http://localhost:5000/sensor/register
+    #      body: {
+    #        "stationId":"5"
+    #        "configureUrl": "http://192.168.0.23:80/configure",
+    #        "measureActualUrl": "http://192.168.0.23:80/all/actual",
+    #        "collectAverageUrl": "http://192.168.0.23:80/all/average",
+    #        "dateString": "2022.11.05T01:01:01+01:00",
+    #      }
+    #
+    #@route('/register', methods=['POST'])
+    @route(EPSensorRegister.PATH_PAR_PAYLOAD, methods=[EPSensorRegister.METHOD])
+    def registerSensorWithPayload(self):
+
+        logging.debug("POST sensor/register node was called from the sensor station module")
+
+        # WEB
+        if request.form:
+            json_data = request.form
+
+        # CURL
+        elif request.json:
+            json_data = request.json
+
+        else:
+            return "Not valid request", EP.CODE_BAD_REQUEST
+
+        out = self.epSensorRegister.executeByPayload(json_data)
+        return out
+
+# === POST /sensor/add ===
 
     #
     # Add sensor data to list with payload
@@ -81,7 +118,6 @@ class SensorView(FlaskView):
         out = self.epSensorAdd.executeByPayload(json_data)
         return out
 
-
     #
     # Add sensor data to list - with parameters
     #
@@ -102,9 +138,8 @@ class SensorView(FlaskView):
         return out
 
 
-# ===
+# === POST /sensor/data/list ===
 
-# ===
 
     #
     # Fetch sensor data - with parameters
@@ -134,3 +169,36 @@ class SensorView(FlaskView):
         out = self.epSensorDataList.executeByParameters(startDate=startDate, endDate=endDate)
         return out
 
+# === GET /sensor/data/average/id ===
+
+    #
+    # Get the Average value of a Sensor Station module
+    #
+    # curl  --request GET http://localhost:5000/sensor/data/average/id/{id}
+    #
+    # GET http://localhost:5000/sensor/data/average/
+
+    #@route('/configure/data/average/ip/{ip}', methods=['GET'])
+    @route(EPSensorDataAverageById.PATH_PAR_URL, methods=[EPSensorDataAverageById.METHOD])
+    def sensorDataAverageByIdWithParameter(self, id):
+
+        out = self.epSensorDataAverageById.executeByParameters(id=id)
+
+        return out
+
+# === GET /sensor/registered/list ===
+
+    #
+    # Get the list of the registered Sensor Stations
+    #
+    # curl  --request GET http://localhost:5000/sensor/registered/list
+    #
+    # GET http://localhost:5000/sensor/registered/list
+
+    #@route('/registered/list', methods=['GET'])
+    @route(EPSensorRegisteredList.PATH_PAR_URL, methods=[EPSensorRegisteredList.METHOD])
+    def sensorGetRegisteredListWithParameter(self):
+
+        out = self.epSensorRegisteredList.executeByParameters()
+
+        return out
