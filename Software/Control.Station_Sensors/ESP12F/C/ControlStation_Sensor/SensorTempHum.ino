@@ -153,9 +153,9 @@ struct DHT_Struct add1SampleToMovingAverageTempHum(bool reset){
     avgDhtTempCounter = 1;
     avgDhtTemp = actualTemp;
   // If the recent measurement was not evaluable
-  }else{
-    avgDhtTempCounter = 0;
-    avgDhtTemp = NULL;
+//  }else{
+//    avgDhtTempCounter = 0;
+//    avgDhtTemp = NULL;
   }
 
   // ---
@@ -169,9 +169,9 @@ struct DHT_Struct add1SampleToMovingAverageTempHum(bool reset){
     avgDhtHumCounter = 1;
     avgDhtHum = actualHum;
   // If the recent measurement was not evaluable
-  }else{
-    avgDhtHumCounter = 0;
-    avgDhtHum = NULL;
+//  }else{
+//    avgDhtHumCounter = 0;
+//    avgDhtHum = NULL;
   }
 
   // ---

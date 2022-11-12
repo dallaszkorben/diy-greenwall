@@ -125,13 +125,14 @@ double getSampleOfDistance(int sample){
 *        avg = a * V + b * avg
 *        
 *********************************************************/
-double add1SampleToMovingAverageDistance(bool reset){
+double add1SampleToMovingAverageDistance(bool resetBefore){
 
-  if(reset){
+  if(resetBefore){
     avgHcsrDist = NULL;
     avgHcsrCounter = 0;
   }
 
+  // Take a sample of distance
   double actualDist = getSampleOfDistance(1); 
   
   // If there was evaluable result and there was already an evaluable result before
@@ -141,16 +142,15 @@ double add1SampleToMovingAverageDistance(bool reset){
     double b = 1 - a;
     avgHcsrDist = a * actualDist + b * avgHcsrDist;
   
-  // If this result or the previous result was NULL => NO sensor
-  // The recent measurement in evaluable, but before there was not
+  // If there was NO measure yet and recent measurement in OK
   }else if(actualDist != NULL){
     avgHcsrCounter = 1;
     avgHcsrDist = actualDist;
 
   // If the recent measurement was not evaluable
-  }else{
-    avgHcsrCounter = 0;
-    avgHcsrDist = NULL;
+//  }else{
+//    avgHcsrCounter = 0;
+//    avgHcsrDist = NULL;
   }
 
   return avgHcsrDist;

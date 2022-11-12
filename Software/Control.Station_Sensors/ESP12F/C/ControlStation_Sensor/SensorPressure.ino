@@ -208,9 +208,9 @@ struct BMP180_Struct add1SampleToMovingAveragePressTemp(bool reset){
     avgBmpTempCounter = 1;
     avgBmpTemp = actualTemp;
   // If the recent measurement was not evaluable
-  }else{
-    avgBmpTempCounter = 0;
-    avgBmpTemp = NULL;
+//  }else{
+//    avgBmpTempCounter = 0;
+//    avgBmpTemp = NULL;
   }
 
   // ---
@@ -224,9 +224,9 @@ struct BMP180_Struct add1SampleToMovingAveragePressTemp(bool reset){
     avgBmpPressCounter = 1;
     avgBmpPress = actualPress;
   // If the recent measurement was not evaluable
-  }else{
-    avgBmpPressCounter = 0;
-    avgBmpPress = NULL;
+//  }else{
+//    avgBmpPressCounter = 0;
+//    avgBmpPress = NULL;
   }
 
   // ---

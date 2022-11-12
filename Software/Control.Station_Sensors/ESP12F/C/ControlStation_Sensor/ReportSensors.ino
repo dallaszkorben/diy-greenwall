@@ -42,13 +42,13 @@ bool reportSensors(bool needToPrint){
     //So the average values must be cleared and the first measurement should be taken
 
     // Clears the moving average of Temperature/Humidity and takes one now measurement
-    struct DHT_Struct dhtResult = add1SampleToMovingAverageTempHum(true);
+    add1SampleToMovingAverageTempHum(true);
 
     // Clears the moving average of Pressure/Temperature and takes one now measurement
-    struct BMP180_Struct bmp180Result = add1SampleToMovingAveragePressTemp(true);
+    add1SampleToMovingAveragePressTemp(true);
 
     // Clears the moving average of distance and takes one now measurement
-    avgHcsrDist = add1SampleToMovingAverageDistance(true);
+    add1SampleToMovingAverageDistance(true);
     
   }else{
     res = false;
