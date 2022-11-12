@@ -4,6 +4,8 @@
 <tr>
 <td>
 
+[Before you start](Wiki/BeforeYouStart/beforeYouStart.md)
+	
 The Green Wall consist of many elements: 					
 * Plants in the Balcony Planter Box mounted on the wall
 * Irrigation system
