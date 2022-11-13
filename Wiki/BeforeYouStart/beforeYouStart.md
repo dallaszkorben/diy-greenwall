@@ -48,6 +48,7 @@ crw-rw---- 1 root dialout 188, 0 Nov 12 21:36 /dev/ttyUSB0
 ```
 
 You need to add your user to the group
+
 <username>: is your Linux user name.
 
 ```sh
