@@ -15,23 +15,28 @@ int ledStatus = LED_INITIATE;
  * Call services:
  *    curl -s --request GET http://192.168.50.101:80/all/aggregated
  *    curl -s --request GET http://192.168.50.101:80/all/actual
- *    curl -s --request GET http://192.168.50.101:80/all/pressure
- *    curl -s --request GET http://192.168.50.101:80/all/temperature
- *    curl -s --request GET http://192.168.50.101:80/all/humidity
- *    curl -s --request GET http://192.168.50.101:80/all/distance
+ *    curl -s --request GET http://192.168.50.101:80/pressure
+ *    curl -s --request GET http://192.168.50.101:80/temperature
+ *    curl -s --request GET http://192.168.50.101:80/humidity
+ *    curl -s --request GET http://192.168.50.101:80/distance
+ *    curl -s --request GET http://192.168.50.101:80/duration
  *    
  *    curl -s --request POST --header "Content-Type: application/json" http://192.168.50.101:80/configure --data {"stationId": "S02"} 
  * 
- * Continously read the values from this module on the same network 
- *    for i in $(seq 1 10000); do echo -n "$i `date -I'seconds'`: "; result=`curl -s -w "%{http_code}"  --max-time 20 http://192.168.50.101:80/all/aggregated `; code=`echo $result|grep -Po "\\d{3}$"`; if [[ $code == "200" ]] ; then echo $result; else echo $code; continue; fi; sleep 20; done
+ * Continously read the values from this module on the same network:
+ *    for i in $(seq 1 10000); do echo -n "$i `date -I'seconds'`: "; result=`curl -s -w "%{http_code}"  --max-time 20 http://192.168.50.101:80/all/aggregated `; code=`echo $result|grep -Po "\\d{3}$"`; if [[ $code == "200" ]] ; then echo $result; else echo $code; continue; fi; sleep 20; done\
  * 
+ * Continously read the duration from this module on the same network:
+ *    watch 'curl -s --header "Content-Type: application/json" --request GET http://192.168.50.112:80/duration | grep -oP "duration\":\"\d+[.]\d+"'
  */
+const String version = "CS-0.0.2";
 
 const char* ssid = "Central-Station-006";
 const char* password = "viragfal";
 const int serverPort = 80;
 
 // --- Default values for Preferences ---
+const bool          DEFAULT_NEED_TO_REPORT = false;
 const bool          DEFAULT_NEED_TO_RESET = false;
 
 const String        DEFAULT_CLIENT_IP   = "192.168.0.104"; 
@@ -50,6 +55,10 @@ const int           DEFAULT_SENSOR_TEMPHUM_OUT_GPIO   = 0;
 const int           DEFAULT_SENSOR_DISTANCE_ECHO_GPIO = 14;
 const int           DEFAULT_SENSOR_DISTANCE_TRIG_GPIO = 12;
 
+const double        DEFAULT_SENSOR_DISTANCE_PARAMETER_A = 0.0;
+const double        DEFAULT_SENSOR_DISTANCE_PARAMETER_B = 0.017171;
+const double        DEFAULT_SENSOR_DISTANCE_PARAMETER_C = 0.0;
+
 // --- Preferences values ---
 unsigned long intervalReportMillis      = 0;
 long intervalRegisterMillis    = 0;
@@ -57,11 +66,16 @@ unsigned long intervalResetMillis       = 0;
 unsigned long intervalConnectionMillis  = 0;
 
 bool   needToReset  =     false;
+bool   needToReport =     false;
 String stationId    =     "";
 
 int    sensorTempHumOutGPIO   = NULL;
 int    sensorDistanceEchoGPIO = NULL;
 int    sensorDistanceTrigGPIO = NULL;
+
+double  sensorDistanceParA = 0.0;
+double  sensorDistanceParB = 0.0;
+double  sensorDistanceParC = 0.0;
 
 String clientIp   = "";  
 String clientPort = "";
@@ -324,7 +338,7 @@ void loop() {
 //  Serial.print(">=");
 //  Serial.println(intervalReportMillis); 
     
-  if(currentMillis - previousReportMillis >= intervalReportMillis){
+  if(needToReport && (currentMillis - previousReportMillis >= intervalReportMillis)){
 
     ledSignalCommunicate();
     if ( reportSensors(false) ){

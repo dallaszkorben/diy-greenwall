@@ -4,6 +4,8 @@
 double getAvgTemp();
 boolean isDecimal(String str);
 boolean isInteger(String str);
+boolean isBoolean(String str);
+static bool ToBoolean(String str);
 void persistVariables();
 
 void handleNotFound(){
@@ -23,17 +25,25 @@ void handleGetConfigure(){
   result["success"] = true;
   result["status"] = "OK";
   result["message"] = "OK";
-  
+
+  result["data"]["version"] = version;
+
   result["data"]["stationId"] = stationId;
       
   result["data"]["sensorTempHumOutGPIO"] = sensorTempHumOutGPIO;
   result["data"]["sensorDistanceTrigGPIO"] = sensorDistanceTrigGPIO; 
   result["data"]["sensorDistanceEchoGPIO"] = sensorDistanceEchoGPIO;
 
+  result["data"]["sensorDistanceParA"] = sensorDistanceParA;
+  result["data"]["sensorDistanceParB"] = sensorDistanceParB;
+  result["data"]["sensorDistanceParC"] = sensorDistanceParC;
+
   result["data"]["intervalReportMillis"] = intervalReportMillis;
   result["data"]["intervalRegisterMillis"] = intervalRegisterMillis;
   result["data"]["intervalResetMillis"] = intervalResetMillis;
   result["data"]["intervalConnectionMillis"] = intervalConnectionMillis;
+
+  result["data"]["needToReport"] = needToReport;
 
   serializeJson(result, buf);
   server.send(200, "application/json", buf);  
@@ -106,10 +116,16 @@ void handlePostConfigure(){
     String errorSensorTempHumOutGPIO = "";
     String errorSensorDistanceTrigGPIO = "";
     String errorSensorDistanceEchoGPIO = "";
+    String errorSensorDistanceParA = "";
+    String errorSensorDistanceParB = "";
+    String errorSensorDistanceParC = "";
+    
     String errorIntervalReportMillis = "";
     String errorIntervalRegisterMillis = "";
     String errorIntervalResetMillis = "";
     String errorIntervalConnectionMillis = "";
+
+    String errorNeedToReport = "";
         
     JsonObject postObj = doc.as<JsonObject>();
     Serial.println("Json parameters are successfully parsed");
@@ -197,6 +213,54 @@ void handlePostConfigure(){
     }else{
       Serial.println("NO sensorDistanceEchoGPIO modified");
     }
+    
+    //
+    // sensorDistanceParA
+    //
+    const char* mySensorDistanceParA = postObj["sensorDistanceParA"];        
+    if(mySensorDistanceParA){
+      if(isDecimal(String(mySensorDistanceParA))){
+        sensorDistanceParA = String(mySensorDistanceParA).toDouble();
+        updateNeeded = true;
+      }else{
+        errorSensorDistanceParA = "Wrong value in 'sensorDistanceParA': '" + String(mySensorDistanceParA) + "' is NOT an Double.";
+        Serial.println(errorSensorDistanceParA);
+      }
+    }else{
+      Serial.println("NO sensorDistanceParA modified");
+    }    
+
+    //
+    // sensorDistanceParB
+    //
+    const char* mySensorDistanceParB = postObj["sensorDistanceParB"];
+    if(mySensorDistanceParB){
+      if(isDecimal(String(mySensorDistanceParB))){
+        sensorDistanceParB = String(mySensorDistanceParB).toDouble();
+        updateNeeded = true;
+      }else{
+        errorSensorDistanceParB = "Wrong value in 'sensorDistanceParB': '" + String(mySensorDistanceParB) + "' is NOT an Double.";
+        Serial.println(errorSensorDistanceParB);
+      }
+    }else{
+      Serial.println("NO sensorDistanceParB modified");
+    }    
+
+    //
+    // sensorDistanceParC
+    //
+    const char* mySensorDistanceParC = postObj["sensorDistanceParC"];
+    if(mySensorDistanceParC){
+      if(isDecimal(String(mySensorDistanceParC))){
+        sensorDistanceParC = String(mySensorDistanceParC).toDouble();
+        updateNeeded = true;
+      }else{
+        errorSensorDistanceParC = "Wrong value in 'sensorDistanceParC': '" + String(mySensorDistanceParC) + "' is NOT an Double.";
+        Serial.println(errorSensorDistanceParC);
+      }
+    }else{
+      Serial.println("NO sensorDistanceParC modified");
+    }    
 
     //
     // intervalReportMillis
@@ -286,8 +350,24 @@ void handlePostConfigure(){
       Serial.println("NO intervalConnectionMillis modified");
     }
 
+    //
+    // needToReport
+    //
+    const char* myNeedToReport = postObj["needToReport"];        
+    if(myNeedToReport){
+      if(isBoolean(String(myNeedToReport))){
+        needToReport = ToBoolean(myNeedToReport);
+        updateNeeded = true;
+      }else{
+        errorNeedToReport = "Wrong value in 'needToReport': '" + String(myNeedToReport) + "' is NOT an Boolean.";
+        Serial.println(errorNeedToReport);
+      }
+    }else{
+      Serial.println("NO needToReport modified");
+    }
+    
     // If there was at least 1 wrong (existing) parameter
-    if(errorStationId.length()!=0 || errorSensorTempHumOutGPIO.length() != 0 || errorSensorDistanceTrigGPIO.length() != 0 || errorIntervalReportMillis.length() != 0 || errorIntervalRegisterMillis.length() != 0 || errorIntervalResetMillis.length() != 0 || errorIntervalConnectionMillis.length() != 0){
+    if(errorStationId.length()!=0 || errorSensorTempHumOutGPIO.length() != 0 || errorSensorDistanceTrigGPIO.length() != 0 || errorSensorDistanceParA.length() != 0 || errorSensorDistanceParB.length() != 0 || errorSensorDistanceParC.length() != 0 || errorIntervalReportMillis.length() != 0 || errorIntervalRegisterMillis.length() != 0 || errorIntervalResetMillis.length() != 0 || errorIntervalConnectionMillis.length() != 0 || errorNeedToReport.length() != 0){
       resultCode = 400;    
       if(errorStationId.length()!=0){
         result["success"] = false;
@@ -306,6 +386,24 @@ void handlePostConfigure(){
         result["status"] = "ERROR";
         result["message"] = "Wrong parameter(s) provided";
         result["data"]["sensorDistanceTrigGPIO"] = errorSensorDistanceTrigGPIO;      
+      }
+      if(errorSensorDistanceParA.length() != 0){
+        result["success"] = false;
+        result["status"] = "ERROR";
+        result["message"] = "Wrong parameter(s) provided";
+        result["data"]["sensorDistanceParA"] = errorSensorDistanceParA;      
+      }
+      if(errorSensorDistanceParB.length() != 0){
+        result["success"] = false;
+        result["status"] = "ERROR";
+        result["message"] = "Wrong parameter(s) provided";
+        result["data"]["sensorDistanceParB"] = errorSensorDistanceParB;
+      }
+      if(errorSensorDistanceParC.length() != 0){
+        result["success"] = false;
+        result["status"] = "ERROR";
+        result["message"] = "Wrong parameter(s) provided";
+        result["data"]["sensorDistanceParC"] = errorSensorDistanceParC;
       }
       if(errorIntervalReportMillis.length() != 0){
         result["success"] = false;
@@ -331,6 +429,12 @@ void handlePostConfigure(){
         result["message"] = "Wrong parameter(s) provided";
         result["data"]["intervalConnectionMillis"] = errorIntervalConnectionMillis;      
       }        
+      if(errorNeedToReport.length() != 0){
+        result["success"] = false;
+        result["status"] = "ERROR";
+        result["message"] = "Wrong parameter(s) provided";
+        result["data"]["needToReport"] = errorNeedToReport;      
+      }             
 
     // No error in the existing provided parameters
     }else if(updateNeeded){
@@ -440,6 +544,25 @@ void handleGetDistance(){
   Serial.println("Served");
 }
 
+void handleGetDuration(){
+  DynamicJsonDocument result(512);
+  String buf;
+  
+  Serial.print("'GET /duration' request - ");
+
+  double duration = getDuration(false);
+  
+  result["success"] = true;
+  result["status"] = "OK";
+  result["message"] = "OK";
+  result["data"]["duration"] = String(duration);
+  
+  serializeJson(result, buf);  
+  server.send(200, "application/json", buf);
+  
+  Serial.println("Served");
+}
+
 void handleGetAllActual(){
   DynamicJsonDocument result(512);
   String buf;
@@ -517,6 +640,7 @@ bool configureHttpServer(){
     server.on("/temperature", HTTP_GET, handleGetTemperature);
     server.on("/humidity", HTTP_GET, handleGetHumidity);
     server.on("/distance", HTTP_GET, handleGetDistance);
+    server.on("/duration", HTTP_GET, handleGetDuration);
 
     server.on("/all/actual", HTTP_GET, handleGetAllActual);
     server.on("/all/aggregated", HTTP_GET, handleGetAllAggregated);

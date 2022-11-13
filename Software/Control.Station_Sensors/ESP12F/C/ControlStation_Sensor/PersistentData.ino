@@ -13,6 +13,11 @@ void setupVariables(){
   sensorTempHumOutGPIO = stationPref.getInt("sensorTempHumOutGPIO", DEFAULT_SENSOR_TEMPHUM_OUT_GPIO);
   sensorDistanceTrigGPIO = stationPref.getInt("sensorDistanceTrigGPIO", DEFAULT_SENSOR_DISTANCE_TRIG_GPIO);
   sensorDistanceEchoGPIO = stationPref.getInt("sensorDistanceEchoGPIO", DEFAULT_SENSOR_DISTANCE_ECHO_GPIO);
+
+  sensorDistanceParA = stationPref.getDouble("sensorDistanceParA", DEFAULT_SENSOR_DISTANCE_PARAMETER_A);
+  sensorDistanceParB = stationPref.getDouble("sensorDistanceParB", DEFAULT_SENSOR_DISTANCE_PARAMETER_B);
+  sensorDistanceParC = stationPref.getDouble("sensorDistanceParC", DEFAULT_SENSOR_DISTANCE_PARAMETER_C);  
+  
   stationPref.end();
   
   // --- Open "station" namespace in read mode ---
@@ -23,6 +28,7 @@ void setupVariables(){
   // --- Open "general" namespace in read mode ---
   stationPref.begin("general", true); 
   needToReset = stationPref.getBool("needToReset", DEFAULT_NEED_TO_RESET);
+  needToReport = stationPref.getBool("general", DEFAULT_NEED_TO_REPORT);
   stationPref.end();
 
   // --- Open "client" namespace in read mode ---
@@ -38,6 +44,8 @@ void setupVariables(){
   // --- Show new values ---
   Serial.println();
   Serial.println("========== Setup variable ==========");
+  Serial.println("version: " + version);
+
   Serial.println("Mutable value variables:");
   
   Serial.println("   intervalReportMillis: " + String(intervalReportMillis));
@@ -48,12 +56,17 @@ void setupVariables(){
   Serial.println("   sensorTempHumOutGPIO: " + String(sensorTempHumOutGPIO) );
   Serial.println("   sensorDistanceEchoGPIO: " + String(sensorDistanceEchoGPIO) );
   Serial.println("   sensorDistanceTrigGPIO: " + String(sensorDistanceTrigGPIO) );
+  Serial.println("   sensorDistanceParA: " + String(sensorDistanceParA) );
+  Serial.println("   sensorDistanceParB: " + String(sensorDistanceParB) );
+  Serial.println("   sensorDistanceParC: " + String(sensorDistanceParC) );
+    
   Serial.println("   clientIp: " + String(clientIp) );
   Serial.println("   clientPort: " + String(clientPort) );
   Serial.println("   clientPathToRegister: " + String(clientPathToRegister) );
   Serial.println("   clientPathToReport: " + String(clientPathToReport) );
   Serial.println("   clientPathToInfoTimestamp: " + String(clientPathToInfoTimestamp) );
-  
+
+  Serial.println("   needToReport: " + String(needToReport ));
   Serial.println("   needToReset: " + String(needToReset ));
   Serial.println("====================================");  
 }
@@ -113,6 +126,10 @@ void persistVariables(){
   stationPref.putInt("sensorTempHumOutGPIO", sensorTempHumOutGPIO);
   stationPref.putInt("sensorDistanceEchoGPIO", sensorDistanceEchoGPIO);
   stationPref.putInt("sensorDistanceTrigGPIO", sensorDistanceTrigGPIO);
+  stationPref.putDouble("sensorDistanceParA", sensorDistanceParA);
+  stationPref.putDouble("sensorDistanceParB", sensorDistanceParB);
+  stationPref.putDouble("sensorDistanceParC", sensorDistanceParC);
+
   stationPref.end();
 
   stationPref.begin("client", false); 
@@ -126,10 +143,12 @@ void persistVariables(){
   
   stationPref.begin("general", false); 
   stationPref.putBool("needToReset", needToReset);
+  stationPref.putBool("needToReport", needToReport);
   stationPref.end();
 
   // --- Show new values ---
   Serial.println("===============================");
+  Serial.println("   version: " + version);
   Serial.println("   New Mutable value variables:");
   Serial.println("      intervalReportMillis: " + String(intervalReportMillis));
   Serial.println("      intervalRegisterMillis: " + String(intervalRegisterMillis) );
@@ -139,12 +158,17 @@ void persistVariables(){
   Serial.println("      sensorTempHumOutGPIO: " + String(sensorTempHumOutGPIO) );
   Serial.println("      sensorDistanceEchoGPIO: " + String(sensorDistanceEchoGPIO) );
   Serial.println("      sensorDistanceTrigGPIO: " + String(sensorDistanceTrigGPIO) );
+  Serial.println("      sensorDistanceParA: " + String(sensorDistanceParA) );
+  Serial.println("      sensorDistanceParB: " + String(sensorDistanceParB) );
+  Serial.println("      sensorDistanceParC: " + String(sensorDistanceParC) );
+
   Serial.println("      clientIp: " + String(clientIp) );
   Serial.println("      clientPort: " + String(clientPort) );
   Serial.println("      clientPathToRegister: " + String(clientPathToRegister) );
   Serial.println("      clientPathToReport: " + String(clientPathToReport) );
   Serial.println("      clientPathToInfoTimestamp: " + String(clientPathToInfoTimestamp) );
-  
+
+  Serial.println("      needToReport: " + String(needToReport ));
   Serial.println("      needToReset: " + String(needToReset));
   Serial.println("===============================");
 }

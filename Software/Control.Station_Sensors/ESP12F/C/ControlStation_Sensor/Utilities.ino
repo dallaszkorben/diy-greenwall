@@ -20,6 +20,37 @@ double getAvgTemp(double temp1, double temp2){
   return avgTemp;
 }
 
+boolean isBoolean(String str) {
+    unsigned int stringLength = str.length();
+ 
+    if (stringLength == 0) {
+        return false;
+    }
+
+    str.toLowerCase();
+    if(str.equals("true")){
+      return true;
+    }
+    else if (str.equals("t")){
+      return true;
+    }
+    else if (str.equals("1")){
+      return true;
+    }
+    else if (str.equals("0")){
+      return true;
+    }
+    else if (str.equals("false")){
+      return true;
+    }
+    else if (str.equals("f")){
+      return true;
+    }
+    else {
+      return false;
+    }
+}
+
 boolean isInteger(String str) {
     unsigned int stringLength = str.length();
  
@@ -67,4 +98,30 @@ boolean isDecimal(String str) {
         return false;
     }
     return true;
+}
+
+
+static bool ToBoolean(String value){
+  value.toLowerCase();
+  if(value.equals("true")){
+    return true;
+  }
+  else if (value.equals("t")){
+    return true;
+  }
+  else if (value.equals("1")){
+    return true;
+  }
+  else if (value.equals("0")){
+    return false;
+  }
+  else if (value.equals("false")){
+    return false;
+  }
+  else if (value.equals("f")){
+    return false;
+  }
+  else {
+    return false;
+  }
 }

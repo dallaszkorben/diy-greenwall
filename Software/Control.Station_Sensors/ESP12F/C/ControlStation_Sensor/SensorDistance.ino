@@ -23,21 +23,51 @@ bool configureDistanceSensor(){
 }
 
 /*
- * Calculates and returns the distance by the duration
+ * Calculates and returns the distance by the duration in mm
  */
 double getDistanceByDuration(double duration){
   double ret;
-  
-  //return duration * 0.034 / 2.0;
-  //double temp = 20; //must be taken from the sensor Temp
-  //return duration * ( (temp * 0.606) + 331.3 ) / 200000.0;
 
-  double avgTemp = getAvgTemp(avgDhtTemp,avgBmpTemp);
+  /* 
+   *  Linear solution
+   *  dist = x * a + b
+   *  
+   *    x:  measured duration
+   *    a:  temp * 0.0000303 + 0.016565
+   *    b:  0
+   */
+  /*double avgTemp = getAvgTemp(avgDhtTemp,avgBmpTemp);
   if(avgTemp != NULL){
     ret = duration * ( (avgTemp * 0.0000303) + 0.016565 );
   }else{
     ret = duration * 0.017171;
-  }
+  }*/
+
+  /*
+   *  Quadratic solution
+   *  dist = a + bx + cx^2
+   *  
+   *  a,b,c parameters must be calculated by some real distance/duration measurements
+   *  
+   *  Continously check the duration to collect the correlation between x (duration) and the dist:
+   *  
+   *  # watch 'curl -s --header "Content-Type: application/json" --request GET http://192.168.50.112:80/duration | grep -oP "duration\":\"\d+[.]\d+"'
+   *  
+   *  Google online calculators by keywords: Quadratic regression Calculator
+   */
+
+  ret = sensorDistanceParA + duration*sensorDistanceParB + duration*duration*sensorDistanceParC;
+
+  //Serial.print("dur=");
+  //Serial.print(duration);
+  //Serial.print(", A=");
+  //Serial.print(sensorDistanceParA);
+  //Serial.print(", B="); 
+  //Serial.print(sensorDistanceParB);
+  //Serial.print(", C="); 
+  //Serial.print(sensorDistanceParC);
+  //Serial.print(", =="); 
+  //Serial.println(ret);
 
   return ret;
 }
