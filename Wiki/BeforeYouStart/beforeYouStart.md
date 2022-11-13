@@ -56,7 +56,7 @@ sudo usermod -a -G dialout <username>
 ```
 
 You will need to log out and log in again for this change to take effect.
-And then you cna start the arduino UI again
+And then you can start the arduino UI again
 
 
 
