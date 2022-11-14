@@ -52,38 +52,6 @@ void handleGetConfigure(){
   //Serial.println();
 }
 
-/*
- * Receives configuration data and updates the config if the data is correct
- * Retur:
- *    status code 201:
- *      {
- *        "success": true,
- *        "message": "OK"
- *      }
- *      
- *    status code 400:
- *      {
- *        "success": false,
- *        "message": "...~parsing json failed~..."
- *      }
- *      
- *    status code 400:
- *      {
- *        "success": false,
- *        "message": "Wrong parameter(s) privided",
- *        "data": 
- *          {
- *            "stationId": "Contains space",
- *            "sensorTempHumOutGPIO": "Wrong value. >15 or < 0 or not a number",
- *            "sensorDistanceTrigGPIO": "Wrong value. >15 or < 0 or not a number",
- *            "sensorDistanceEchoGPIO": "Wrong value. >15 or < 0 or not a number",
- *            "intervalReportMillis": "Wrong value. < 60000 or not a number",
- *            "intervalRegisterMillis": "Wrong value. < 60000 or not a number",
- *            "intervalResetMillis": "Wrong value. < 60000 or not a number",
- *            "intervalConnectionMillis": "Wrong value. < 60000 or not a number",
- *          }
- *      }
- */
 void handlePostConfigure(){
   Serial.print("'POST /configure' request - ");
 

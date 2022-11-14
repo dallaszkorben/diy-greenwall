@@ -29,7 +29,7 @@ int ledStatus = LED_INITIATE;
  * Continously read the duration from this module on the same network:
  *    watch 'curl -s --header "Content-Type: application/json" --request GET http://192.168.50.112:80/duration | grep -oP "duration\":\"\d+[.]\d+"'
  */
-const String version = "CS-0.0.2";
+const String version = "CS-0.0.3";
 
 const char* ssid = "Central-Station-006";
 const char* password = "viragfal";

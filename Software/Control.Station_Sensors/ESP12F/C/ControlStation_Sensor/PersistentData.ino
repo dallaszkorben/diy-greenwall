@@ -28,7 +28,7 @@ void setupVariables(){
   // --- Open "general" namespace in read mode ---
   stationPref.begin("general", true); 
   needToReset = stationPref.getBool("needToReset", DEFAULT_NEED_TO_RESET);
-  needToReport = stationPref.getBool("general", DEFAULT_NEED_TO_REPORT);
+  needToReport = stationPref.getBool("needToReport", DEFAULT_NEED_TO_REPORT);
   stationPref.end();
 
   // --- Open "client" namespace in read mode ---
