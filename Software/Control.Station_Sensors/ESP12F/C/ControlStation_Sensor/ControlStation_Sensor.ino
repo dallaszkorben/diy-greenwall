@@ -316,11 +316,16 @@ void loop() {
   if(currentMillis - previousRegisterMillis >= intervalRegisterMillis){
     ledSignalCommunicate();   
     if ( registerSensorStation(false) ){
-      Serial.println("Sensor Station was registered"); 
+      Serial.print("Sensor Station was registered at "); 
+      Serial.println(getOffsetDateString());
+Serial.print(avgHcsrDist);      
+Serial.print(" = ");      
+Serial.println(avgHcsrCounter);       
       previousRegisterMillis = currentMillis;      
     }else{
       ledSignalNetworkError();
-      Serial.println("!!! Sensor Station register failed !!!");   
+      Serial.print("!!! Sensor Station register failed at");
+      Serial.println(getOffsetDateString());
       delay(1000);
     } 
     ledSignalHealthy();
@@ -341,13 +346,21 @@ void loop() {
   if(needToReport && (currentMillis - previousReportMillis >= intervalReportMillis)){
 
     ledSignalCommunicate();
+
+Serial.print(avgHcsrDist);      
+Serial.print(" = ");      
+Serial.print(avgHcsrCounter);    
+Serial.println("   ");      
+    
     if ( reportSensors(false) ){
-      Serial.println("Sensors was reported"); 
+      Serial.print("Sensors was reported at "); 
+      Serial.println(getOffsetDateString());
       previousReportMillis = currentMillis;
       delay(5000);      
     }else{
       ledSignalNetworkError();
-      Serial.println("!!! Sensors report failed !!!");   
+      Serial.print("!!! Sensors report failed at: ");   
+      Serial.println(getOffsetDateString());
       delay(2000);
     } 
     ledSignalHealthy();

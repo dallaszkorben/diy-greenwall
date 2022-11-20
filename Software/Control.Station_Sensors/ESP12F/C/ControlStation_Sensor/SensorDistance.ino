@@ -116,6 +116,11 @@ double getSampleOfDistance(int sample){
 
   for(int i = 0; i < sample; i++){
     actualDur = getDuration(false);
+if(actualDur > 1000){
+  Serial.print("????? duration = ");
+  Serial.print(actualDur);
+  Serial.println(" ????????????????????????");
+}
     sumDur += actualDur;
     incDur++;
   }
