@@ -168,7 +168,8 @@ double add1SampleToMovingAverageDistance(bool resetBefore){
   }
 
   // Take a sample of distance
-  double actualDist = getSampleOfDistance(1); 
+//Temporarily 5 sample was taken instead of 1  
+double actualDist = getSampleOfDistance(5); 
   
   // If there was evaluable result and there was already an evaluable result before
   if(actualDist != NULL && avgHcsrDist != NULL){
@@ -181,11 +182,6 @@ double add1SampleToMovingAverageDistance(bool resetBefore){
   }else if(actualDist != NULL){
     avgHcsrCounter = 1;
     avgHcsrDist = actualDist;
-
-  // If the recent measurement was not evaluable
-//  }else{
-//    avgHcsrCounter = 0;
-//    avgHcsrDist = NULL;
   }
 
   return avgHcsrDist;

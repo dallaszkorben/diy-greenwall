@@ -29,14 +29,14 @@ int ledStatus = LED_INITIATE;
  * Continously read the duration from this module on the same network:
  *    watch 'curl -s --header "Content-Type: application/json" --request GET http://192.168.50.112:80/duration | grep -oP "duration\":\"\d+[.]\d+"'
  */
-const String version = "CS-0.0.3";
+const String version = "CS-0.0.3-1";
 
 const char* ssid = "Central-Station-006";
 const char* password = "viragfal";
 const int serverPort = 80;
 
 // --- Default values for Preferences ---
-const bool          DEFAULT_NEED_TO_REPORT = false;
+const bool          DEFAULT_NEED_TO_REPORT = true;
 const bool          DEFAULT_NEED_TO_RESET = false;
 
 const String        DEFAULT_CLIENT_IP   = "192.168.0.104"; 
@@ -61,12 +61,12 @@ const double        DEFAULT_SENSOR_DISTANCE_PARAMETER_C = 0.0;
 
 // --- Preferences values ---
 unsigned long intervalReportMillis      = 0;
-long intervalRegisterMillis    = 0;
+long intervalRegisterMillis             = 0;
 unsigned long intervalResetMillis       = 0;
 unsigned long intervalConnectionMillis  = 0;
 
-bool   needToReset  =     false;
-bool   needToReport =     false;
+bool   needToReset  =     DEFAULT_NEED_TO_RESET;
+bool   needToReport =     DEFAULT_NEED_TO_REPORT;
 String stationId    =     "";
 
 int    sensorTempHumOutGPIO   = NULL;
