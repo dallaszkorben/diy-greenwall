@@ -69,6 +69,10 @@ double getDistanceByDuration(double duration){
   //Serial.print(", =="); 
   //Serial.println(ret);
 
+//Temporarily for test reason
+ret = duration;
+//
+
   return ret;
 }
 
@@ -116,16 +120,12 @@ double getSampleOfDistance(int sample){
 
   for(int i = 0; i < sample; i++){
     actualDur = getDuration(false);
-if(actualDur > 1000){
-  Serial.print("????? duration = ");
-  Serial.print(actualDur);
-  Serial.println(" ????????????????????????");
-}
+
     sumDur += actualDur;
     incDur++;
   }
 
-  if(incDur > 0){
+  if(incDur > 0 && sumDur > 0){
     avgDur = sumDur / incDur;
     
     if(avgDur > 0.0){
@@ -177,7 +177,7 @@ double add1SampleToMovingAverageDistance(bool resetBefore){
     double b = 1 - a;
     avgHcsrDist = a * actualDist + b * avgHcsrDist;
   
-  // If there was NO measure yet and recent measurement in OK
+  // If there was NO measure yet and recent measurement is OK
   }else if(actualDist != NULL){
     avgHcsrCounter = 1;
     avgHcsrDist = actualDist;
