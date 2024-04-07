@@ -22,6 +22,7 @@ Ubuntu and Debian(ARMv6): https://grafana.com/grafana/download/9.3.6?edition=ent
     wget https://dl.grafana.com/enterprise/release/grafana-enterprise-rpi_9.3.6_armhf.deb
     sudo dpkg -i grafana-enterprise-rpi_9.3.6_armhf.deb
 ```
+Config file: /etc/grafana/grafana.ini 
 
 Enable and Start grafana
 ```sh
