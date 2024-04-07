@@ -24,6 +24,13 @@ sudo mkdir -p /etc/apt/keyrings/
     sudo apt-get update
     sudo apt-get install -y grafana
 ```
+
+```sh
+    sudo apt-get install -y adduser libfontconfig1 musl
+    wget https://dl.grafana.com/enterprise/release/grafana-enterprise-rpi_9.3.6_armhf.deb
+    sudo dpkg -i grafana-enterprise-rpi_9.3.6_armhf.deb
+```
+
 Enable and Start grafana
 ```sh
     sudo /bin/systemctl enable grafana-server
