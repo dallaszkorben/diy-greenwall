@@ -24,6 +24,11 @@ Ubuntu and Debian(ARMv6): https://grafana.com/grafana/download/9.3.6?edition=ent
 ```
 Config file: /etc/grafana/grafana.ini 
 
+Install sqlite plugin
+```sh
+    grafana-cli plugins install frser-sqlite-datasource
+```
+
 Enable and Start grafana
 ```sh
     sudo /bin/systemctl enable grafana-server
