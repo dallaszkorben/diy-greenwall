@@ -70,6 +70,10 @@ class SensorView(FlaskView):
 
         logging.debug("POST sensor/register node was called from the sensor station module")
 
+#        logging.debug("json_data: ")
+#        logging.debug(request.form)
+#        logging.debug(request.json)
+
         # WEB
         if request.form:
             json_data = request.form

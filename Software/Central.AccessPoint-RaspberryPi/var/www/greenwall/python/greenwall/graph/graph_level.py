@@ -28,24 +28,8 @@ graphLock = Lock()
 
 class GraphLevel:
 
-# datetime now()
-#  datetime.datetime.now().astimezone()
-#
-# String now()
-#  datetime.datetime.now().astimezone().isoformat()
-#
-# datetime from String
-#    date = parser.parse(dateString)
-#
-# timestamp from datetime
-#    timeStamp = date.timestamp()
-#    timeStamp = datetime.timestamp(date)
-#
-# datetime from timestamp
-#    datetime.fromtimestamp(timeStamp)
-
     @staticmethod
-    def filterReportCopy(reportCopy, startDateStamp, endDateStamp=None):
+    def filterReportCopy(DB, startDateStamp, endDateStamp=None):
         """
         return reportCopy
         [
@@ -54,24 +38,40 @@ class GraphLevel:
         ]
         """
 
-        # if NO endDateStamp provided
         if endDateStamp == None:
-
-            # takes NOW as endDateStamp
             endDateStamp = datetime.now().astimezone().timestamp()
 
-#        a1=datetime.fromtimestamp(startDateStamp).astimezone().isoformat()
-#        a2=datetime.fromtimestamp(endDateStamp).astimezone().isoformat()
-#        print(a1, a2)
-
-        for stationId in reportCopy:
-
-            for c in list(reportCopy[stationId]["record"]):
-                if c['timeStamp'] < startDateStamp or c['timeStamp'] > endDateStamp:
-
-                    reportCopy[stationId]['record'].remove(c)
+        reportCopy = DB.selectRecordsByTimeRange(startDateStamp, endDateStamp)
 
         return reportCopy
+
+#    def filterReportCopy(reportCopy, startDateStamp, endDateStamp=None):
+#        """
+#        return reportCopy
+#        [
+#              "5": {"ip":"192.168.0.112", "record": [{"timeStamp": 35779, "levelValue": 31, "levelVariance": 0.0, "temperatureValue": 19.3, "humidityValue": 20}, {}, {}] },
+#              "9": {"ip":"192.168.0.117", "record": [{"timeStamp": 35787, "levelValue": 27, "levelVariance": 0.1, "temperatureValue": None, "humidityValue": None}, {}, {}] },
+#        ]
+#        """
+#
+#        # if NO endDateStamp provided
+#        if endDateStamp == None:
+#
+#            # takes NOW as endDateStamp
+#            endDateStamp = datetime.now().astimezone().timestamp()
+#
+#        for stationId in reportCopy:
+#
+#            for c in list(reportCopy[stationId]["record"]):
+#                if c['timeStamp'] < startDateStamp or c['timeStamp'] > endDateStamp:
+#
+#                    reportCopy[stationId]['record'].remove(c)
+#
+#        return reportCopy
+
+
+
+
 
     @staticmethod
     def smoothReportCopy(reportCopy, window=15):
@@ -243,13 +243,19 @@ class GraphLevel:
 
         return retList
 
+
+
+
+
+
+
+
     @staticmethod
-    def getGraphs(reportCopy, startDateStamp, endDateStamp=None, window=15, webFolderName=".", webPathNameGraph="graph-images"):
+    def getGraphs(db, startDateStamp, endDateStamp=None, window=15, webFolderName=".", webPathNameGraph="graph-images"):
 
         with graphLock:
 
-            #reportCopy = self.getRawReportCopy()
-            GraphLevel.filterReportCopy(reportCopy, startDateStamp, endDateStamp)
+            reportCopy = GraphLevel.filterReportCopy(db, startDateStamp, endDateStamp)
             GraphLevel.smoothReportCopy(reportCopy, window=window)
             GraphLevel.calculateTrendForReportCopy(reportCopy)
             ret = GraphLevel.getGraphFromReportCopy(reportCopy, stationId=None, webFolderName=webFolderName, webPathNameGraph=webPathNameGraph)

@@ -89,11 +89,13 @@ class EPInfoGraph(EP):
                 )
             )
 
-        reportCopy = self.web_gadget.reportSensor.getRawReportCopy()
+#        reportCopy = self.web_gadget.reportSensor.getRawReportCopy()
         webFolderName = self.web_gadget.webFolderName
         webPathNameGraph = self.web_gadget.webPathNameGraph
         webSmoothingWindow = self.web_gadget.webSmoothingWindow
-        graphs = GraphLevel.getGraphs(reportCopy, startDateStamp, endDateStamp=endDateStamp, window=webSmoothingWindow, webFolderName=webFolderName, webPathNameGraph=webPathNameGraph)
+#        graphs = GraphLevel.getGraphs(reportCopy, startDateStamp, endDateStamp=endDateStamp, window=webSmoothingWindow, webFolderName=webFolderName, webPathNameGraph=webPathNameGraph)
+        graphs = GraphLevel.getGraphs(self.web_gadget.db, startDateStamp, endDateStamp=endDateStamp, window=webSmoothingWindow, webFolderName=webFolderName, webPathNameGraph=webPathNameGraph)
+        GraphLevel.smoothReportCopy(reportCopy, window=15)
 
         ret = {'result': 'OK', 'graphs': graphs}
         header = {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'}

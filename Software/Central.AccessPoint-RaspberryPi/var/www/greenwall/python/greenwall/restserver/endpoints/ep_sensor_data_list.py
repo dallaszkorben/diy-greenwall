@@ -89,8 +89,10 @@ class EPSensorDataList(EP):
             )
 
         window = 15
-        reportCopy = self.web_gadget.reportSensor.getRawReportCopy()
-        GraphLevel.filterReportCopy(reportCopy, startDateStamp, endDateStamp)
+#        reportCopy = self.web_gadget.reportSensor.getRawReportCopy()
+
+
+        reportCopy = GraphLevel.filterReportCopy(self.web_gadget.db, startDateStamp, endDateStamp)
 #        GraphLevel.smoothReportCopy(reportCopy, window=window)
 
         ret = {'result': 'OK', 'data': reportCopy}
