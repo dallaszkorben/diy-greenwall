@@ -25,6 +25,7 @@ sudo mkdir -p /etc/apt/keyrings/
     sudo apt-get install -y grafana
 ```
 
+Ubuntu and Debian(ARMv6): https://grafana.com/grafana/download/9.3.6?edition=enterprise&platform=arm
 ```sh
     sudo apt-get install -y adduser libfontconfig1 musl
     wget https://dl.grafana.com/enterprise/release/grafana-enterprise-rpi_9.3.6_armhf.deb
