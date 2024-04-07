@@ -16,15 +16,6 @@ The Central Access Point is running on a Raspberry Pi Zero W
     $ sudo apt-get install dnsmasq hostapd     	
 ```
 Install grafana
-```sh
-sudo mkdir -p /etc/apt/keyrings/
-    wget -q -O - https://apt.grafana.com/gpg.key | gpg --dearmor | sudo tee /etc/apt/keyrings/grafana.gpg > /dev/null
-
-    echo "deb [signed-by=/etc/apt/keyrings/grafana.gpg] https://apt.grafana.com stable main" | sudo tee /etc/apt/sources.list.d/grafana.list
-    sudo apt-get update
-    sudo apt-get install -y grafana
-```
-
 Ubuntu and Debian(ARMv6): https://grafana.com/grafana/download/9.3.6?edition=enterprise&platform=arm
 ```sh
     sudo apt-get install -y adduser libfontconfig1 musl
