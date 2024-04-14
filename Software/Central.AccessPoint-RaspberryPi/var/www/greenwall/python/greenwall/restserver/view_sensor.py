@@ -70,9 +70,12 @@ class SensorView(FlaskView):
 
         logging.debug("POST sensor/register node was called from the sensor station module")
 
-#        logging.debug("json_data: ")
-#        logging.debug(request.form)
-#        logging.debug(request.json)
+        # logging.debug("")
+        # logging.debug("json_data in register Sensor WitPayload: ")
+        # logging.debug("    {0}".format(request.form))
+        # logging.debug("    {0}".format(request.json))
+        # logging.debug("")
+        # logging.debug("")
 
         # WEB
         if request.form:
@@ -107,6 +110,14 @@ class SensorView(FlaskView):
     #@route('/add', methods=['POST'])
     @route(EPSensorAdd.PATH_PAR_PAYLOAD, methods=[EPSensorAdd.METHOD])
     def setWithPayload(self):
+
+        # logging.debug("")
+        # logging.debug("json_data in setWithPayload: ")
+        # logging.debug("    {0}".format(request.form))
+        # logging.debug("    {0}".format(request.json))
+        # logging.debug("")
+        # logging.debug("")
+
 
         # WEB
         if request.form:

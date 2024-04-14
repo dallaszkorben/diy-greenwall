@@ -204,3 +204,55 @@ class SqlDatabase:
         return reportCopy
 
 
+    def get_latest_values(self, station_id=None):
+
+        reportCopy = []
+
+        with self.lock:
+
+            cur = self.conn.cursor()
+            cur.execute("begin")
+
+            records = {}
+
+            # Get Card list
+            query = '''
+
+                SELECT
+                    station.name,
+                    station.ip,
+                    CAST(strftime('%s', MAX(report.date)) AS INT),
+                    report.level,
+                    report.temperature,
+                    report.humidity,
+                    report.pressure
+                FROM
+                    Report report,
+                    Station station
+                WHERE
+                    report.id_station=station.id
+                GROUP BY station.name
+                '''
+            query_parameters = {}
+            logging.debug("get_latest_values query: '{0} / {1}'".format(query, query_parameters))
+            report_list=cur.execute(query, query_parameters).fetchall()
+            cur.execute("commit")
+
+            for report in report_list:
+
+                if not station_id or (station_id==report[0]):
+
+                    stationId = report[0]
+                    ip = report[1]
+                    timestamp = report[2]
+                    level = report[3]
+                    temperature = report[4]
+                    humidity = report[5]
+                    pressure = report[6]
+
+                    record = {"stationId": stationId, "ip": ip, "timeStamp": timestamp, "levelValue": level, "temperatureValue": temperature, "humidityValue": humidity, "pressureValue": pressure}
+                    reportCopy.append(record)
+
+            logging.debug("get_latest_values response: '{0}'".format(reportCopy))
+
+        return reportCopy

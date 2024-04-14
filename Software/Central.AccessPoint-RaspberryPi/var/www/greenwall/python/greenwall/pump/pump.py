@@ -2,7 +2,6 @@ import requests
 import logging
 from datetime import datetime
 
-
 class Pump:
 
     def __init__(self, web_gadget):
@@ -46,23 +45,6 @@ class Pump:
                 logging.error("Exception: {0}".format(e))
 
 
-
-# datetime now()
-#  datetime.datetime.now().astimezone()
-#
-# String now()
-#  datetime.now().astimezone().isoformat()
-#
-# datetime from String
-#    date = parser.parse(dateString)
-#
-# timestamp from datetime
-#    timeStamp = date.timestamp()
-#    timeStamp = datetime.timestamp(date)
-#
-# datetime from timestamp
-#    datetime.fromtimestamp(timeStamp)
-
     def getPumpStatus(self):
 
         addresses = []
@@ -78,7 +60,6 @@ class Pump:
             # if less than 120 seconds was re-registering
             if diffSec < 120:
                 addresses.append("http://{url}/pump/status".format(url=value["ip"]))
-        
         try:
 
             address = addresses[0]

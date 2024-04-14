@@ -106,16 +106,13 @@ class RegisterLamp:
 
 
 
-    def getLatestValues(self, stationId=None):
-        output = []
-        for si, value in self.reportDict.items():
+#    def getLatestValues(self, stationId=None):
+#        output = []
+#        for si, value in self.reportDict.items():
+#
+#            if not stationId or (stationId==si):
+#                ip=value['ip']
+#                lastRecord = value['record'][-1]
+#                output.append({"stationId": si, "ip": ip, "timeStamp": lastRecord['timeStamp'], "levelValue": lastRecord['levelValue'], "temperatureValue":lastRecord['temperatureValue'], "humidityValue": lastRecord['humidityValue']   })
+#        return output
 
-            if not stationId or (stationId==si):
-                ip=value['ip']
-                lastRecord = value['record'][-1]
-                output.append({"stationId": si, "ip": ip, "timeStamp": lastRecord['timeStamp'], "levelValue": lastRecord['levelValue'], "temperatureValue":lastRecord['temperatureValue'], "humidityValue": lastRecord['humidityValue']   })
-        return output
-
-    def getRawReportCopy(self):
-        with self.lockReport:
-            return deepcopy(self.reportDict)

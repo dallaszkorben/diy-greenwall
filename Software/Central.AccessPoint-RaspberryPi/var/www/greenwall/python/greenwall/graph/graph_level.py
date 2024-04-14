@@ -113,6 +113,7 @@ class GraphLevel:
 
         return reportCopy
 
+
     @staticmethod
     def calculateTrendForReportCopy(reportCopy):
         """
@@ -150,6 +151,7 @@ class GraphLevel:
             reportCopy[stationId]['intercept'] = intercept
 
         return reportCopy
+
 
     @staticmethod
     def getGraphFromReportCopy(reportCopy, stationId=None, webFolderName=".", webPathNameGraph="graph-images"):
@@ -256,11 +258,12 @@ class GraphLevel:
         with graphLock:
 
             reportCopy = GraphLevel.filterReportCopy(db, startDateStamp, endDateStamp)
-            GraphLevel.smoothReportCopy(reportCopy, window=window)
+            reportCopy = GraphLevel.smoothReportCopy(reportCopy, window=window)
             GraphLevel.calculateTrendForReportCopy(reportCopy)
             ret = GraphLevel.getGraphFromReportCopy(reportCopy, stationId=None, webFolderName=webFolderName, webPathNameGraph=webPathNameGraph)
 
             return ret
+
 
     @staticmethod
     def constractGraph(stationId="", title="", webFolderName="", webPathName="", fileName="", xlabel="", ylabel="", ylim=(0,100), legend=False, plot=[{"x": [], "y": [], "label": "Temp", "linewidth": "1", "color": "blue", "textoncurve": {}}]):
