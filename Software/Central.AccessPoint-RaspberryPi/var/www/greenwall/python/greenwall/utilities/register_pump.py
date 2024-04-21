@@ -84,6 +84,7 @@ class RegisterPump:
                 except Exception as e:
                     continue
 
+
     def register(self, dateString, pumpId, ip):
 
         with self.lockRegister:

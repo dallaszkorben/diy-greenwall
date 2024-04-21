@@ -73,23 +73,6 @@ class EPPumpRegister(EP):
         date = parser.parse(dateString)
         dateString = date.astimezone().isoformat()
 
-
-# datetime now()
-#  datetime.datetime.now().astimezone()
-#
-# String now()
-#  datetime.datetime.now().astimezone().isoformat()
-#
-# datetime from String
-#    date = parser.parse(dateString)
-#
-# timestamp from datetime
-#    timeStamp = date.timestamp()
-#    timeStamp = datetime.timestamp(date)
-#
-# datetime from timestamp
-#    datetime.fromtimestamp(timeStamp)
-
         ip = request.remote_addr
 
         self.web_gadget.registerPump.register(dateString, pumpId, ip)

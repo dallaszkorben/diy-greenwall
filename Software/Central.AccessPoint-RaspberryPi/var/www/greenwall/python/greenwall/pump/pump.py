@@ -10,9 +10,6 @@ class Pump:
 
     def turnPumpOn(self, lengthInSec=0):
 
-#        from pprint import pprint
-#        pprint(self.webGadget.registerPump.pumpDict)
-
         for key, value in self.webGadget.registerPump.pumpDict.items():
 
             #dateString = datetime.fromtimestamp(value['timeStamp']).astimezone().isoformat()
@@ -60,15 +57,9 @@ class Pump:
             # if less than 120 seconds was re-registering
             if diffSec < 120:
                 addresses.append("http://{url}/pump/status".format(url=value["ip"]))
+
         try:
-
             address = addresses[0]
-
-#
-#            logging.error("")
-#            logging.error("!!! {0}".format(address))
-#            logging.error("")
-#
 
             x = requests.get(address, timeout=20)
             response = x.json()
