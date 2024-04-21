@@ -17,7 +17,7 @@
 //int led_status_gpio;
 //int led_status_inverse;
 //int register_interval_sec;
-//int reset_hours;
+//int regular_reset_seconds;
 // -------------------
 
 bool loadConfig(){
@@ -67,7 +67,7 @@ bool loadConfig(){
   led_status_gpio = doc["control-sta"]["led-status-gpio"];
   led_status_inverse = doc["control-sta"]["led-status-inverse"];
   register_interval_sec = doc["control-sta"]["register-interval-sec"];
-  reset_hours = doc["control-sta"]["reset-hours"];
+  regular_reset_seconds = doc["control-sta"]["regular-reset-seconds"];
 
   // ---
 
@@ -113,8 +113,8 @@ bool loadConfig(){
   Serial.print("control-sta.register-interval-sec = ");
   Serial.println(register_interval_sec);
 
-  Serial.print("control-sta.reset-hours = ");
-  Serial.println(reset_hours);
+  Serial.print("control-sta.regular-reset-seconds = ");
+  Serial.println(regular_reset_seconds);
 
   return true;
 }

@@ -56,10 +56,10 @@ bool syncLampStatus(){
 
   lampActive = active;
   if(active){
-    Serial.println("The lamp should be ON so it will be turn ON...");
+    Serial.println("The lamp should be ON so it will be turned ON...");
     turnLampOn(10);
   }else{
-    Serial.println("The lamp should be OFF so it will be turn OFF...");
+    Serial.println("The lamp should be OFF so it will be turned OFF...");
     //turnLampOff(0);
   }
 

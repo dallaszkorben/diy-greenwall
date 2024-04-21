@@ -57,9 +57,11 @@ double getDistanceByDuration(double duration){
    */
 
   ret = sensorDistanceParA + duration*sensorDistanceParB + duration*duration*sensorDistanceParC;
+  ret = max(10.40-ret, 0.0);
+
 
   //Serial.print("dur=");
-  //Serial.print(duration);
+  //Serial.println(duration);
   //Serial.print(", A=");
   //Serial.print(sensorDistanceParA);
   //Serial.print(", B="); 
@@ -67,10 +69,10 @@ double getDistanceByDuration(double duration){
   //Serial.print(", C="); 
   //Serial.print(sensorDistanceParC);
   //Serial.print(", =="); 
-  //Serial.println(ret);
+  Serial.println(ret);
 
 //Temporarily for test reason
-ret = duration;
+//ret = duration;
 //
 
   return ret;

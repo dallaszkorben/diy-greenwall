@@ -111,7 +111,7 @@ bool setPumpStatusFile(bool active, long timestamp){
 bool syncPumpStatus(){
 
   Serial.println("Sync Pump status");
-  
+
   bool result = false;
   File statusFile = SPIFFS.open(PUMP_STATUS_FILE_NAME, "r");
   if( !statusFile){
@@ -122,7 +122,7 @@ bool syncPumpStatus(){
   size_t size = statusFile.size();
   if(size > MAX_STATUS_SIZE){
     statusFile.close();
-    Serial.println("Pump sttus file size is too large");
+    Serial.println("Pump status file size is too large");
     return result;
   }
 
@@ -146,19 +146,19 @@ bool syncPumpStatus(){
 
   bool active = doc["active"];
   long off_timestamp = doc["off-timestamp"];
-  
+
   long now_timestamp = now();
 
   pumpActive = false;
   if(active){
     if (off_timestamp > now_timestamp){
-      Serial.println("The pump still should run, so it will be turn on...");
+      Serial.println("The pump still should run, so it will be turned on...");
       turnPump(HIGH);
       pumpActive = true;
     }else{
 
-      Serial.println("The pump should stop, so it will be turn off...");
-      
+      Serial.println("The pump should stop, so it will be turned off...");
+
       doc["active"] = false;
       doc["off-timestamp"] = 0;
 
@@ -171,8 +171,8 @@ bool syncPumpStatus(){
       serializeJsonPretty(doc, statusFileToWrite);
       statusFileToWrite.close();
 
-      turnPump(LOW);        
-    }      
+      turnPump(LOW);
+    }
   }
 
   result = true;

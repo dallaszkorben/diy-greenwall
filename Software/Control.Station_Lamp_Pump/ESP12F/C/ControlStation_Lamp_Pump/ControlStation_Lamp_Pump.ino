@@ -25,9 +25,9 @@ int pump_gpio;
 int led_status_gpio;
 int led_status_inverse;
 int register_interval_sec;
-int reset_hours;
+int regular_reset_seconds;
 
-bool pumpActive;
+bool pumpActive = false;
 bool lampActive = false;
 
 #define LED_INITIATE 0
@@ -36,6 +36,14 @@ bool lampActive = false;
 #define LED_ERROR 3
 
 int ledStatus = LED_INITIATE;
+
+bool healthy = true;
+long syncTimestamp = 0;
+long regTimestamp = 0;
+long resetTimestamp = 0;
+
+String timeOffsetString;
+int timeOffsetInt;
 
 // -------------------
 
@@ -54,8 +62,8 @@ void setup() {
 
   if(!SPIFFS.begin()){
     Serial.println("Failed to mount file system");
-    Serial.println("!!! Wait 1 minute and then restart !!!");
-    delay(60000);
+    Serial.println("!!! Wait 10 seconds and then restart !!!");
+    delay(10000);
     ESP.restart();
   }
 
@@ -69,13 +77,13 @@ void setup() {
   // --- Connect to WiFi --- //
   connectToWiFi();
 
-  Serial.println("\n");
-
   // --- Sync Time --- //
   if( !syncTime() ){
     ledSignalNetworkError();
-    Serial.println("!!! Wait 2 seconds and then restart !!!");
-    delay(2000);
+    Serial.println("==========================");
+    Serial.println("===   !!!  RESET  !!!  ===");
+    Serial.println("===  Failed Sync Time  ===");
+    Serial.println("==========================");
     ESP.restart();
   }
 
@@ -85,7 +93,10 @@ void setup() {
 
   if( !registerLamp() || !registerPump() ){
     ledSignalNetworkError();
-    Serial.println("!!! Wait 1 minute and then restart !!!");
+    Serial.println("======================================");
+    Serial.println("===        !!!  RESET  !!!         ===");
+    Serial.println("===  Failed to register LAMP/PUMP  ===");
+    Serial.println("======================================");
     delay(60000);
     ESP.restart();
   }
@@ -102,47 +113,62 @@ void setup() {
   server.begin();
   Serial.println("HTTP server started\n");
 
-  // --- Sync Pump adn Lamp statuses -- //
+  // --- Sync Pump and Lamp statuses -- //
   if (!syncLampStatus()){// || !syncPumpStatus()){
     ledSignalNetworkError();
-    Serial.println("!!! Wait 1 minute and then restart !!!");
+    Serial.println("==================================");
+    Serial.println("===       !!!  RESET  !!!      ===");
+    Serial.println("===  Failed to Sync Lamp/Pump  ===");
+    Serial.println("==================================");
     delay(60000);
     ESP.restart();
   }
 
-  Serial.println("===========================\n");
-
   ledSignalHealthy();
+
+  resetTimestamp = now() + regular_reset_seconds;
+  Serial.print("Next reset will be at: ");
+  Serial.println(resetTimestamp);
+
+  Serial.println("\n============== setup() finished =================\n\n");
+
 }
 
-bool healthy = true;
-long syncTimestamp = 0;
-long regTimestamp = 0;
 void loop() {
 
   server.handleClient();
-  
+
   // in every seconds
   if (syncTimestamp != now()){
     syncTimestamp = now();  
-    
+
     // If the pump is ON, in every 10 seconds it tries to sync it.
-    if(pumpActive && syncTimestamp%1 == 0){      
+    if(pumpActive && syncTimestamp%1 == 0){
       syncPumpStatus();
     }
+  }
+
+  // reset_hours
+  if (now() > resetTimestamp){
+    Serial.println("=========================");
+    Serial.println("===  !!!  RESET  !!!  ===");
+    Serial.println("===      Regular      ===");
+    Serial.print(  "=== Time: ");
+    Serial.print(now());
+    Serial.println("  ===");
+    Serial.println("=========================");
+    ESP.reset();    
   }
 
   // in every seconds
   if (regTimestamp != now()){
 
-    //healthy = true;
-    
     // If there is WiFi connection
     if( WiFi.localIP().isSet() and WiFi.isConnected() ){
 
       regTimestamp = now();  
 
-      // in every 10 seconds it tries to register
+      // in every 30 seconds it tries to register
       if( regTimestamp%30 == 0 ){
         if( !registerLamp() || !registerPump()){
           healthy = false;

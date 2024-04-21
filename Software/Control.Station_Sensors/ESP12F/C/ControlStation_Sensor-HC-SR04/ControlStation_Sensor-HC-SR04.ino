@@ -46,7 +46,7 @@ const String        DEFAULT_CLIENT_PATH_TO_REGISTER = "sensor/register";
 const String        DEFAULT_CLIENT_PATH_TO_REPORT   = "sensor/add";
 const String        DEFAULT_CLIENT_PATH_TO_INFO_TIMESTAMP = "info/timeStamp";
 
-const String        DEFAULT_STATION_ID                = "default";
+const String        DEFAULT_STATION_ID                = "S04";
 const unsigned long DEFAULT_INTERVAL_REPORT_MILLIS    = 600300;              // 10 min
 const unsigned long DEFAULT_INTERVAL_REGISTER_MILLIS  = 120600;              // 2 min
 const unsigned long DEFAULT_INTERVAL_RESET_MILLIS     = 3600900;             // 60 min
@@ -83,6 +83,9 @@ String clientPort = "";
 String clientPathToRegister;
 String clientPathToReport;
 String clientPathToInfoTimestamp;
+
+String timeOffsetString;
+int timeOffsetInt;
 
 // ---
 
@@ -171,7 +174,7 @@ void setup() {
     Serial.println("Module information:");
     Serial.print("   MAC: ");
     Serial.println(WiFi.macAddress());
-    
+
     //WiFi.disconnect();
     delay(1000);
     WiFi.onEvent(wifiEvent);
@@ -342,21 +345,21 @@ Serial.println(avgHcsrCounter);
 //  Serial.print(previousReportMillis); 
 //  Serial.print(">=");
 //  Serial.println(intervalReportMillis); 
-    
+
   if(needToReport && (currentMillis - previousReportMillis >= intervalReportMillis)){
 
     ledSignalCommunicate();
 
-Serial.print(avgHcsrDist);      
-Serial.print(" = ");      
-Serial.print(avgHcsrCounter);    
-Serial.println("   ");      
-    
+Serial.print(avgHcsrDist);
+Serial.print(" = ");
+Serial.print(avgHcsrCounter);
+Serial.println("   ");
+
     if ( reportSensors(false) ){
       Serial.print("Sensors was reported at "); 
       Serial.println(getOffsetDateString());
       previousReportMillis = currentMillis;
-      delay(5000);      
+      delay(5000);
     }else{
       ledSignalNetworkError();
       Serial.print("!!! Sensors report failed at: ");   
@@ -364,7 +367,7 @@ Serial.println("   ");
       delay(2000);
     } 
     ledSignalHealthy();
-    
+
 //    Serial.println();   
   }
 
@@ -375,16 +378,15 @@ Serial.println("   ");
   // --------------------------------------------
   if(currentMillis >= intervalResetMillis){
     Serial.println();
-    Serial.println("===========================");
-    Serial.println("");    
-    Serial.println("      !!!   RESET   !!!    ");
-    Serial.println("");    
-    Serial.println("===========================");
+    Serial.println("==========================");
+    Serial.println("===  !!!  RESET   !!!  ===");
+    Serial.println("===      general       ===");
+    Serial.println("==========================");
     Serial.println();
     ESP.reset();
-  }  
-  
+  }
+
   server.handleClient();          //Handle client requests
-  
+
   delay(10);
 }

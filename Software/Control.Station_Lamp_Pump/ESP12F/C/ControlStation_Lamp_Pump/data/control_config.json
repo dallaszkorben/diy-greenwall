@@ -16,6 +16,6 @@
     "led-status-gpio": 2,
     "led-status-inverse": true,
     "register-interval-sec": 600,
-    "reset-hours": 1
+    "regular-reset-seconds": 7200
   }
 }

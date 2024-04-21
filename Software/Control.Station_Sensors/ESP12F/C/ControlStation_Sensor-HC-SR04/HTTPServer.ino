@@ -48,8 +48,9 @@ void handleGetConfigure(){
   serializeJson(result, buf);
   server.send(200, "application/json", buf);  
   
-  Serial.println("Served");
-  //Serial.println();
+  Serial.println("Served:");
+  Serial.print("        "); 
+  Serial.println(String(result["data"]));
 }
 
 void handlePostConfigure(){
@@ -534,7 +535,7 @@ void handleGetDuration(){
 void handleGetAllActual(){
   DynamicJsonDocument result(512);
   String buf;
-  
+
   Serial.print("'GET /all/actual' request - ");
 
   //===
@@ -552,7 +553,7 @@ void handleGetAllActual(){
   //---
   double distance = getDistanceByDuration(getDuration(false));
   //===
-  
+
   result["success"] = true;
   result["status"] = "OK";
   result["message"] = "OK";
@@ -560,10 +561,10 @@ void handleGetAllActual(){
   result["data"]["humidity"] = String(humidity);
   result["data"]["pressure"] = String(pressure);
   result["data"]["distance"] = String(distance);
-  
+
   serializeJson(result, buf);  
   server.send(200, "application/json", buf);
-  
+
   Serial.println("Served");
 }
 
@@ -590,12 +591,49 @@ void handleGetAllAggregated(){
   result["data"]["humidity"] = humidityValue;
   result["data"]["pressure"] = pressureValue;
   result["data"]["distance"] = levelValue;
-  
+
   serializeJson(result, buf);  
   server.send(200, "application/json", buf);
-  
+
   Serial.println("Served");
 }
+
+void handleTriggerReport(){
+    DynamicJsonDocument result(512);
+    String buf;
+    int resultCode;
+
+    Serial.print("'POST /trigger/report' request - ");
+
+    if ( reportSensors(true) ){
+        Serial.print("Sensors was reported at "); 
+        Serial.println(getOffsetDateString());
+        previousReportMillis = currentMillis;
+
+        result["success"] = true;
+        result["status"] = "OK";
+        result["message"] = "OK";
+
+        resultCode = 200;
+    }else{
+        ledSignalNetworkError();
+        Serial.print("!!! Sensors report failed at: ");   
+        Serial.println(getOffsetDateString());
+
+        result["success"] = true;
+        result["status"] = "FAIL";
+        result["message"] = "Sensors report failed";
+
+        resultCode = 500;
+    }
+
+    serializeJson(result, buf);
+    server.send(resultCode, "application/json", buf);
+
+    Serial.print("Result: ");
+    Serial.println(String(result["message"]));
+}
+
 
 bool configureHttpServer(){
   bool ret = true;
@@ -610,11 +648,13 @@ bool configureHttpServer(){
     server.on("/distance", HTTP_GET, handleGetDistance);
     server.on("/duration", HTTP_GET, handleGetDuration);
 
-    server.on("/all/actual", HTTP_GET, handleGetAllActual);
+    server.on("/trigger/report", HTTP_POST, handleTriggerReport);
     server.on("/all/aggregated", HTTP_GET, handleGetAllAggregated);
-  
+
+    server.on("/all/actual", HTTP_GET, handleGetAllActual);
+
     server.onNotFound(handleNotFound);
-  
+
     server.begin();                  //Start server
 
     Serial.println("HTTP server started");
