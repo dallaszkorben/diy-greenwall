@@ -2,31 +2,6 @@ import os
 import logging
 from logging.handlers import RotatingFileHandler
 
-
-
-#logPath = "/home/pi/.greenwall/greenwall.log"
-#logging.basicConfig(#
-#            handlers=[RotatingFileHandler(logPath, maxBytes=5*1024*1024, backupCount=5)],
-#            format='%(asctime)s %(levelname)8s - %(message)s' , 
-#            level = logging.ERROR )
-#logging.error("============= hello =================")
-#import getpass
-##logging.error( "Env thinks the user is: ");
-##logging.error( os.getlogin());
-#logging.error( "Effective user is: ");
-#logging.error( getpass.getuser());
-#
-#import pkg_resources
-#installed_packages = pkg_resources.working_set
-#installed_packages_list = sorted(["%s==%s" % (i.key, i.version) for i in installed_packages])
-#logging.error(installed_packages_list)
-#logging.error("=====================================")
-#print("====== hello ========")
-#print("====== Bello ========")
-
-
-
-
 from dateutil import parser
 
 from datetime import datetime

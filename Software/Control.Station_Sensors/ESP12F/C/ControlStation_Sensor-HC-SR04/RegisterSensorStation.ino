@@ -17,14 +17,17 @@ bool registerSensorStation(bool needToPrint){
   doc["configureUrl"] = "http://" + WiFi.localIP().toString() + ":80/configure";
   doc["measureActualUrl"] = "http://" + WiFi.localIP().toString() + ":80/all/actual";
   doc["collectAverageUrl"] = "http://" + WiFi.localIP().toString() + ":80/all/aggregated";
+  doc["triggerReportUrl"] = "http://" + WiFi.localIP().toString() + ":80/trigger/report";  
   doc["dateString"] = getOffsetDateString();
   String requestBody;
   serializeJson(doc, requestBody);
 
   int responseCode = http.POST(requestBody);
 
-  if(needToPrint){
+  if(needToPrint){    
     Serial.println(String("   POST: ") + url);
+    Serial.print(String("         "));
+    Serial.println(requestBody);
     Serial.print("   Response Code: ");
     Serial.println(responseCode);
   }

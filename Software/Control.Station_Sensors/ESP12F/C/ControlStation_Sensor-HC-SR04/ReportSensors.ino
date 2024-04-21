@@ -38,7 +38,8 @@ bool reportSensors(bool needToPrint){
 
 
   Serial.print("responseCode: ");
-  Serial.print(responseCode - );
+  Serial.print(responseCode);
+  Serial.print(" - ");
 
   if (responseCode == 200) {
 

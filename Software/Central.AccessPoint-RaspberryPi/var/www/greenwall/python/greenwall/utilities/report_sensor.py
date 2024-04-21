@@ -9,27 +9,6 @@ import time
 
 from threading import Lock
 
-
-# from datetime import datetime
-# from dateutil import parser
-#
-# datetime now()
-#  datetime.datetime.now().astimezone()
-#
-# String now()
-#  datetime.datetime.now().astimezone().isoformat()
-#
-# datetime from String
-#    date = parser.parse(dateString)
-#
-# timestamp from datetime
-#    timeStamp = date.timestamp()
-#    timeStamp = datetime.timestamp(date)
-#
-# datetime from timestamp
-#    datetime.fromtimestamp(timeStamp)
-#
-
 class ReportSensor:
 
     #   reportDict[
@@ -71,9 +50,6 @@ class ReportSensor:
                     #{date}\t{levelId}\t{ip}\t{level}\t{temperature}\t{humidity}\t{pressure}
                     lineArray = line.split(self.separator)
 
-#                    print("lineArray: ", lineArray)
-
-
                     dateString = lineArray[0]
 
                     dateTime = parser.parse(dateString).astimezone()
@@ -84,10 +60,8 @@ class ReportSensor:
 
                     try:
                         levelValue = float(lineArray[3])
-#                        levelVariance = float(lineArray[4])
                     except:
                         levelValue = None
-#                        levelVariance = None
 
                     try:
                         temperatureValue = float(lineArray[4])
@@ -106,7 +80,6 @@ class ReportSensor:
 
                     if not stationId in self.reportDict:
                         self.reportDict[stationId] = {"ip": ip, "record": []}
-#                    self.reportDict[stationId]["record"].append({"timeStamp": timeStamp, "levelValue": levelValue, "levelVariance": levelVariance, "temperatureValue": temperatureValue, "humidityValue": humidityValue})
                     self.reportDict[stationId]["record"].append({"timeStamp": timeStamp, "levelValue": levelValue, "temperatureValue": temperatureValue, "humidityValue": humidityValue, "pressureValue": pressureValue})
 
                 except Exception as e:
@@ -126,7 +99,6 @@ class ReportSensor:
         with self.lockReport:
             return deepcopy(self.reportDict)
 
-#    def addRecordSensor(self, dateString, stationId, ip, levelValue, levelVariance, temperatureValue, humidityValue):
     def addRecordSensor(self, dateString, stationId, ip, levelValue, temperatureValue, humidityValue, pressureValue):
 
         with self.lockReport:
@@ -137,13 +109,9 @@ class ReportSensor:
 
             if not stationId in self.reportDict:
                 self.reportDict[stationId] = {'ip': ip, 'record': []}
-#            self.reportDict[stationId]['record'].append({'timeStamp': timeStamp, 'levelValue': levelValue, 'levelVariance': levelVariance, 'temperatureValue': temperatureValue, 'humidityValue': humidityValue})
             self.reportDict[stationId]['record'].append({'timeStamp': timeStamp, 'levelValue': levelValue, 'temperatureValue': temperatureValue, 'humidityValue': humidityValue, 'pressureValue': pressureValue})
 
             with open(self.reportPath, 'a') as fileObject:
-#                fileObject.write("{dateString}{sep}{stationId}{sep}{ip}{sep}{levelValue}{sep}{levelVariance}{sep}{temperatureValue}{sep}{humidityValue}\n".format(dateString=dateString, stationId=stationId,ip=ip, levelValue=levelValue,levelVariance=levelVariance,temperatureValue=temperatureValue if temperatureValue else "", humidityValue=humidityValue if humidityValue else "", sep=self.separator))
                 fileObject.write("{dateString}{sep}{stationId}{sep}{ip}{sep}{levelValue}{sep}{temperatureValue}{sep}{humidityValue}{sep}{pressureValue}\n".format(dateString=dateString, stationId=stationId,ip=ip, levelValue=levelValue if levelValue else "", temperatureValue=temperatureValue if temperatureValue else "", humidityValue=humidityValue if humidityValue else "", pressureValue=pressureValue if pressureValue else "", sep=self.separator))
-
-
 
 

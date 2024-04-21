@@ -143,7 +143,7 @@ class RegisterSensor:
 
             time.sleep(70)
 
-    def register(self, dateString, stationIp, stationId, configureUrl, measureActualUrl, collectAverageUrl):
+    def register(self, dateString, stationIp, stationId, configureUrl, measureActualUrl, collectAverageUrl, triggerReportUrl):
         """
         Registers the station in the sensor_register.log and in the self.sensorDict dictionary
         """
@@ -153,13 +153,13 @@ class RegisterSensor:
             timeStamp = dateTime.timestamp()
 
             # register the sensor - if it exists then updates
-            self.sensorDict[stationId] = {"ip": stationIp, "timeStamp": timeStamp, "configureUrl": configureUrl, "measureActualUrl": measureActualUrl, "collectAverageUrl": collectAverageUrl}
+            self.sensorDict[stationId] = {"ip": stationIp, "timeStamp": timeStamp, "configureUrl": configureUrl, "measureActualUrl": measureActualUrl, "collectAverageUrl": collectAverageUrl, "triggerReportUrl": triggerReportUrl}
             with open(self.registerPath, 'w') as fileObject:
                 for key, value in self.sensorDict.items():
                     dateString = datetime.fromtimestamp(value['timeStamp']).astimezone().isoformat()
                     fileObject.write("{dateString}{sep}{stationId}{sep}{stationIp}{sep}{configureUrl}{sep}{measureActualUrl}{sep}{collectAverageUrl}{sep}\n".format(dateString=dateString, stationId=key, stationIp=value["ip"], configureUrl=value["configureUrl"], measureActualUrl=value["measureActualUrl"], collectAverageUrl=value["collectAverageUrl"], sep=self.separator))
 
-    def getValueList(self, configure=False, measureActual=False, collectAverage=False, stationId=None ):
+    def getValueList(self, configure=False, measureActual=False, collectAverage=False, triggerReport=False, stationId=None ):
         output = []
 
         # TODO if the record is outdated: remove it from the list
@@ -171,6 +171,7 @@ class RegisterSensor:
                 configureUrl=value['configureUrl']
                 measureActualUrl=value['measureActualUrl']
                 collectAverageUrl=value['collectAverageUrl']
+                triggerReportUrl=value['triggerReportUrl']
                 dateString = value['timeStamp']
 
                 app = {"stationId": ci}
@@ -185,9 +186,11 @@ class RegisterSensor:
                 if collectAverage:
                     app["collectAverageUrl"] = collectAverageUrl
 
+                if triggerReport:
+                    app["triggerReportUrl"] = triggerReportUrl
+
                 output.append(app)
 
-#                output.append({"stationId": si, "stationIp": stationIp, "configureUrl": configureUrl, "measureActualUrl": measureActualUrl, "collectAverageUrl": collectAverageUrl,"timeStamp": dateString   })
         return output
 
 
