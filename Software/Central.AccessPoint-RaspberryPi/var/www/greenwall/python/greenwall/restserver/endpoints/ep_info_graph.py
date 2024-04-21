@@ -22,11 +22,14 @@ class EPInfoGraph(EP):
     PATH_PAR_PAYLOAD = '/graph'
     PATH_PAR_1_URL = '/graph/startDate/<startDate>'
     PATH_PAR_2_URL = '/graph/startDate/<startDate>/endDate/<endDate>'
+#    PATH_PAR_URL = '/graph/startDate/<startDate>/sensorId/<sensorId>'
 
     METHOD = 'GET'
 
     ATTR_START_DATE = 'startDate'
     ATTR_END_DATE = 'endDate'
+
+#    ATTR_SENSOR_ID = 'sensorId'
 
     def __init__(self, web_gadget):
         self.web_gadget = web_gadget
@@ -52,7 +55,7 @@ class EPInfoGraph(EP):
     def executeByParameters(self, startDate, endDate = None) -> dict:
         payload = {}
         payload[EPInfoGraph.ATTR_START_DATE] = startDate
-
+#        if endDate:
         payload[EPInfoGraph.ATTR_END_DATE] = endDate
         return self.executeByPayload(payload)
 
@@ -86,12 +89,11 @@ class EPInfoGraph(EP):
                 )
             )
 
+        reportCopy = self.web_gadget.reportSensor.getRawReportCopy()
         webFolderName = self.web_gadget.webFolderName
         webPathNameGraph = self.web_gadget.webPathNameGraph
         webSmoothingWindow = self.web_gadget.webSmoothingWindow
-
-        graphs = GraphLevel.getGraphs(self.web_gadget.db, startDateStamp, endDateStamp=endDateStamp, window=webSmoothingWindow, webFolderName=webFolderName, webPathNameGraph=webPathNameGraph)
-        GraphLevel.smoothReportCopy(reportCopy, window=15)
+        graphs = GraphLevel.getGraphs(reportCopy, startDateStamp, endDateStamp=endDateStamp, window=webSmoothingWindow, webFolderName=webFolderName, webPathNameGraph=webPathNameGraph)
 
         ret = {'result': 'OK', 'graphs': graphs}
         header = {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'}

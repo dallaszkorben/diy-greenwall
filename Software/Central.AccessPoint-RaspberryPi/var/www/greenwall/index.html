@@ -91,7 +91,7 @@
         .flex-cam-container {
             display: flex;
             flex-wrap: wrap;
-            ppadding: 5px;
+            ppadding: 5px;  
             justify-content: flex-start;
         }
 
@@ -99,7 +99,7 @@
         .flex-chart-container {
             display: flex;
             flex-wrap: wrap;
-            padding: 5px;
+            padding: 5px;  
             justify-content: flex-start;
         }
 
@@ -142,7 +142,6 @@
     <!-- JQuery -->
     <script src="script/jquery/jquery-3.6.0.min.js"></script>
     <script src="script/jquery-ui/jquery-ui.min.js"></script>
-
     <link rel="stylesheet" href="script/jquery-ui/jquery-ui.css">
 
     <!-- Switch -->
@@ -166,7 +165,7 @@
         var chartRefreshIntervalId = null;
         var camCaptureRefreshIntervalId = null;
         var checkLampStatusRefreshIntervalId = null;
-        var checkPumpStatusRefreshIntervalId = null;
+        var checkPumpStatusIntervalId = null;
 
         var levelChart = null;
         var temperatureChart = null;
@@ -178,7 +177,7 @@
         } );
 
         function isEmpty(str) {
-            return (!str || str.length === 0);
+            return (!str || str.length === 0 );
         }
 
         // =============================
@@ -828,26 +827,10 @@
         function checkPumpStatus(){
             $.get( "/pump/status").done(
                 function( data ) {
-                    $("#pumpSwitch").off('lcs-on lcs-off');
 
                     if (data.status == 'off'){
-                        lcs_enable("#pumpSwitch");
                         lcs_off("#pumpSwitch");
-                        $("#pump-warning-icon img").css('visibility','hidden');
-                        $("#pump-error").text("");
-                    }else if (data.status == 'on'){
-                        lcs_enable("#pumpSwitch");
-                        lcs_on("#pumpSwitch");
-                        $("#pump-warning-icon img").css('visibility','hidden');
-                        $("#pump-error").text("");
-                    }else{
-                        lcs_disable("#pumpSwitch");
-                        $("#pump-warning-icon img").attr('src', "warning-icon.png");
-                        $("#pump-warning-icon img").css('visibility','visible');
-                        $("#pump-error").text("No control on pump");
                     }
-                    $("#pumpSwitch").on('lcs-on', pumpOnEvent);
-                    $("#pumpSwitch").on('lcs-off', pumpOffEvent);
             });
         }
 
@@ -862,27 +845,15 @@
                     $("#lampSwitch").off('lcs-on lcs-off');
 
                     if (data.status == 'off'){
-                        lcs_enable("#lampSwitch");
-                        $( "#slider" ).slider("enable");
                         lcs_off("#lampSwitch");
-                        $("#lamp-warning-icon img").css('visibility','hidden');
-                        $("#lamp-error").text("");
-                    }else if(data.status == 'on'){
-                        lcs_enable("#lampSwitch");
-                        $( "#slider" ).slider("enable");
-                        lcs_on("#lampSwitch");
-                        $("#lamp-warning-icon img").css('visibility','hidden');
-                        $("#lamp-error").text("");
                     }else{
-                        lcs_disable("#lampSwitch");
-                        $( "#slider" ).slider("disable");
-                        $("#lamp-warning-icon img").css('visibility','visible');
-                        $("#lamp-warning-icon img").attr('src', "warning-icon.png");
-                        $("#lamp-error").text("No control on lamp");
+                        lcs_on("#lampSwitch");
                     }
+
                     $("#lampSwitch").on('lcs-on', lampOnEvent);
                     $("#lampSwitch").on('lcs-off', lampOffEvent);
             });
+
         }
 
         // ================================================
@@ -915,8 +886,11 @@
                     if (data.status == 'off'){
 
                         //the pump can be turn ON
-                        $.post( "/pump/turnOn", { "lengthInSec": $( "#slider" ).slider( "value" ) } );
+                        $.post( "/pump/turnOn", { "lengthInSec": "30" } );
                     }
+                    checkPumpStatusIntervalId = setInterval(checkPumpStatus, 5000);
+
+                    //console.log("checkPumpStatusIntervalId: " + checkPumpStatusIntervalId);
 
                     lcs_enable("#pumpSwitch");
                 }
@@ -926,7 +900,10 @@
         function pumpOffEvent(){
 
             $.post( "/pump/turnOff" );
+            clearInterval(checkPumpStatusIntervalId);
 
+            //console.log("end of interval check. checkPumpStatusIntervalId: " +  checkPumpStatusIntervalId);
+            //console.log(" ");
         }
 
         // ================================================
@@ -1031,6 +1008,10 @@
                         lcs_on("#pumpSwitch")
                         lcs_enable("#pumpSwitch");
 
+                        // 5 sec
+                        checkPumpStatusIntervalId = setInterval(checkPumpStatus, 5000);
+                        //console.log("initial checkPumpStatusIntervalId: " + checkPumpStatusIntervalId);
+
                     }else{
                         lcs_off("#pumpSwitch")
                         lcs_enable("#pumpSwitch");
@@ -1059,12 +1040,6 @@
             //-----------------------
             checkLampStatusRefreshIntervalId = setInterval(checkLampStatus, 5000);
 
-            //-----------------------
-            // Refresh Pump Status
-            //-----------------------
-            checkPumpStatusRefreshIntervalId = setInterval(checkPumpStatus, 5000);
-
-
             $( "#tabs" ).tabs({
                activate: function( event, ui ) {
 
@@ -1073,9 +1048,6 @@
 
                         // No more Check Lamp Status request
                         clearInterval(checkLampStatusRefreshIntervalId);
-
-                        // No more Check Pump Status request
-                        clearInterval(checkPumpStatusRefreshIntervalId);
 
                     // Leave Chart-Tab
                     }else if(ui.oldTab.index() == 1){
@@ -1088,6 +1060,7 @@
 
                         // No more Cam Capture request
                         clearInterval(camCaptureRefreshIntervalId);
+
                     }
 
                     //
@@ -1099,11 +1072,6 @@
                         // Refresh Lamp Status
                         //-----------------------
                         checkLampStatusRefreshIntervalId = setInterval(checkLampStatus, 5000);
-
-                        //-----------------------
-                        // Refresh Lamp Status
-                        //-----------------------
-                        checkPumpStatusRefreshIntervalId = setInterval(checkPumpStatus, 5000);
 
                     // Select Chart-Tab
                     }else if(ui.newTab.index() == 1){
@@ -1123,20 +1091,6 @@
                     }
                 }
             });
-
-            //-----------------------
-            // Slider for Pump
-            //-----------------------
-            $( "#slider" ).slider({
-                value:10,
-                min: 10,
-                max: 90,
-                step: 10,
-                slide: function( event, ui ) {
-                    $( "#amount" ).text( ui.value + "sec" );
-                }
-            });
-            $( "#amount" ).text( $( "#slider" ).slider( "value" ) + "sec" );
 
         });
 
@@ -1165,53 +1119,25 @@
 
             <table id="controller" border="0" class="switchh">
                 <tr>
-                    <td valign="top" style="font-weight:bold; font-size:1.3em">Lamp:</td>
+                    <td valign="top" >Lamp:</td>
                     <td >
                         <form>
                             <!-- Sliding Toggle Switch -->
                             <input type="checkbox" name="lampSwitch" value="1" class="lcs_check" id="lampSwitch"/>
                         </form>
                     </td>
-                    <td/>
-                    <td/>
-                    <td/>
-                    <td/>
-                    <td/>
-                    <td id="lamp-warning-icon" valign="top">
-                        <img  style="width:1.3em;" />
-                    </td>
-                    <td id="lamp-error" valign="top" style="color:rgb(255,0,0)"></td>
                 </tr>
 
                 <tr>
-                    <td valign="top" style="font-weight:bold; font-size:1.3em">Pump:</td>
-                    <td>
+                    <td valign="top" >Pump:</td>
+                    <td >
                         <form>
-                            <!-- Sliding Toggle Switch -->
                             <input type="checkbox" name="pumpSwitch" value="1" class="lcs_check" id="pumpSwitch"/>
                         </form>
                     </td>
-                    <td style="width:0.7em"/>
-                    <td valign="top" style="width:10em">
-                        <table style="width:100%">
-                            <tr>
-                                <td  id="slider"></td>
-                            </tr>
-                        </table>
-                    </td>
-                    <td style="width:0.7em"/>
-                    <td valign="top" id="amount" style="font-size:0.8em;"/>
-                    <td style="width:2em"/>
-                    <td id="pump-warning-icon" valign="top">
-                        <img style="width:1.3em;"/>
-                    </td>
-                    <td id="pump-error" valign="top" style="color:rgb(255,0,0)"></td>
-
                 </tr>
             </table>
         </div>
-
-
 
         <!--        -->
         <!-- CHARTS -->

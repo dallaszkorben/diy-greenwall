@@ -9,24 +9,140 @@ import time
 
 from threading import Lock
 
+
+# from datetime import datetime
+# from dateutil import parser
+#
+# datetime now()
+#  datetime.datetime.now().astimezone()
+#
+# String now()
+#  datetime.datetime.now().astimezone().isoformat()
+#
+# datetime from String
+#    date = parser.parse(dateString)
+#
+# timestamp from datetime
+#    timeStamp = date.timestamp()
+#    timeStamp = datetime.timestamp(date)
+#
+# datetime from timestamp
+#    datetime.fromtimestamp(timeStamp)
+#
+
 class ReportSensor:
 
+    #   reportDict[
+    #      "5": {"ip":"192.168.0.112", "record": [{"timestamp": 35779, "levelValue": 31, "temperatureValue": 20.1, "humidityValue": 20, "pressureValue": 123}, {}, {}] },
+    #      "9": {"ip":"192.168.0.117", "record": [{"timestamp": 35787, "levelValue": 27, "temperatureValue": 20.1, "humidityValue": 20, "pressureValue": 123}, {}, {}] },
+    #   ]
 
-    def __init__(self, reportPath, db):
+    def __init__(self, reportPath):
 
-        self.db = db
+        self.lockReport = Lock()
 
+        self.reportDict = {}
+        self.reportPath = reportPath
+
+        self.separator = ";"
+
+        #
+        # Fill up the reportDict
+        #
+        # TODO 'r' is not correct because if the file does not exist, an exception will be raised
+        # TODO 'w+' does not work either
+        #
+        '''
+        w  write mode
+        r  read mode
+        a  append mode
+
+        w+  create file if it doesn't exist and open it in write mode
+        r+  open for reading and writing. Does not create file.
+        a+  create file if it doesn't exist and open it in append mode
+        '''
+        with open(self.reportPath, 'r') as fileObject:
+
+            lines = fileObject.readlines()
+            for line in lines:
+
+                try:
+
+                    #{date}\t{levelId}\t{ip}\t{level}\t{temperature}\t{humidity}\t{pressure}
+                    lineArray = line.split(self.separator)
+
+#                    print("lineArray: ", lineArray)
+
+
+                    dateString = lineArray[0]
+
+                    dateTime = parser.parse(dateString).astimezone()
+
+                    timeStamp = dateTime.timestamp() #datetime.fromtimestamp(value)
+                    stationId = lineArray[1]
+                    ip = lineArray[2]
+
+                    try:
+                        levelValue = float(lineArray[3])
+#                        levelVariance = float(lineArray[4])
+                    except:
+                        levelValue = None
+#                        levelVariance = None
+
+                    try:
+                        temperatureValue = float(lineArray[4])
+                    except:
+                        temperatureValue = None
+
+                    try:
+                        humidityValue = float(lineArray[5])
+                    except:
+                        humidityValue = None
+
+                    try:
+                        pressureValue = float(lineArray[6])
+                    except:
+                        pressureValue = None
+
+                    if not stationId in self.reportDict:
+                        self.reportDict[stationId] = {"ip": ip, "record": []}
+#                    self.reportDict[stationId]["record"].append({"timeStamp": timeStamp, "levelValue": levelValue, "levelVariance": levelVariance, "temperatureValue": temperatureValue, "humidityValue": humidityValue})
+                    self.reportDict[stationId]["record"].append({"timeStamp": timeStamp, "levelValue": levelValue, "temperatureValue": temperatureValue, "humidityValue": humidityValue, "pressureValue": pressureValue})
+
+                except Exception as e:
+                    continue
 
     def getLatestValues(self, stationId=None):
+        output = []
+        for si, value in self.reportDict.items():
 
-        output = self.db.get_latest_values(stationId)
-
+            if not stationId or (stationId==si):
+                ip=value['ip']
+                lastRecord = value['record'][-1]
+                output.append({"stationId": si, "ip": ip, "timeStamp": lastRecord['timeStamp'], "levelValue": lastRecord['levelValue'], "temperatureValue":lastRecord['temperatureValue'], "humidityValue": lastRecord['humidityValue'], "pressureValue": lastRecord['pressureValue'] })
         return output
 
+    def getRawReportCopy(self):
+        with self.lockReport:
+            return deepcopy(self.reportDict)
 
+#    def addRecordSensor(self, dateString, stationId, ip, levelValue, levelVariance, temperatureValue, humidityValue):
     def addRecordSensor(self, dateString, stationId, ip, levelValue, temperatureValue, humidityValue, pressureValue):
 
-        self.db.append_report(stationId, ip, dateString, pressure=pressureValue, humidity=humidityValue, level=levelValue, temperature=temperatureValue)
+        with self.lockReport:
+
+            dateTime = parser.parse(dateString).astimezone()
+
+            timeStamp = dateTime.timestamp()
+
+            if not stationId in self.reportDict:
+                self.reportDict[stationId] = {'ip': ip, 'record': []}
+#            self.reportDict[stationId]['record'].append({'timeStamp': timeStamp, 'levelValue': levelValue, 'levelVariance': levelVariance, 'temperatureValue': temperatureValue, 'humidityValue': humidityValue})
+            self.reportDict[stationId]['record'].append({'timeStamp': timeStamp, 'levelValue': levelValue, 'temperatureValue': temperatureValue, 'humidityValue': humidityValue, 'pressureValue': pressureValue})
+
+            with open(self.reportPath, 'a') as fileObject:
+#                fileObject.write("{dateString}{sep}{stationId}{sep}{ip}{sep}{levelValue}{sep}{levelVariance}{sep}{temperatureValue}{sep}{humidityValue}\n".format(dateString=dateString, stationId=stationId,ip=ip, levelValue=levelValue,levelVariance=levelVariance,temperatureValue=temperatureValue if temperatureValue else "", humidityValue=humidityValue if humidityValue else "", sep=self.separator))
+                fileObject.write("{dateString}{sep}{stationId}{sep}{ip}{sep}{levelValue}{sep}{temperatureValue}{sep}{humidityValue}{sep}{pressureValue}\n".format(dateString=dateString, stationId=stationId,ip=ip, levelValue=levelValue if levelValue else "", temperatureValue=temperatureValue if temperatureValue else "", humidityValue=humidityValue if humidityValue else "", pressureValue=pressureValue if pressureValue else "", sep=self.separator))
 
 
 

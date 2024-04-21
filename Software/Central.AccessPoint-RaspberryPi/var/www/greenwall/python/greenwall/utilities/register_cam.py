@@ -204,3 +204,7 @@ class RegisterCam:
 
 #                output.append({"camId": si, "capIp": camIp, "configureUrl": configureUrl, "streamUrl": streamUrl, "captureUrl": captureUrl,"timeStamp": dateString   })
         return output
+
+#    def getRawReportCopy(self):
+#        with self.lockReport:
+#            return deepcopy(self.camDict)

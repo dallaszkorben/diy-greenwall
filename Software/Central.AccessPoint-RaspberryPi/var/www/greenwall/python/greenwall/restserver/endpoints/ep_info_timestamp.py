@@ -8,8 +8,6 @@ from flask import request
 
 from dateutil import parser
 from datetime import datetime
-from datetime import timedelta
-
 
 import numpy as np
 
@@ -68,30 +66,10 @@ class EPInfoTimeStamp(EP):
                 )
         )
 
-        todaynow = datetime.now()
-        timezone = todaynow.astimezone()
-        delta = timezone.utcoffset()
-        offsetString = self.format_timedelta(delta)
-
-        localNowDateStamp = timezone.timestamp()
+        localNowDateStamp = datetime.now().astimezone().timestamp()
         returnTimeStamp = localNowDateStamp - epocDateStamp
 
-        ret = {"result": "OK", "timeStamp": int(returnTimeStamp), "offsetString": offsetString, "offsetInt": int(delta.seconds)}
-
-        logging.debug( "Timestamp response: {0}, offset: {1}".format(int(returnTimeStamp), offsetString))
-
+#        ret = {"result": "OK", "timeStamp": int(returnTimeStamp), "extra": datetime.fromtimestamp(localNowDateStamp).astimezone().isoformat()}
+        ret = {"result": "OK", "timeStamp": int(returnTimeStamp)}
         return output_json( ret, EP.CODE_OK)
 
-
-    def format_timedelta(self, delta):
-        if delta.days < 0:
-            delta = timedelta() - delta
-
-            offsettime=datetime.strptime(str(delta),'%H:%M:%S').time()
-            offsetstring=offsettime.strftime('%H:%M')
-            full_delta = "-{0}".format(offsetstring)
-        else:
-            offsettime=datetime.strptime(str(delta),'%H:%M:%S').time()
-            offsetstring=offsettime.strftime('%H:%M')
-            full_delta = "+{0}".format(offsetstring)
-        return full_delta

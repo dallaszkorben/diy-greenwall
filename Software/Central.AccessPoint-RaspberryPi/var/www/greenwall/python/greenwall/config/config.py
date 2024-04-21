@@ -23,7 +23,6 @@ class Config( Property ):
     DEFAULT_LOG_REGISTER_CAM_FILE_NAME = ("log.register", "cam-file-name", "cam_register.log")
 
     DEFAULT_SENSOR_REPORT_FILE_NAME = ("sensor-report", "file-name", "sensor_report.log")
-    DEFAULT_SENSOR_REPORT_DB_NAME = ("sensor-report", "db-name", "sensor_report.db")
 
     DEFAULT_WEB_ROOT_PATH = ("web", "root-path", "/greenwall")
     DEFAULT_WEB_CAM_FRAME_FOLDER = ("web", "cam-frame-folder", "cam-frame")
@@ -86,9 +85,6 @@ class Config( Property ):
 
     def getSensorReportFileName(self):
         return self.get(self.DEFAULT_SENSOR_REPORT_FILE_NAME[0], self.DEFAULT_SENSOR_REPORT_FILE_NAME[1], self.DEFAULT_SENSOR_REPORT_FILE_NAME[2])
-
-    def getSensorReportDbName(self):
-        return self.get(self.DEFAULT_SENSOR_REPORT_DB_NAME[0], self.DEFAULT_SENSOR_REPORT_DB_NAME[1], self.DEFAULT_SENSOR_REPORT_DB_NAME[2])
 
     def getWebRootPath(self):
         return self.get(self.DEFAULT_WEB_ROOT_PATH[0], self.DEFAULT_WEB_ROOT_PATH[1], self.DEFAULT_WEB_ROOT_PATH[2])
@@ -159,9 +155,6 @@ class Config( Property ):
     def setSensorReportFileName(self, reportFileName):
         self.update(self.DEFAULT_SENSOR_REPORT_FILE_NAME[0], self.DEFAULT_SENSOR_REPORT_FILE_NAME[1], reportFileName)
 
-    def setSensorReportDbName(self, reportDbName):
-        self.update(self.DEFAULT_SENSOR_REPORT_DB_NAME[0], self.DEFAULT_SENSOR_REPORT_DB_NAME[1], reportDbName)
-
     def setWebRootPath(self, webRootPath):
         self.update(self.DEFAULT_WEB_ROOT_PATH[0], self.DEFAULT_WEB_ROOT_PATH[1], webRoothPath)
 
@@ -215,7 +208,6 @@ def getConfig():
     config["log-folder-name"] = cb.getLogFolderName()
 
     config["sensor-report-file-name"] = cb.getSensorReportFileName()
-    config["sensor-report-db-name"] = cb.getSensorReportDbName()
 
     config["log-register-sensor-file-name"] = cb.getLogRegisterSensorFileName()
     config["log-register-lamp-file-name"] = cb.getLogRegisterLampFileName()
@@ -258,9 +250,6 @@ def setConfig(config):
 
     if "sensor-report-file-name" in config:
         cb.setSensorReportFileName(config["sensor-report-file-name"])
-
-    if "sensor-report-db-name" in config:
-        cb.setSensorReportDbName(config["sensor-report-db-name"])
 
     if "log-register-sensor-file-name" in config:
         cb.setLogRegisterSensorFileName(config["log-register-sensor-file-name"])

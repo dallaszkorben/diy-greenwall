@@ -84,7 +84,6 @@ class RegisterPump:
                 except Exception as e:
                     continue
 
-
     def register(self, dateString, pumpId, ip):
 
         with self.lockRegister:
@@ -110,13 +109,16 @@ class RegisterPump:
 
 
 
-#    def getLatestValues(self, stationId=None):
-#        output = []
-#        for si, value in self.reportDict.items():
-#
-#            if not stationId or (stationId==si):
-#                ip=value['ip']
-#                lastRecord = value['record'][-1]
-#                output.append({"stationId": si, "ip": ip, "timeStamp": lastRecord['timeStamp'], "levelValue": lastRecord['levelValue'], "temperatureValue":lastRecord['temperatureValue'], "humidityValue": lastRecord['humidityValue']   })
-#        return output
+    def getLatestValues(self, stationId=None):
+        output = []
+        for si, value in self.reportDict.items():
 
+            if not stationId or (stationId==si):
+                ip=value['ip']
+                lastRecord = value['record'][-1]
+                output.append({"stationId": si, "ip": ip, "timeStamp": lastRecord['timeStamp'], "levelValue": lastRecord['levelValue'], "temperatureValue":lastRecord['temperatureValue'], "humidityValue": lastRecord['humidityValue']   })
+        return output
+
+    def getRawReportCopy(self):
+        with self.lockReport:
+            return deepcopy(self.reportDict)
