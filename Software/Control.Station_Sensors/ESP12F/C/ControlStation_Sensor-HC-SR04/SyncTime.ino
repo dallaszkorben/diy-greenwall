@@ -54,7 +54,7 @@ bool syncTime() {
       setTime(timeStamp);
       adjustTime(timeOffsetInt);
       
-      Serial.print("Time: ");
+      Serial.print("    Time: ");
       Serial.print(timeStamp);
       Serial.print(" - ");
       Serial.println(getOffsetDateString());
