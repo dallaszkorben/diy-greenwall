@@ -91,7 +91,7 @@
         .flex-cam-container {
             display: flex;
             flex-wrap: wrap;
-            ppadding: 5px;  
+            ppadding: 5px;
             justify-content: flex-start;
         }
 
@@ -99,7 +99,7 @@
         .flex-chart-container {
             display: flex;
             flex-wrap: wrap;
-            padding: 5px;  
+            padding: 5px;
             justify-content: flex-start;
         }
 
@@ -142,7 +142,9 @@
     <!-- JQuery -->
     <script src="script/jquery/jquery-3.6.0.min.js"></script>
     <script src="script/jquery-ui/jquery-ui.min.js"></script>
-    <link rel="stylesheet" href="script/jquery-ui/jquery-ui.css">
+
+    <link href="script/jquery-ui/jquery-ui.css" rel="stylesheet">
+    <link href="script/roundedbutton/css/style.css" rel="stylesheet" />
 
     <!-- Switch -->
     <script src="script/switch/lc_switch.js"></script>
@@ -165,7 +167,7 @@
         var chartRefreshIntervalId = null;
         var camCaptureRefreshIntervalId = null;
         var checkLampStatusRefreshIntervalId = null;
-        var checkPumpStatusIntervalId = null;
+        var checkPumpStatusRefreshIntervalId = null;
 
         var levelChart = null;
         var temperatureChart = null;
@@ -825,12 +827,22 @@
         //
         // ================================================
         function checkPumpStatus(){
+
             $.get( "/pump/status").done(
                 function( data ) {
+                    $("#pumpSwitch").off('lcs-on lcs-off');
 
                     if (data.status == 'off'){
                         lcs_off("#pumpSwitch");
+                    }else{
+                        lcs_on("#pumpSwitch");
+
+                        // If the pump works, then it triggers the report (in every 5 seconds)
+                        $.post( "/sensor/trigger/report" );
+
                     }
+                    $("#pumpSwitch").on('lcs-on', pumpOnEvent);
+                    $("#pumpSwitch").on('lcs-off', pumpOffEvent);
             });
         }
 
@@ -853,7 +865,6 @@
                     $("#lampSwitch").on('lcs-on', lampOnEvent);
                     $("#lampSwitch").on('lcs-off', lampOffEvent);
             });
-
         }
 
         // ================================================
@@ -886,11 +897,8 @@
                     if (data.status == 'off'){
 
                         //the pump can be turn ON
-                        $.post( "/pump/turnOn", { "lengthInSec": "30" } );
+                        $.post( "/pump/turnOn", { "lengthInSec": $( "#slider" ).slider( "value" ) } );
                     }
-                    checkPumpStatusIntervalId = setInterval(checkPumpStatus, 5000);
-
-                    //console.log("checkPumpStatusIntervalId: " + checkPumpStatusIntervalId);
 
                     lcs_enable("#pumpSwitch");
                 }
@@ -900,10 +908,7 @@
         function pumpOffEvent(){
 
             $.post( "/pump/turnOff" );
-            clearInterval(checkPumpStatusIntervalId);
 
-            //console.log("end of interval check. checkPumpStatusIntervalId: " +  checkPumpStatusIntervalId);
-            //console.log(" ");
         }
 
         // ================================================
@@ -1008,10 +1013,6 @@
                         lcs_on("#pumpSwitch")
                         lcs_enable("#pumpSwitch");
 
-                        // 5 sec
-                        checkPumpStatusIntervalId = setInterval(checkPumpStatus, 5000);
-                        //console.log("initial checkPumpStatusIntervalId: " + checkPumpStatusIntervalId);
-
                     }else{
                         lcs_off("#pumpSwitch")
                         lcs_enable("#pumpSwitch");
@@ -1040,6 +1041,12 @@
             //-----------------------
             checkLampStatusRefreshIntervalId = setInterval(checkLampStatus, 5000);
 
+            //-----------------------
+            // Refresh Pump Status
+            //-----------------------
+            checkPumpStatusRefreshIntervalId = setInterval(checkPumpStatus, 5000);
+
+
             $( "#tabs" ).tabs({
                activate: function( event, ui ) {
 
@@ -1047,7 +1054,10 @@
                     if(ui.oldTab.index() == 0){
 
                         // No more Check Lamp Status request
-                        clearInterval(checkLampStatusRefreshIntervalId);
+//                        clearInterval(checkLampStatusRefreshIntervalId);
+
+                        // No more Check Pump Status request
+//                        clearInterval(checkPumpStatusRefreshIntervalId);
 
                     // Leave Chart-Tab
                     }else if(ui.oldTab.index() == 1){
@@ -1060,7 +1070,6 @@
 
                         // No more Cam Capture request
                         clearInterval(camCaptureRefreshIntervalId);
-
                     }
 
                     //
@@ -1071,7 +1080,12 @@
                         //-----------------------
                         // Refresh Lamp Status
                         //-----------------------
-                        checkLampStatusRefreshIntervalId = setInterval(checkLampStatus, 5000);
+//                        checkLampStatusRefreshIntervalId = setInterval(checkLampStatus, 5000);
+
+                        //-----------------------
+                        // Refresh Lamp Status
+                        //-----------------------
+//                        checkPumpStatusRefreshIntervalId = setInterval(checkPumpStatus, 5000);
 
                     // Select Chart-Tab
                     }else if(ui.newTab.index() == 1){
@@ -1090,6 +1104,26 @@
                         camCaptureRefreshIntervalId = setInterval(refreshCamCapture, 10000);
                     }
                 }
+            });
+
+            //-----------------------
+            // Slider for Pump
+            //-----------------------
+            $( "#slider" ).slider({
+                value:10,
+                min: 10,
+                max: 90,
+                step: 10,
+                slide: function( event, ui ) {
+                    $( "#amount" ).text( ui.value + "sec" );
+                }
+            });
+            $( "#amount" ).text( $( "#slider" ).slider( "value" ) + "sec" );
+
+
+            // control the triggerReport button
+            $("#triggerReportButton").on( "click", function() {
+                $.post( "/sensor/trigger/report" );
             });
 
         });
@@ -1130,14 +1164,47 @@
 
                 <tr>
                     <td valign="top" >Pump:</td>
-                    <td >
+                    <td>
                         <form>
+                            <!-- Sliding Toggle Switch -->
                             <input type="checkbox" name="pumpSwitch" value="1" class="lcs_check" id="pumpSwitch"/>
                         </form>
                     </td>
+                    <td width="10"/>
+                    <td valign="top" width="50%">
+                        <table width="100%">
+                            <tr>
+                                <td  id="slider"></td>
+                            </tr>
+                        </table>
+                    </td>
+                    <td width="10"/>
+                    <td valign="top" id="amount" style="font-weight:bold;"/>
                 </tr>
+
+
+                <tr/>
+                <tr/>
+                <tr>
+                    <td/>
+                    <td colspan="4">
+                        <a id="triggerReportButton" class="button">
+                            <span>Trigger report</span>
+                        </a>
+                    </td>
+                </tr>
+                <tr/>
+                <tr/>
+                <tr/>
+
+
+
             </table>
+
+
         </div>
+
+
 
         <!--        -->
         <!-- CHARTS -->
@@ -1149,7 +1216,7 @@
                     <td> Start date:</td>
                     <td><input type="text" id="startDatePicker" size="8"> </td>
                     <td rowspan="2"><button id="refreshChartButton">Refresh</button></td>
-                    <td rowspan="2" width="60px"><img id="spinner" src="spinner.gif" width="60"></td> 
+                    <td rowspan="2" width="60px"><img id="spinner" src="spinner.gif" width="60"></td>
                 </tr>
                 <tr>
                     <td> End date:</td>

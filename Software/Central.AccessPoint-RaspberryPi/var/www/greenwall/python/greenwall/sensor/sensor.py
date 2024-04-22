@@ -44,49 +44,40 @@ class Sensor:
 
 
 
-    def triggerReport(self, stationId):
-
-            data = {'lengthInSec': lengthInSec}
-
-            try:
-                x = requests.post(address, timeout=20)
-                logging.debug("StatusCode: {0}".format(x.status_code))
-
-            # NewConnectionError
-            # ConnectTimeoutError
-            except Exception as e:
-                logging.error("Exception: {0}".format(e))
-
-
-
+    def triggerReport(self, stationId=None):
 
         response = {}
 
-        config = self.webGadget.registerSensor.getValueList(stationId=stationId, collectAverage=True)
+        config = self.webGadget.registerSensor.getValueList(stationId=stationId, triggerReport=True)
+
         if(config):
-            collectAverageUrl = config[0]["collectAverageUrl"]
-
-            logging.debug("Try to fetch {0} station's collectAverageUrl from: {1}".format(stationId, collectAverageUrl))
-            try:
-
-                x = requests.get(collectAverageUrl, timeout=20)
-                response = x.json()
-
-                logging.debug("   StatusCode: {0}".format(x.status_code))
-
-                if x.status_code == 200:
-                    logging.debug("   Response: {0}".format(x.text))
-#                    result = response
-                else:
-                    logging.error("   Response: Failed. Status is n/a")
-                    response = {"status": "ERROR", "message": "When sending request 'GET {0}' to the sensor station {1} wrong status received: {2}.".format(collectAverageUrl, stationId, x.status_code)}
 
 
-            # NewConnectionError
-            # ConnectTimeoutError
-            except Exception as e:
-                logging.error("   Exception: {0}".format(e))
-                response = {"status": "ERROR", "message": "Exception while sending request 'GET {0}' to the sensor station {1}: {2}.".format(collectAverageUrl, stationId, e)}
+            for stat in config:
+                triggerReportUrl = stat["triggerReportUrl"]
+
+#                triggerReportUrl = config[0]["triggerReportUrl"]
+
+                logging.debug("Try to fetch {0} station's triggerReport from: {1}".format(stationId, triggerReportUrl))
+                try:
+
+                    x = requests.post(triggerReportUrl, timeout=20)
+                    response = x.json()
+
+                    logging.debug("   StatusCode: {0}".format(x.status_code))
+
+                    if x.status_code == 200:
+                        logging.debug("   Response: {0}".format(x.text))
+                    else:
+                        logging.error("   Response: Failed. Status is n/a")
+                        response = {"status": "ERROR", "message": "When sending request 'POST {0}' to the sensor station {1} wrong status received: {2}.".format(triggerReportUrl, stationId, x.status_code)}
+
+                # NewConnectionError
+                # ConnectTimeoutError
+                except Exception as e:
+                    logging.error("   Exception: {0}".format(e))
+                    response = {"status": "ERROR", "message": "Exception while sending request 'POST {0}' to the sensor station {1}: {2}.".format(triggerReportUrl, stationId, e)}
+
 
         else:
             response = {"status": "ERROR", "message": "NO registered stationId '{0}' exists.".format(stationId)}

@@ -23,7 +23,6 @@ from greenwall.pump.pump import Pump
 from greenwall.cam.cam import Cam
 from greenwall.sensor.sensor import Sensor
 
-
 from greenwall.restserver.view_info import InfoView
 from greenwall.restserver.view_sensor import SensorView
 from greenwall.restserver.view_cam import CamView
@@ -31,6 +30,7 @@ from greenwall.restserver.view_lamp import LampView
 from greenwall.restserver.view_pump import PumpView
 
 from greenwall.utilities.report_sensor import ReportSensor
+from greenwall.utilities.database import SqlDatabase as DB
 
 from greenwall.utilities.register_sensor import RegisterSensor
 from greenwall.utilities.register_lamp import RegisterLamp
@@ -57,6 +57,7 @@ class WSGreenWall(Flask):
         camRegisterFileName = cg["log-register-cam-file-name"]
 
         sensorReportFileName = cg["sensor-report-file-name"]
+        sensorReportDbName = cg["sensor-report-db-name"]
 
         self.webRootPath = cg["web-root-path"]
         self.webCamFrameFolder = cg["web-cam-frame-folder"]
@@ -83,6 +84,7 @@ class WSGreenWall(Flask):
         # REPORT
         reportFolder = IniLocation.get_path_to_config_folder()
         self.reportPath = os.path.join(reportFolder, sensorReportFileName)
+        self.reportDbPath = os.path.join(reportFolder, sensorReportDbName)
 
         # REGISTER
         registerFolder = IniLocation.get_path_to_config_folder()
@@ -94,33 +96,11 @@ class WSGreenWall(Flask):
         # This will enable CORS for all routes
         CORS(self.app)
 
+        self.db=DB(self.reportDbPath)
 
 # ---
 
-#        import cv2
-##        import os
-#        from natsort import natsorted
-#        start = "5-2022-06-18T17:20"
-#        end = "5-2022-06-18T17:50"
-#        out=cv2.VideoWriter("/var/www/greenwall/cam-video/video.ogg", cv2.VideoWriter.fourcc(*'theo'), 10, (1024,768))
-#        try:
-#            print("!!! Start to collect files")
-#            for filename in natsorted(os.listdir('/var/www/greenwall/cam-frame')):
-#                ext = os.path.splitext(filename)[-1].lower()
-#                if ext=='.jpg' and start <= filename <= end:
-#                    print(filename)
-#                    img=cv2.imread('/var/www/greenwall/cam-frame/' + filename)
-#                    out.write(img)
-#
-#        finally:
-#            out.release()
-#
-#        print("!!! DONE")
-
-
-# ---
-
-        self.reportSensor = ReportSensor(self.reportPath)
+        self.reportSensor = ReportSensor(self.reportPath, self.db)
 
         self.registerSensor = RegisterSensor(self.app, self.sensorRegisterPath)
         self.registerLamp = RegisterLamp(self.lampRegisterPath)

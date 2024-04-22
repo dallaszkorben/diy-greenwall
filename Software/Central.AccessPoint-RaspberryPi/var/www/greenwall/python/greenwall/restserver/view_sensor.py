@@ -23,6 +23,7 @@ from greenwall.restserver.endpoints.ep_sensor_data_list import EPSensorDataList
 
 from greenwall.restserver.endpoints.ep_sensor_registered_list import EPSensorRegisteredList
 from greenwall.restserver.endpoints.ep_sensor_data_average_by_id import EPSensorDataAverageById
+from greenwall.restserver.endpoints.ep_sensor_trigger_report import EPSensorTriggerReport
 
 from greenwall.restserver.endpoints.ep import EP
 
@@ -39,6 +40,7 @@ class SensorView(FlaskView):
         self.epSensorDataList = EPSensorDataList(web_gadget)
         self.epSensorDataAverageById = EPSensorDataAverageById(web_gadget)
         self.epSensorRegisteredList = EPSensorRegisteredList(web_gadget)
+        self.epSensorTriggerReport = EPSensorTriggerReport(web_gadget)
 
 
     #
@@ -169,6 +171,10 @@ class SensorView(FlaskView):
         out = self.epSensorDataList.executeByParameters(startDate=startDate, endDate=endDate)
         return out
 
+
+
+
+
 # === GET /sensor/data/average/id ===
 
     #
@@ -200,5 +206,15 @@ class SensorView(FlaskView):
     def sensorGetRegisteredListWithParameter(self):
 
         out = self.epSensorRegisteredList.executeByParameters()
+
+        return out
+
+
+
+    #@route('/trigger/report', methods=['POST'])
+    @route(EPSensorTriggerReport.PATH_PAR_URL, methods=[EPSensorTriggerReport.METHOD])
+    def sensorTriggerReport(self):
+
+        out = self.epSensorTriggerReport.executeByParameters()
 
         return out

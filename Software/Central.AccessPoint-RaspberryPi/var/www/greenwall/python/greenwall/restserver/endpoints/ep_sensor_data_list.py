@@ -28,8 +28,6 @@ class EPSensorDataList(EP):
     ATTR_START_DATE = 'startDate'
     ATTR_END_DATE = 'endDate'
 
-#    ATTR_SENSOR_ID = 'sensorId'
-
     def __init__(self, web_gadget):
         self.web_gadget = web_gadget
 
@@ -54,7 +52,7 @@ class EPSensorDataList(EP):
     def executeByParameters(self, startDate, endDate = None) -> dict:
         payload = {}
         payload[EPSensorDataList.ATTR_START_DATE] = startDate
-#        if endDate:
+
         payload[EPSensorDataList.ATTR_END_DATE] = endDate
         return self.executeByPayload(payload)
 
@@ -88,12 +86,9 @@ class EPSensorDataList(EP):
                 )
             )
 
-        window = 15
-        reportCopy = self.web_gadget.reportSensor.getRawReportCopy()
-        GraphLevel.filterReportCopy(reportCopy, startDateStamp, endDateStamp)
-#        GraphLevel.smoothReportCopy(reportCopy, window=window)
+        reportCopy = GraphLevel.filterReportCopy(self.web_gadget.db, startDateStamp, endDateStamp)
+##reportCopy = GraphLevel.smoothReportCopy(reportCopy, window=15)
 
         ret = {'result': 'OK', 'data': reportCopy}
         header = {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'}
         return output_json( ret, EP.CODE_OK, header)
-

@@ -176,6 +176,7 @@ class SqlDatabase:
                     report.id_station = station.id
                     AND CAST(strftime('%s', report.date) AS INT) >= :startDateStamp
                     AND CAST(strftime('%s', report.date) AS INT) <= :endDateStamp
+                ORDER BY station.name
                 '''
             query_parameters = {'startDateStamp': startDateStamp, 'endDateStamp': endDateStamp}
             logging.debug("selectRecordsByTimeRange query: '{0} / {1}'".format(query, query_parameters))
@@ -190,7 +191,7 @@ class SqlDatabase:
                 level = report[3]
                 temperature = report[4]
                 humidity = report[5]
-                pressure = report[6]    
+                pressure = report[6]
                 record = {"timeStamp": timestamp, "levelValue": level, "temperatureValue": temperature, "humidityValue": humidity, "pressureValue": pressure}
 
                 if reportCopy.get(stationId) is None:

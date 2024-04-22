@@ -23,6 +23,7 @@ class EPSensorRegister(EP):
     ATTR_CONFIGURE_URL = 'configureUrl'
     ATTR_MEASURE_ACTUAL_URL = 'measureActualUrl'
     ATTR_COLLECT_AVERAGE_URL = 'collectAverageUrl'
+    ATTR_TRIGGER_REPORT_URL = 'triggerReportUrl'
     ATTR_DATE_STRING = 'dateString'
 
     def __init__(self, web_gadget):
@@ -35,7 +36,6 @@ class EPSensorRegister(EP):
         ret['stationId'] = EPSensorRegister.ID
         ret['method'] = EPSensorRegister.METHOD
         ret['path-parameter-in-payload'] = EPSensorRegister.PATH_PAR_PAYLOAD
-#        ret['path-parameter-in-url'] = EPCamCaptureRegister.PATH_PAR_URL
 
         ret['parameters'] = [{},{},{},{},{}]
 
@@ -55,18 +55,23 @@ class EPSensorRegister(EP):
         ret['parameters'][3]['type'] = 'string'
         ret['parameters'][3]['value'] = 255
 
-        ret['parameters'][4]['attribute'] = EPSensorRegister.ATTR_DATE_STRING
+        ret['parameters'][4]['attribute'] = EPSensorRegister.ATTR_TRIGGER_REPORT_URL
         ret['parameters'][4]['type'] = 'string'
         ret['parameters'][4]['value'] = 255
 
+        ret['parameters'][5]['attribute'] = EPSensorRegister.ATTR_DATE_STRING
+        ret['parameters'][5]['type'] = 'string'
+        ret['parameters'][5]['value'] = 255
+
         return ret
 
-    def executeByParameters(self, stationId, configureUrl, measureActualUrl, collectAverageUrl, dateString) -> dict:
+    def executeByParameters(self, stationId, configureUrl, measureActualUrl, collectAverageUrl, triggerReportUrl, dateString) -> dict:
         payload = {}
         payload[EPSensorRegister.ATTR_ID] = stationId
         payload[EPSensorRegister.ATTR_CONFIGURE_URL] = configureUrl
         payload[EPSensorRegister.ATTR_MEASURE_ACTUAL_URL] = measureActualUrl
         payload[EPSensorRegister.ATTR_COLLECT_AVERAGE_URL] = collectAverageUrl
+        payload[EPSensorRegister.ATTR_TRIGGER_REPORT_URL] = triggerReportUrl
         payload[EPSensorRegister.ATTR_DATE_STRING] = dateString
 
         return self.executeByPayload(payload)
@@ -77,14 +82,16 @@ class EPSensorRegister(EP):
         configureUrl = payload[EPSensorRegister.ATTR_CONFIGURE_URL]
         measureActualUrl = payload[EPSensorRegister.ATTR_MEASURE_ACTUAL_URL]
         collectAverageUrl = payload[EPSensorRegister.ATTR_COLLECT_AVERAGE_URL]
+        triggerReportUrl = payload[EPSensorRegister.ATTR_TRIGGER_REPORT_URL]
         dateString = payload[EPSensorRegister.ATTR_DATE_STRING]
 
-        logging.debug( "SENSOR request: {0} {1} ('{2}': {3}, '{4}': {5}, '{6}': {7}, '{8}': {9} )".format(
+        logging.debug( "SENSOR request: {0} {1} ('{2}': {3}, '{4}': {5}, '{6}': {7}, '{8}': {9}, '{10}': {11}, '{12}': {13} )".format(
                     EPSensorRegister.METHOD, EPSensorRegister.URL,
                     EPSensorRegister.ATTR_ID, stationId,
                     EPSensorRegister.ATTR_CONFIGURE_URL, configureUrl,
                     EPSensorRegister.ATTR_MEASURE_ACTUAL_URL, measureActualUrl,
                     EPSensorRegister.ATTR_COLLECT_AVERAGE_URL, collectAverageUrl,
+                    EPSensorRegister.ATTR_TRIGGER_REPORT_URL, triggerReportUrl,
                     EPSensorRegister.ATTR_DATE_STRING, dateString
                     )
             )
@@ -94,7 +101,7 @@ class EPSensorRegister(EP):
 
         stationIp = request.remote_addr
 
-        self.web_gadget.registerSensor.register(dateString, stationIp, stationId, configureUrl, measureActualUrl, collectAverageUrl)
+        self.web_gadget.registerSensor.register(dateString, stationIp, stationId, configureUrl, measureActualUrl, collectAverageUrl, triggerReportUrl)
 
         # print out to LCD
 #        self.web_gadget.controlBox.refreshData(stationId)

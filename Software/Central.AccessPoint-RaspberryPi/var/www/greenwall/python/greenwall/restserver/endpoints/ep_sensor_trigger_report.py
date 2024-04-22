@@ -14,7 +14,8 @@ class EPSensorTriggerReport(EP):
     ID = 'sensor_trigger_report'
     URL = '/sensor/trigger/report'
 
-    PATH_PAR_PAYLOAD = '/trigger_report'
+    PATH_PAR_PAYLOAD = '/trigger/report'
+    PATH_PAR_URL = '/trigger/report'
 
     METHOD = 'POST'
 
@@ -59,23 +60,23 @@ class EPSensorTriggerReport(EP):
 
         return ret
 
-    def executeByParameters(self, stationId) -> dict:
+    def executeByParameters(self, stationId=None) -> dict:
+
         payload = {}
-        payload[EPSensorRegister.ATTR_ID] = stationId
+        payload[EPSensorTriggerReport.ATTR_ID] = stationId
 
         return self.executeByPayload(payload)
 
     def executeByPayload(self, payload) -> dict:
 
-        stationId = payload[EPSensorRegister.ATTR_ID]
+        stationId = payload[EPSensorTriggerReport.ATTR_ID]
 
         logging.debug( "SENSOR request: {0} {1} ('{2}': {3} )".format(
-                    EPSensorRegister.METHOD, EPSensorRegister.URL,
-                    EPSensorRegister.ATTR_ID, stationId,
+                    EPSensorTriggerReport.METHOD, EPSensorTriggerReport.URL,
+                    EPSensorTriggerReport.ATTR_ID, stationId,
                     )
             )
 
-#        self.web_gadget.reportSensor.triggerReport(stationId)
         self.web_gadget.sensor.triggerReport(stationId)
 
         return output_json( {'result': 'OK'}, EP.CODE_OK)
