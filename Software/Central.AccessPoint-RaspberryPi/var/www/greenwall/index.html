@@ -174,6 +174,8 @@
         var humidityChart = null;
         var pressureChart = null;
 
+        var triggerReportBeforeSent = false;
+
         $( function() {
             $( "#tabs" ).tabs();
         } );
@@ -834,11 +836,28 @@
 
                     if (data.status == 'off'){
                         lcs_off("#pumpSwitch");
+
+                        // If I sent the trigger report before the pump started, now I will send a new trigger report after the pump stopped
+                        if (triggerReportBeforeSent){
+
+                            //send trigger to report
+                            $.post( "/sensor/trigger/report" );
+
+                            //indicate that the trigger report was sent before the pump started and sent after the pump stopped
+                            triggerReportBeforeSent = false;
+
+                            //refresh the chart
+                            refreshCharts();
+
+                            const now = new Date();
+                            const isoDate = now.toISOString();
+                            console.log("End trigger report request has been sent: " + isoDate);
+
+                        }
+
+
                     }else{
                         lcs_on("#pumpSwitch");
-
-                        // If the pump works, then it triggers the report (in every 5 seconds)
-                        $.post( "/sensor/trigger/report" );
 
                     }
                     $("#pumpSwitch").on('lcs-on', pumpOnEvent);
@@ -894,10 +913,20 @@
                 function( data ) {
 
                     //if the pump is OFF
-                    if (data.status == 'off'){
+                    if (data.status == 'off' && !triggerReportBeforeSent){
+
+                        const now = new Date();
+                        const isoDate = now.toISOString();
+                        console.log("Sending pump turnOn signal and trigger report request " + isoDate);
 
                         //the pump can be turn ON
                         $.post( "/pump/turnOn", { "lengthInSec": $( "#slider" ).slider( "value" ) } );
+
+                        //send trigger to report
+                        $.post( "/sensor/trigger/report" );
+
+                        //indicate that the trigger report was sent before the pump started
+                        triggerReportBeforeSent = true;
                     }
 
                     lcs_enable("#pumpSwitch");
@@ -1054,10 +1083,10 @@
                     if(ui.oldTab.index() == 0){
 
                         // No more Check Lamp Status request
-//                        clearInterval(checkLampStatusRefreshIntervalId);
+                        clearInterval(checkLampStatusRefreshIntervalId);
 
                         // No more Check Pump Status request
-//                        clearInterval(checkPumpStatusRefreshIntervalId);
+                        // clearInterval(checkPumpStatusRefreshIntervalId);
 
                     // Leave Chart-Tab
                     }else if(ui.oldTab.index() == 1){
@@ -1072,6 +1101,7 @@
                         clearInterval(camCaptureRefreshIntervalId);
                     }
 
+
                     //
                     // Select Control-Tab
                     //
@@ -1080,12 +1110,12 @@
                         //-----------------------
                         // Refresh Lamp Status
                         //-----------------------
-//                        checkLampStatusRefreshIntervalId = setInterval(checkLampStatus, 5000);
+                        checkLampStatusRefreshIntervalId = setInterval(checkLampStatus, 5000);
 
                         //-----------------------
                         // Refresh Lamp Status
                         //-----------------------
-//                        checkPumpStatusRefreshIntervalId = setInterval(checkPumpStatus, 5000);
+                        // checkPumpStatusRefreshIntervalId = setInterval(checkPumpStatus, 5000);
 
                     // Select Chart-Tab
                     }else if(ui.newTab.index() == 1){
@@ -1124,6 +1154,7 @@
             // control the triggerReport button
             $("#triggerReportButton").on( "click", function() {
                 $.post( "/sensor/trigger/report" );
+                console.log("manual trigger");
             });
 
         });

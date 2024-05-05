@@ -9,7 +9,7 @@ static bool ToBoolean(String str);
 void persistVariables();
 
 void handleNotFound(){
-  
+
   server.send(404, "text/plain", "404: Not found");
 
   Serial.println("!!! HTTP request was not found !!!");
@@ -19,7 +19,7 @@ void handleNotFound(){
 void handleGetConfigure(){
   DynamicJsonDocument result(512);
   String buf;
-  
+
   Serial.print("'GET /configure' request - ");
 
   result["success"] = true;
@@ -29,9 +29,9 @@ void handleGetConfigure(){
   result["data"]["version"] = version;
 
   result["data"]["stationId"] = stationId;
-      
+
   result["data"]["sensorTempHumOutGPIO"] = sensorTempHumOutGPIO;
-  result["data"]["sensorDistanceTrigGPIO"] = sensorDistanceTrigGPIO; 
+  result["data"]["sensorDistanceTrigGPIO"] = sensorDistanceTrigGPIO;
   result["data"]["sensorDistanceEchoGPIO"] = sensorDistanceEchoGPIO;
 
   result["data"]["sensorDistanceParA"] = sensorDistanceParA;
@@ -46,17 +46,17 @@ void handleGetConfigure(){
   result["data"]["needToReport"] = needToReport;
 
   serializeJson(result, buf);
-  server.send(200, "application/json", buf);  
-  
+  server.send(200, "application/json", buf);
+
   Serial.println("Served:");
-  Serial.print("        "); 
+  Serial.print("        ");
   Serial.println(String(result["data"]));
 }
 
 void handlePostConfigure(){
   Serial.print("'POST /configure' request - ");
 
-  String resultJson; 
+  String resultJson;
   String postBody = server.arg("plain");
   Serial.println(postBody);
 
@@ -68,19 +68,19 @@ void handlePostConfigure(){
 
     // if the file didn't open, print an error:
     String msg = error.c_str();
-    Serial.print("Error parsing JSON: ");    
-    Serial.println(msg); 
+    Serial.print("Error parsing JSON: ");
+    Serial.println(msg);
 
     result["status"] = "ERROR";
     result["message"] = msg;
     serializeJson(result, buf);
     server.send(400, "application/json", buf);
- 
+
   } else {
 
     int resultCode;
     boolean updateNeeded = false;
-    
+
     String errorStationId = "";
     String errorSensorTempHumOutGPIO = "";
     String errorSensorDistanceTrigGPIO = "";
@@ -88,21 +88,21 @@ void handlePostConfigure(){
     String errorSensorDistanceParA = "";
     String errorSensorDistanceParB = "";
     String errorSensorDistanceParC = "";
-    
+
     String errorIntervalReportMillis = "";
     String errorIntervalRegisterMillis = "";
     String errorIntervalResetMillis = "";
     String errorIntervalConnectionMillis = "";
 
     String errorNeedToReport = "";
-        
+
     JsonObject postObj = doc.as<JsonObject>();
     Serial.println("Json parameters are successfully parsed");
 
     //
     // stationId
     //
-    const char* myStationId = postObj["stationId"];        
+    const char* myStationId = postObj["stationId"];
     if(myStationId){
       String strStationId = String(myStationId);
       strStationId.trim();
@@ -110,7 +110,7 @@ void handlePostConfigure(){
         errorStationId = "Wrong value: '" + strStationId + "'. " + ((strStationId.length() == 0) ? "Empty" : "Contains space");
         Serial.println(errorStationId);
       }else{
-        stationId = strStationId;        
+        stationId = strStationId;
         updateNeeded = true;
       }
     }else{
@@ -120,15 +120,15 @@ void handlePostConfigure(){
     //
     // sensorTempHumOutGPIO
     //
-    const char* mySensorTempHumOutGPIO = postObj["sensorTempHumOutGPIO"];        
+    const char* mySensorTempHumOutGPIO = postObj["sensorTempHumOutGPIO"];
     if(mySensorTempHumOutGPIO){
       if(isInteger(String(mySensorTempHumOutGPIO))){
-        int intSensorTempHumOutGPIO = atoi(mySensorTempHumOutGPIO);      
+        int intSensorTempHumOutGPIO = atoi(mySensorTempHumOutGPIO);
         if(intSensorTempHumOutGPIO < 0 || intSensorTempHumOutGPIO >= 15){
           errorSensorTempHumOutGPIO = "Wrong value: '" + String(mySensorTempHumOutGPIO) + "'. " + ((intSensorTempHumOutGPIO <= 0) ? " < 0" : " > 15");
           Serial.println(errorSensorTempHumOutGPIO);
         }else{
-          sensorTempHumOutGPIO = intSensorTempHumOutGPIO;        
+          sensorTempHumOutGPIO = intSensorTempHumOutGPIO;
           updateNeeded = true;
         }
       }else{
@@ -142,10 +142,10 @@ void handlePostConfigure(){
     //
     // sensorDistanceTrigGPIO
     //
-    const char* mySensorDistanceTrigGPIO = postObj["sensorDistanceTrigGPIO"];        
+    const char* mySensorDistanceTrigGPIO = postObj["sensorDistanceTrigGPIO"];
     if(mySensorDistanceTrigGPIO){
       if(isInteger(String(mySensorDistanceTrigGPIO))){
-        int intSensorDistanceTrigGPIO = atoi(mySensorDistanceTrigGPIO);      
+        int intSensorDistanceTrigGPIO = atoi(mySensorDistanceTrigGPIO);
         if(intSensorDistanceTrigGPIO < 0 || intSensorDistanceTrigGPIO >= 15){
           errorSensorDistanceTrigGPIO = "Wrong value: '" + String(mySensorDistanceTrigGPIO) + "'. " + ((intSensorDistanceTrigGPIO <= 0) ? " < 0" : " > 15");
           Serial.println(errorSensorDistanceTrigGPIO);
@@ -278,15 +278,15 @@ void handlePostConfigure(){
     //
     // intervalResetMillis
     //
-    const char* myIntervalResetMillis = postObj["intervalResetMillis"];        
+    const char* myIntervalResetMillis = postObj["intervalResetMillis"];
     if(myIntervalResetMillis){
       if(isInteger(String(myIntervalResetMillis))){
-        unsigned long ulIntervalResetMillis = strtoul(myIntervalResetMillis, NULL, 0);      
+        unsigned long ulIntervalResetMillis = strtoul(myIntervalResetMillis, NULL, 0);
         if(ulIntervalResetMillis < 60000){
           errorIntervalResetMillis = "Wrong value: '" + String(myIntervalResetMillis) + "'. " + " < 60000 (1 minute)";
           Serial.println(errorIntervalResetMillis);
         }else{
-          intervalResetMillis = ulIntervalResetMillis;        
+          intervalResetMillis = ulIntervalResetMillis;
           updateNeeded = true;
         }
       }else{
@@ -300,15 +300,15 @@ void handlePostConfigure(){
     //
     // intervalConnectionMillis
     //
-    const char* myIntervalConnectionMillis = postObj["intervalConnectionMillis"];        
+    const char* myIntervalConnectionMillis = postObj["intervalConnectionMillis"];
     if(myIntervalConnectionMillis){
       if(isInteger(String(myIntervalConnectionMillis))){
-        unsigned long ulIntervalConnectionMillis = strtoul(myIntervalConnectionMillis, NULL, 0);      
+        unsigned long ulIntervalConnectionMillis = strtoul(myIntervalConnectionMillis, NULL, 0);
         if(ulIntervalConnectionMillis < 60000){
           errorIntervalConnectionMillis = "Wrong value: '" + String(myIntervalConnectionMillis) + "'. " + " < 60000 (1 minute)";
           Serial.println(errorIntervalConnectionMillis);
         }else{
-          intervalConnectionMillis = ulIntervalConnectionMillis;        
+          intervalConnectionMillis = ulIntervalConnectionMillis;
           updateNeeded = true;
         }
       }else{
@@ -322,7 +322,7 @@ void handlePostConfigure(){
     //
     // needToReport
     //
-    const char* myNeedToReport = postObj["needToReport"];        
+    const char* myNeedToReport = postObj["needToReport"];
     if(myNeedToReport){
       if(isBoolean(String(myNeedToReport))){
         needToReport = ToBoolean(myNeedToReport);
@@ -334,33 +334,33 @@ void handlePostConfigure(){
     }else{
       Serial.println("NO needToReport modified");
     }
-    
+
     // If there was at least 1 wrong (existing) parameter
     if(errorStationId.length()!=0 || errorSensorTempHumOutGPIO.length() != 0 || errorSensorDistanceTrigGPIO.length() != 0 || errorSensorDistanceParA.length() != 0 || errorSensorDistanceParB.length() != 0 || errorSensorDistanceParC.length() != 0 || errorIntervalReportMillis.length() != 0 || errorIntervalRegisterMillis.length() != 0 || errorIntervalResetMillis.length() != 0 || errorIntervalConnectionMillis.length() != 0 || errorNeedToReport.length() != 0){
-      resultCode = 400;    
+      resultCode = 400;
       if(errorStationId.length()!=0){
         result["success"] = false;
         result["status"] = "ERROR";
         result["message"] = "Wrong parameter(s) provided";
-        result["data"]["stationId"] = errorStationId;      
+        result["data"]["stationId"] = errorStationId;
       }
       if(errorSensorTempHumOutGPIO.length() != 0){
         result["success"] = false;
         result["status"] = "ERROR";
         result["message"] = "Wrong parameter(s) provided";
-        result["data"]["sensorTempHumOutGPIO"] = errorSensorTempHumOutGPIO;      
+        result["data"]["sensorTempHumOutGPIO"] = errorSensorTempHumOutGPIO;
       }
       if(errorSensorDistanceTrigGPIO.length() != 0){
         result["success"] = false;
         result["status"] = "ERROR";
         result["message"] = "Wrong parameter(s) provided";
-        result["data"]["sensorDistanceTrigGPIO"] = errorSensorDistanceTrigGPIO;      
+        result["data"]["sensorDistanceTrigGPIO"] = errorSensorDistanceTrigGPIO;
       }
       if(errorSensorDistanceParA.length() != 0){
         result["success"] = false;
         result["status"] = "ERROR";
         result["message"] = "Wrong parameter(s) provided";
-        result["data"]["sensorDistanceParA"] = errorSensorDistanceParA;      
+        result["data"]["sensorDistanceParA"] = errorSensorDistanceParA;
       }
       if(errorSensorDistanceParB.length() != 0){
         result["success"] = false;
@@ -378,32 +378,32 @@ void handlePostConfigure(){
         result["success"] = false;
         result["status"] = "ERROR";
         result["message"] = "Wrong parameter(s) provided";
-        result["data"]["intervalReportMillis"] = errorIntervalReportMillis;      
+        result["data"]["intervalReportMillis"] = errorIntervalReportMillis;
       }
       if(errorIntervalRegisterMillis.length() != 0){
         result["success"] = false;
         result["status"] = "ERROR";
         result["message"] = "Wrong parameter(s) provided";
-        result["data"]["intervalRegisterMillis"] = errorIntervalRegisterMillis;      
+        result["data"]["intervalRegisterMillis"] = errorIntervalRegisterMillis;
       }
       if(errorIntervalResetMillis.length() != 0){
         result["success"] = false;
         result["status"] = "ERROR";
         result["message"] = "Wrong parameter(s) provided";
-        result["data"]["intervalResetMillis"] = errorIntervalResetMillis;      
-      }      
+        result["data"]["intervalResetMillis"] = errorIntervalResetMillis;
+      }
       if(errorIntervalConnectionMillis.length() != 0){
         result["success"] = false;
         result["status"] = "ERROR";
         result["message"] = "Wrong parameter(s) provided";
-        result["data"]["intervalConnectionMillis"] = errorIntervalConnectionMillis;      
-      }        
+        result["data"]["intervalConnectionMillis"] = errorIntervalConnectionMillis;
+      }
       if(errorNeedToReport.length() != 0){
         result["success"] = false;
         result["status"] = "ERROR";
         result["message"] = "Wrong parameter(s) provided";
-        result["data"]["needToReport"] = errorNeedToReport;      
-      }             
+        result["data"]["needToReport"] = errorNeedToReport;
+      }
 
     // No error in the existing provided parameters
     }else if(updateNeeded){
@@ -421,18 +421,18 @@ void handlePostConfigure(){
       result["status"] = "ERROR";
       result["message"] = "No existing parameter was provided";
     }
-    
+
     serializeJson(result, buf);
-    server.send(resultCode, "application/json", buf);  
+    server.send(resultCode, "application/json", buf);
   }
   Serial.println("Served");
-  
+
 }
 
 void handleGetPressure(){
   DynamicJsonDocument result(512);
   String buf;
-  
+
   Serial.print("'GET /pressure' request - ");
 
   struct BMP180_Struct bmp180Result = getPressTemp(false); //getSampleOfPressTemp(1);
@@ -443,16 +443,16 @@ void handleGetPressure(){
   result["message"] = "OK";
   result["data"]["pressure"] = String(pressure);
 
-  serializeJson(result, buf);  
+  serializeJson(result, buf);
   server.send(200, "application/json", buf);
-  
+
   Serial.println("Served");
 }
 
 void handleGetTemperature(){
   DynamicJsonDocument result(512);
   String buf;
-  
+
   Serial.print("'GET /tepmerature' request - ");
 
   struct BMP180_Struct bmp180Result = getSampleOfPressTemp(1); //getPressTemp(false);
@@ -468,16 +468,16 @@ void handleGetTemperature(){
   result["message"] = "OK";
   result["data"]["temperature"] = String(temperature);
 
-  serializeJson(result, buf);  
+  serializeJson(result, buf);
   server.send(200, "application/json", buf);
-  
+
   Serial.println("Served");
 }
 
 void handleGetHumidity(){
   DynamicJsonDocument result(512);
   String buf;
-  
+
   Serial.print("'GET /humidity' request - ");
 
   struct DHT_Struct dhtResult = getTempHum(false); //getSampleOfTempHum(1);
@@ -486,10 +486,10 @@ void handleGetHumidity(){
   result["status"] = "OK";
   result["message"] = "OK";
   result["data"]["humidity"] = String(dhtResult.humidity);
-  
-  serializeJson(result, buf);  
+
+  serializeJson(result, buf);
   server.send(200, "application/json", buf);
-  
+
   Serial.println("Served");
   Serial.println();
 }
@@ -497,38 +497,38 @@ void handleGetHumidity(){
 void handleGetDistance(){
   DynamicJsonDocument result(512);
   String buf;
-  
+
   Serial.print("'GET /distance' request - ");
 
   double distance = getDistanceByDuration(getDuration(false)); //getSampleOfDistance(1);
-  
+
   result["success"] = true;
   result["status"] = "OK";
   result["message"] = "OK";
   result["data"]["distance"] = String(distance);
-  
-  serializeJson(result, buf);  
+
+  serializeJson(result, buf);
   server.send(200, "application/json", buf);
-  
+
   Serial.println("Served");
 }
 
 void handleGetDuration(){
   DynamicJsonDocument result(512);
   String buf;
-  
+
   Serial.print("'GET /duration' request - ");
 
   double duration = getDuration(false);
-  
+
   result["success"] = true;
   result["status"] = "OK";
   result["message"] = "OK";
   result["data"]["duration"] = String(duration);
-  
-  serializeJson(result, buf);  
+
+  serializeJson(result, buf);
   server.send(200, "application/json", buf);
-  
+
   Serial.println("Served");
 }
 
@@ -541,7 +541,7 @@ void handleGetAllActual(){
   //===
   struct BMP180_Struct bmp180Result = getPressTemp(false); //getSampleOfPressTemp(1);
   double pressure = bmp180Result.pressure;
-  //---  
+  //---
   double temp1 = bmp180Result.temperature;
 
   struct DHT_Struct dhtResult = getTempHum(false);
@@ -562,7 +562,7 @@ void handleGetAllActual(){
   result["data"]["pressure"] = String(pressure);
   result["data"]["distance"] = String(distance);
 
-  serializeJson(result, buf);  
+  serializeJson(result, buf);
   server.send(200, "application/json", buf);
 
   Serial.println("Served");
@@ -571,7 +571,7 @@ void handleGetAllActual(){
 void handleGetAllAggregated(){
   DynamicJsonDocument result(512);
   String buf;
-  
+
   Serial.print("'GET /all/aggregated' request - ");
 
   String levelValue = (avgHcsrDist != NULL) ? String(avgHcsrDist) : "";
@@ -579,11 +579,11 @@ void handleGetAllAggregated(){
   String humidityValue = (avgDhtHum != NULL) ? String(avgDhtHum) : "";
 
   double temp1 = avgBmpTemp;
-  double temp2 = avgDhtTemp;   
+  double temp2 = avgDhtTemp;
   double avgTemp = getAvgTemp(temp1, temp2);
-  
+
   String temperatureValue = (avgTemp != NULL) ? String(avgTemp) : "";
-  
+
   result["success"] = true;
   result["status"] = "OK";
   result["message"] = "OK";
@@ -592,7 +592,7 @@ void handleGetAllAggregated(){
   result["data"]["pressure"] = pressureValue;
   result["data"]["distance"] = levelValue;
 
-  serializeJson(result, buf);  
+  serializeJson(result, buf);
   server.send(200, "application/json", buf);
 
   Serial.println("Served");
@@ -606,7 +606,7 @@ void handleTriggerReport(){
     Serial.print("'POST /trigger/report' request - ");
 
     if ( reportSensors(true) ){
-        Serial.print("Sensors was reported at "); 
+        Serial.print("Sensors was reported at ");
         Serial.println(getOffsetDateString());
         previousReportMillis = currentMillis;
 
@@ -617,7 +617,7 @@ void handleTriggerReport(){
         resultCode = 200;
     }else{
         ledSignalNetworkError();
-        Serial.print("!!! Sensors report failed at: ");   
+        Serial.print("!!! Sensors report failed at: ");
         Serial.println(getOffsetDateString());
 
         result["success"] = true;
@@ -638,7 +638,7 @@ void handleTriggerReport(){
 bool configureHttpServer(){
   bool ret = true;
 
-  if(connectToAccessPoint(false)){  
+  if(connectToAccessPoint(false)){
     server.on("/configure", HTTP_GET, handleGetConfigure);
     server.on("/configure", HTTP_POST, handlePostConfigure);
 
@@ -663,6 +663,6 @@ bool configureHttpServer(){
     ret = false;
     Serial.println("HTTP server did not start because the connection is not OK");
   }
-  
+
   return ret;
 }

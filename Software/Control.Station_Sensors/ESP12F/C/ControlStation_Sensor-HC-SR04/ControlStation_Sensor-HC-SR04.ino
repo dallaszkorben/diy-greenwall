@@ -39,7 +39,7 @@ const int serverPort = 80;
 const bool          DEFAULT_NEED_TO_REPORT = true;
 const bool          DEFAULT_NEED_TO_RESET = false;
 
-const String        DEFAULT_CLIENT_IP   = "192.168.0.104"; 
+const String        DEFAULT_CLIENT_IP   = "192.168.0.104";
 const String        DEFAULT_CLIENT_PORT = "80";
 
 const String        DEFAULT_CLIENT_PATH_TO_REGISTER = "sensor/register";
@@ -77,7 +77,7 @@ double  sensorDistanceParA = 0.0;
 double  sensorDistanceParB = 0.0;
 double  sensorDistanceParC = 0.0;
 
-String clientIp   = "";  
+String clientIp   = "";
 String clientPort = "";
 
 String clientPathToRegister;

@@ -56,8 +56,14 @@ class Controlbox:
         pumpMenu_on_5sec = LcdSubElement( " Pump On 5 sec", self.turnPumpOn5sec )
         controlMenu_pump.addLcdMenu(pumpMenu_on_5sec)
 
-        pumpMenu_on_10sec = LcdSubElement( " Pump On 30 sec", self.turnPumpOn30sec )
-        controlMenu_pump.addLcdMenu(pumpMenu_on_10sec)
+        pumpMenu_on_30sec = LcdSubElement( " Pump On 30 sec", self.turnPumpOn30sec )
+        controlMenu_pump.addLcdMenu(pumpMenu_on_30sec)
+
+        pumpMenu_on_60sec = LcdSubElement( " Pump On 60 sec", self.turnPumpOn60sec )
+        controlMenu_pump.addLcdMenu(pumpMenu_on_60sec)
+
+        pumpMenu_on_120sec = LcdSubElement( " Pump On 120 sec", self.turnPumpOn120sec )
+        controlMenu_pump.addLcdMenu(pumpMenu_on_120sec)
 
         pumpMenu_off = LcdSubElement( " Pump Off", self.turnPumpOff )
         controlMenu_pump.addLcdMenu(pumpMenu_off)
@@ -276,6 +282,12 @@ class Controlbox:
 
     def turnPumpOn30sec(self):
         self.webGadget.pump.turnPumpOn(30)
+
+    def turnPumpOn60sec(self):
+        self.webGadget.pump.turnPumpOn(60)
+
+    def turnPumpOn120sec(self):
+        self.webGadget.pump.turnPumpOn(120)
 
     def turnPumpOff(self):
         self.webGadget.pump.turnPumpOff()

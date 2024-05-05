@@ -47,7 +47,7 @@ void setupVariables(){
   Serial.println("version: " + version);
 
   Serial.println("Mutable value variables:");
-  
+
   Serial.println("   intervalReportMillis: " + String(intervalReportMillis));
   Serial.println("   intervalRegisterMillis: " + String(intervalRegisterMillis) );
   Serial.println("   intervalResetMillis: " + String(intervalResetMillis) );
@@ -59,7 +59,7 @@ void setupVariables(){
   Serial.println("   sensorDistanceParA: " + String(sensorDistanceParA) );
   Serial.println("   sensorDistanceParB: " + String(sensorDistanceParB) );
   Serial.println("   sensorDistanceParC: " + String(sensorDistanceParC) );
-    
+
   Serial.println("   clientIp: " + String(clientIp) );
   Serial.println("   clientPort: " + String(clientPort) );
   Serial.println("   clientPathToRegister: " + String(clientPathToRegister) );
@@ -68,7 +68,7 @@ void setupVariables(){
 
   Serial.println("   needToReport: " + String(needToReport ));
   Serial.println("   needToReset: " + String(needToReset ));
-  Serial.println("====================================");  
+  Serial.println("====================================");
 }
 
 /*
