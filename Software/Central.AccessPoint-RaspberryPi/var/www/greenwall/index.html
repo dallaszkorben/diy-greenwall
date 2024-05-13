@@ -835,7 +835,10 @@
                     $("#pumpSwitch").off('lcs-on lcs-off');
 
                     if (data.status == 'off'){
+                        lcs_enable("#pumpSwitch");
                         lcs_off("#pumpSwitch");
+                        $("#pump-warning-icon img").css('visibility','hidden');
+                        $("#pump-error").text("");
 
                         // If I sent the trigger report before the pump started, now I will send a new trigger report after the pump stopped
                         if (triggerReportBeforeSent){
@@ -855,11 +858,21 @@
 
                         }
 
+                    }else if (data.status == 'on'){
+
+                        lcs_enable("#pumpSwitch");
+                        lcs_on("#pumpSwitch");
+                        $("#pump-warning-icon img").css('visibility','hidden');
+                        $("#pump-error").text("");
 
                     }else{
-                        lcs_on("#pumpSwitch");
-
+                        lcs_off("#pumpSwitch");
+                        lcs_disable("#pumpSwitch");
+                        $("#pump-warning-icon img").attr('src', "warning-icon.png");
+                        $("#pump-warning-icon img").css('visibility','visible');
+                        $("#pump-error").text("No control on pump");
                     }
+
                     $("#pumpSwitch").on('lcs-on', pumpOnEvent);
                     $("#pumpSwitch").on('lcs-off', pumpOffEvent);
             });
@@ -876,9 +889,24 @@
                     $("#lampSwitch").off('lcs-on lcs-off');
 
                     if (data.status == 'off'){
+                        lcs_enable("#lampSwitch");
+                        $( "#slider" ).slider("enable");
                         lcs_off("#lampSwitch");
-                    }else{
+                        $("#lamp-warning-icon img").css('visibility','hidden');
+                        $("#lamp-error").text("");
+                    }else if(data.status == 'on'){
+                        lcs_enable("#lampSwitch");
+                        $( "#slider" ).slider("enable");
                         lcs_on("#lampSwitch");
+                        $("#lamp-warning-icon img").css('visibility','hidden');
+                        $("#lamp-error").text("");
+                    }else{
+                        lcs_off("#lampSwitch");
+                        lcs_disable("#lampSwitch");
+                        $( "#slider" ).slider("disable");
+                        $("#lamp-warning-icon img").css('visibility','visible');
+                        $("#lamp-warning-icon img").attr('src', "warning-icon.png");
+                        $("#lamp-error").text("No control on lamp");
                     }
 
                     $("#lampSwitch").on('lcs-on', lampOnEvent);
@@ -1184,33 +1212,49 @@
 
             <table id="controller" border="0" class="switchh">
                 <tr>
-                    <td valign="top" >Lamp:</td>
+                    <td valign="top" style="font-weight:bold; font-size:1.3em">Lamp:</td>
                     <td >
                         <form>
                             <!-- Sliding Toggle Switch -->
                             <input type="checkbox" name="lampSwitch" value="1" class="lcs_check" id="lampSwitch"/>
                         </form>
                     </td>
+                    <td/>
+                    <td/>
+                    <td/>
+                    <td/>
+                    <td/>
+                    <td id="lamp-warning-icon" valign="top">
+                        <img  style="width:1.3em;" />
+                    </td>
+                    <td id="lamp-error" valign="top" style="color:rgb(255,0,0)"></td>
                 </tr>
 
                 <tr>
-                    <td valign="top" >Pump:</td>
+                    <td valign="top" style="font-weight:bold; font-size:1.3em">Pump:</td>
                     <td>
                         <form>
                             <!-- Sliding Toggle Switch -->
                             <input type="checkbox" name="pumpSwitch" value="1" class="lcs_check" id="pumpSwitch"/>
                         </form>
                     </td>
-                    <td width="10"/>
-                    <td valign="top" width="50%">
+                    <td style="width:0.7em"/>
+                    <td valign="top" style="width:10em">
                         <table width="100%">
                             <tr>
                                 <td  id="slider"></td>
                             </tr>
                         </table>
                     </td>
-                    <td width="10"/>
-                    <td valign="top" id="amount" style="font-weight:bold;"/>
+
+
+                    <td style="width:0.7em"/>
+                    <td valign="top" id="amount" style="font-size:0.8em;"/>
+                    <td style="width:2em"/>
+                    <td id="pump-warning-icon" valign="top">
+                        <img style="width:1.3em;"/>
+                    </td>
+                    <td id="pump-error" valign="top" style="color:rgb(255,0,0)"></td>
                 </tr>
 
 
