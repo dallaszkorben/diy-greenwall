@@ -45,6 +45,9 @@ long resetTimestamp = 0;
 String timeOffsetString;
 int timeOffsetInt;
 
+bool pump_active = false;
+long pump_off_timestamp = 0;
+
 // -------------------
 
 void setup() {
@@ -143,8 +146,12 @@ void loop() {
     syncTimestamp = now();  
 
     // If the pump is ON, in every 10 seconds it tries to sync it.
-    if(pumpActive && syncTimestamp%1 == 0){
+    if(pump_active && syncTimestamp%1 == 0){
       syncPumpStatus();
+
+    // contradiction => turn off pump
+    }else if(pump_off_timestamp != 0){
+      turnOffPumpImmediately();
     }
   }
 

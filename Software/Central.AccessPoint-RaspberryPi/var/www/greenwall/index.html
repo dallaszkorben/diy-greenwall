@@ -146,6 +146,8 @@
     <link href="script/jquery-ui/jquery-ui.css" rel="stylesheet">
     <link href="script/roundedbutton/css/style.css" rel="stylesheet" />
 
+    <script src="js/pie-chart.js"></script>
+
     <!-- Switch -->
     <script src="script/switch/lc_switch.js"></script>
 
@@ -1250,7 +1252,13 @@
 
                     <td style="width:0.7em"/>
                     <td valign="top" id="amount" style="font-size:0.8em;"/>
-                    <td style="width:2em"/>
+
+                    <td style="width:2em">
+                        <div id="example"  class="pie-title-center" data-percent="25">
+                            <span class="pie-value"></span>
+                        </div>
+                    </td>
+
                     <td id="pump-warning-icon" valign="top">
                         <img style="width:1.3em;"/>
                     </td>

@@ -42,61 +42,6 @@ void fetchParameters(String operation){
 
 //---
 
-/*void handleLamp(String operation) {
-  String message = "{\"success\": True, \"data\": \"" + operation + "\"}";
-  String uri = server.uri();
-  String method = (server.method() == HTTP_GET) ? String("GET") : String("POST");
-  String args = String(" args: ");
-
-  lengthInSec = 0;
-  for (uint8_t i = 0; i < server.args(); i++) {
-    if (server.argName(i).equals(String("lengthInSec"))) {
-      lengthInSec = server.arg(i).toInt();
-      args += server.argName(i) + ": " + server.arg(i) + " ";
-    }
-  }
-
-  server.send(200, "application/json", message);
-
-  Serial.print("Request to Lamp: URI: ");
-  Serial.print(uri);
-  Serial.print("; Method: ");
-  Serial.print(method);
-  Serial.print("; Parameters: ");
-  Serial.print(args);
-  Serial.println();
-}
-
-
-//---
-
-void handlePump(String operation) {
-  String message = "{\"success\": True, \"data\": \"" + operation + "\"}";
-  String uri = server.uri();
-  String method = (server.method() == HTTP_GET) ? String("GET") : String("POST");
-  String args = String(" args: ");
-
-  lengthInSec = 0;
-  for (uint8_t i = 0; i < server.args(); i++) {
-    if (server.argName(i).equals(String("lengthInSec"))) {
-      lengthInSec = server.arg(i).toInt();
-      args += server.argName(i) + ": " + server.arg(i) + " ";
-    }
-  }
-
-  server.send(200, "application/json", message);
-
-  Serial.print("Request to Pump: URI: ");
-  Serial.print(uri);
-  Serial.print("; Method: ");
-  Serial.print(method);
-  Serial.print("; Parameters: ");
-  Serial.print(args);
-  Serial.println();
-}
-*/
-//---
-
 void handleIsAlive() {
   String message = "{\"success\": True, \"data\": \"\"}";
   String uri = server.uri();
@@ -110,8 +55,9 @@ void handleIsAlive() {
   Serial.print("; Method: ");
   Serial.print(method);
   Serial.println();
-
 }
+
+
 
 void handlePumpOn() {
   fetchParameters("ON");
@@ -188,8 +134,12 @@ void handleLampStatus(){
 
 void handlePumpStatus(){
   String st;
-  if(pumpActive){
+  int count_down = 0;
+  //if(pumpActive){
+
+  if(pump_active){
     st = "on";
+    count_down = pump_off_timestamp - now();
   }else{
     st = "off";
   }
@@ -197,8 +147,8 @@ void handlePumpStatus(){
   DynamicJsonDocument doc(512);
   doc["success"] =  true;
   doc["status"] = st;
+  doc["count-down"] = count_down;
   String buf;
   serializeJson(doc, buf);
   server.send(200, "application/json", buf);
-  
 }

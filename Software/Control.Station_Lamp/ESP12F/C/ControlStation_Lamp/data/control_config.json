@@ -1,0 +1,18 @@
+{
+  "central-ap": {
+    "essid": "Central-Station-006",
+    "password": "viragfal",
+    "webserver-ip": "192.168.50.3:5000",
+    "webserver-path-info-timestamp": "info/timeStamp",
+    "webserver-path-lamp-register": "lamp/register",
+    "webserver_path_info_is_alive": "info/isAlive"
+  },
+  "control-sta": {
+    "lamp-id": "lamp-sta",
+    "lamp-gpio": 5,
+    "led-status-gpio": 2,
+    "led-status-inverse": true,
+    "register-interval-sec": 600,
+    "regular-reset-seconds": 7200
+  }
+}
