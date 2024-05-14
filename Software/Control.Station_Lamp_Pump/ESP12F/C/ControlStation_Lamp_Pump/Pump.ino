@@ -108,7 +108,9 @@ bool syncPumpStatus(){
   long now_timestamp = now();
 
   if (pump_off_timestamp > now_timestamp){
-      Serial.println("The pump still should run, so it will be turned on...");
+      Serial.print("The pump still should run until ");
+      Serial.print(pump_off_timestamp - now_timestamp);
+      Serial.println(" seconds, so it will be turned on...");
       turnPump(HIGH);
       pump_active = true;
   }else{
@@ -128,47 +130,26 @@ bool syncPumpStatus(){
 //
 //      turnPump(LOW);
 
-    turnOffPumpImmediately();
+    turnPumpOff();
   }
   
   result = true;
   return result;  
 }
 
-void turnOffPumpImmediately(){
-  turnPump(LOW);
-  pump_active = false;
-  pump_off_timestamp = 0;
-}
-
 bool turnPumpOn(int lengthInSec){
-//  bool result = setPumpStatusFile(true, (now() + lengthInSec));
-//
-//  if (result){
-//    turnPump(HIGH);
-//  }
-//
-//  pumpActive = true;
-
   pump_active = true;
-  pump_off_timestamp = now() + lengthInSec;
+  pump_start_timestamp = now();
+  pump_off_timestamp = pump_start_timestamp + lengthInSec;
   turnPump(HIGH);
 
-//  return result;
   return true;
 }
 
 void turnPumpOff(){
-//  bool result = setPumpStatusFile(false, 0);
-//
-//  if (result){
-//    turnPump(LOW);
-//  }
-//  
-//  pumpActive = false;
-
   turnPump(LOW);
   pump_active = false;
+  pump_start_timestamp = 0;
   pump_off_timestamp = 0;
   
   return;

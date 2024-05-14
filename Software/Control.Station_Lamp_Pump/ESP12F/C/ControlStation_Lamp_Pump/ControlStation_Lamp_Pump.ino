@@ -46,6 +46,7 @@ String timeOffsetString;
 int timeOffsetInt;
 
 bool pump_active = false;
+long pump_start_timestamp = 0;
 long pump_off_timestamp = 0;
 
 // -------------------
@@ -151,7 +152,7 @@ void loop() {
 
     // contradiction => turn off pump
     }else if(pump_off_timestamp != 0){
-      turnOffPumpImmediately();
+      turnPumpOff();
     }
   }
 

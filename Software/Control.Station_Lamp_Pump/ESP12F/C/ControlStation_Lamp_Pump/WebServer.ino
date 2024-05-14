@@ -135,19 +135,24 @@ void handleLampStatus(){
 void handlePumpStatus(){
   String st;
   int count_down = 0;
-  //if(pumpActive){
+  float percentage = 0;
+  long now_timestamp = now();
 
   if(pump_active){
     st = "on";
-    count_down = pump_off_timestamp - now();
+    count_down = pump_off_timestamp - now_timestamp;
+    percentage = float(now_timestamp - pump_start_timestamp)/float(pump_off_timestamp - pump_start_timestamp);
   }else{
     st = "off";
   }
+
+
 
   DynamicJsonDocument doc(512);
   doc["success"] =  true;
   doc["status"] = st;
   doc["count-down"] = count_down;
+  doc["percentage"] = percentage;
   String buf;
   serializeJson(doc, buf);
   server.send(200, "application/json", buf);
