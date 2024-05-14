@@ -49,6 +49,6 @@ class EPPumpStatus(EP):
                     )
             )
 
-        status = self.web_gadget.pump.getPumpStatus()
+        data = self.web_gadget.pump.getPumpStatus()
 
-        return output_json( {'result': 'OK', 'status': status}, EP.CODE_OK)
+        return output_json( {'result': 'OK', 'data': data}, EP.CODE_OK)

@@ -78,7 +78,7 @@ class Pump:
             # if less than 120 seconds was re-registering
             if diffSec < 120:
                 addresses.append("http://{url}/pump/status".format(url=value["ip"]))
-        
+
         try:
 
             address = addresses[0]
@@ -96,10 +96,17 @@ class Pump:
 
             if x.status_code == 200:
                 logging.debug("Response: {0}".format(x.text))
-                return response.get('status')
+                st = response.get('status')
+                cd = response.get('count-down')
+                pt = response.get('percentage')
+
+                result = {"status": st, "count-down": cd, "percentage": pt}
+                return result
             else:
                 logging.error("Response: Failed. Status is n/a")
-                return 'n/a'
+
+                result = {"status": "n/a", "count-down": 0, "percentage": 0}
+                return result
 
         # NewConnectionError
         # ConnectTimeoutError
@@ -109,4 +116,6 @@ class Pump:
                 logging.error("No pump registered.")
             else:
                 logging.error("Exception: {0}. Status is n/a".format(e))
-            return 'n/a'
+
+                result = {"status": "n/a", "count-down": 0, "percentage": 0}
+                return result

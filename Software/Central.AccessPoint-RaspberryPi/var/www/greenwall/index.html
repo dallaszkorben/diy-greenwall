@@ -146,7 +146,9 @@
     <link href="script/jquery-ui/jquery-ui.css" rel="stylesheet">
     <link href="script/roundedbutton/css/style.css" rel="stylesheet" />
 
-    <script src="js/pie-chart.js"></script>
+<!--    <script src="script/easy-pie-chart/dist/jquery.easypiechart.js"></script> -->
+    <script src="script/easy-pie-chart/dist/easypiechart.js"></script>
+
 
     <!-- Switch -->
     <script src="script/switch/lc_switch.js"></script>
@@ -177,6 +179,8 @@
         var pressureChart = null;
 
         var triggerReportBeforeSent = false;
+
+        var pumpChart;
 
         $( function() {
             $( "#tabs" ).tabs();
@@ -836,11 +840,14 @@
                 function( data ) {
                     $("#pumpSwitch").off('lcs-on lcs-off');
 
-                    if (data.status == 'off'){
+                    if (data.data != null && data.data.status == 'off'){
                         lcs_enable("#pumpSwitch");
                         lcs_off("#pumpSwitch");
                         $("#pump-warning-icon img").css('visibility','hidden');
                         $("#pump-error").text("");
+
+                        $("#pump-pie-chart").hide();
+
 
                         // If I sent the trigger report before the pump started, now I will send a new trigger report after the pump stopped
                         if (triggerReportBeforeSent){
@@ -860,12 +867,20 @@
 
                         }
 
-                    }else if (data.status == 'on'){
+                    }else if (data.data != null && data.data.status == 'on'){
 
                         lcs_enable("#pumpSwitch");
                         lcs_on("#pumpSwitch");
                         $("#pump-warning-icon img").css('visibility','hidden');
                         $("#pump-error").text("");
+
+
+                        let percentage = parseInt(data.data.percentage * 100);
+                        console.log("count down: " + data.data["count-down"]);
+
+
+                        $("#pump-pie-chart").show();
+                        pumpChart.update(percentage);
 
                     }else{
                         lcs_off("#pumpSwitch");
@@ -873,6 +888,9 @@
                         $("#pump-warning-icon img").attr('src', "warning-icon.png");
                         $("#pump-warning-icon img").css('visibility','visible');
                         $("#pump-error").text("No control on pump");
+
+                        $("#pump-pie-chart").hide();
+
                     }
 
                     $("#pumpSwitch").on('lcs-on', pumpOnEvent);
@@ -943,7 +961,7 @@
                 function( data ) {
 
                     //if the pump is OFF
-                    if (data.status == 'off' && !triggerReportBeforeSent){
+                    if (data.data.status == 'off' && !triggerReportBeforeSent){
 
                         const now = new Date();
                         const isoDate = now.toISOString();
@@ -1068,17 +1086,22 @@
 
             $.get( "/pump/status").done(
                 function( data ) {
-                    if (data.status == 'on'){
+                    if (data.data != null && data.data.status == 'on'){
                         lcs_on("#pumpSwitch")
                         lcs_enable("#pumpSwitch");
 
-                    }else{
+                        $("#pumpSwitch").on('lcs-on', pumpOnEvent);
+                        $("#pumpSwitch").on('lcs-off', pumpOffEvent);
+
+                    }else if (data.data != null && data.data.status == 'off'){
                         lcs_off("#pumpSwitch")
                         lcs_enable("#pumpSwitch");
+
+                        $("#pumpSwitch").on('lcs-on', pumpOnEvent);
+                        $("#pumpSwitch").on('lcs-off', pumpOffEvent);
+
                     }
 
-                    $("#pumpSwitch").on('lcs-on', pumpOnEvent);
-                    $("#pumpSwitch").on('lcs-off', pumpOffEvent);
                 }
             );
 
@@ -1187,6 +1210,31 @@
                 console.log("manual trigger");
             });
 
+
+            pumpChart = new EasyPieChart(document.querySelector('.chart'), {
+                barColor: '#ef1e25',
+                trackColor: '#f9f9f9',
+                scaleColor: '#dfe0e0',
+                scaleLength: 5,
+                lineCap: 'round',
+                lineWidth: 3,
+                trackWidth: undefined,
+                size: 50,
+                rotate: 0, // in degrees
+                animate: {
+                  duration: 1000,
+                  enabled: true
+                },
+                easing: function (x, t, b, c, d) { // easing function
+                  t = t / (d/2);
+                  if (t < 1) {
+                    return c / 2 * t * t + b;
+                  }
+                  return -c/2 * ((--t)*(t-2) - 1) + b;
+                }
+            });
+
+            $("#pump-pie-chart").hide();
         });
 
     </script>
@@ -1233,7 +1281,7 @@
                 </tr>
 
                 <tr>
-                    <td valign="top" style="font-weight:bold; font-size:1.3em">Pump:</td>
+                    <td valign="center" style="font-weight:bold; font-size:1.3em">Pump:</td>
                     <td>
                         <form>
                             <!-- Sliding Toggle Switch -->
@@ -1241,7 +1289,7 @@
                         </form>
                     </td>
                     <td style="width:0.7em"/>
-                    <td valign="top" style="width:10em">
+                    <td valign="center" style="width:10em">
                         <table width="100%">
                             <tr>
                                 <td  id="slider"></td>
@@ -1251,11 +1299,14 @@
 
 
                     <td style="width:0.7em"/>
-                    <td valign="top" id="amount" style="font-size:0.8em;"/>
+                    <td valign="center" id="amount" style="width: 4em; font-size:0.8em;"/>
+                    <td style="width:3em">
 
-                    <td style="width:2em">
-                        <div id="example"  class="pie-title-center" data-percent="25">
-                            <span class="pie-value"></span>
+                        <!-- Pump pie -->
+                        <div id="pump-pie-chart" >
+                            <span  class="chart" data-percent="0">
+                                <span class="percent"></span>
+                            </span>
                         </div>
                     </td>
 
@@ -1284,8 +1335,8 @@
 
             </table>
 
-
         </div>
+
 
 
 
