@@ -102,10 +102,6 @@ class RegisterLamp:
 
 
 
-
-
-
-
     def getLatestValues(self, stationId=None):
         output = []
         for si, value in self.reportDict.items():

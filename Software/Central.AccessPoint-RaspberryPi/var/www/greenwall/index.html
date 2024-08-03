@@ -180,6 +180,9 @@
 
         var triggerReportBeforeSent = false;
 
+        // {"192.168.50.132": {"name": "lamp1", "id": "id-192.168.50.132", }, }
+        var lampDict = {}
+
         var pumpChart;
 
         $( function() {
@@ -189,6 +192,12 @@
         function isEmpty(str) {
             return (!str || str.length === 0 );
         }
+
+
+        function convIp(ip){
+            return ip.replaceAll('.','-') 
+        }
+
 
         // =============================
         //
@@ -898,13 +907,158 @@
             });
         }
 
+
+
+
+
+
+
+
+        // ================================================
+        //
+        // Build up recent lamps
+        //
+        // ================================================
+        function buildUpRecentLamps(){
+console.log("Started new lamp table build up");
+
+            $.get("/lamp/list").done(
+                function( data ) {
+
+                    // Collect the recently registered lamps
+                    for (lD of data["lamp-list"]) {
+                        lamp_id = lD["lamp_id"];
+                        lamp_ip = lD["lamp_ip"];
+                        lamp_conv_ip = convIp(lamp_ip);
+                        lampDict[lamp_ip] = {"name": lamp_id, "conv-ip": lamp_conv_ip, "id-error-msg": "id-lamp-error-" + lamp_conv_ip, "id-warning-img": "id-lamp-warning-img-" + lamp_conv_ip, "id-switch": "id-lamp-switch-" + lamp_conv_ip}
+                    }
+
+//                    table = $('<table></table>');
+//                    table.attr("border", "1");
+//                    table.attr("width", "100%");
+//                    table.attr("id", "lamp-table");
+
+                    // Go through all the so far registered lamps
+                    for (const [key, value] of Object.entries(lampDict)) {
+
+console.log("  Registered lamp: LampId=" + lamp_id + ", ip=" + lamp_ip);
+
+                        // If it was not registered yet, build up the table for it
+                        if($("#" + value["id-switch"]).length == 0){
+
+console.log("    Lamp must be added to the Table");
+
+                            tr = $('<tr></tr>');
+
+                            td_align = $('<td style="width:2.0em;"></td>');
+                            tr.append(td_align);
+
+                            td_name = $('<td style="width:15.0em;"></td>');
+                            td_name.text(value["name"]);
+                            tr.append(td_name);
+
+                            td_switch = $('<td style="width:4em;"></td>');
+
+                            form_switch = $('<input type="checkbox"></input>');
+                            form_switch.attr('name', key);
+                            form_switch.attr('value', '1');
+                            form_switch.attr('class', 'lcs_check');
+                            form_switch.attr('id',  value["id-switch"]);
+
+                            td_switch.append(form_switch);
+                            tr.append(td_switch);
+
+                            td_empty = $('<td class="empty" style="width:1.3em;"></td>');
+                            tr.append(td_empty);
+
+                            td_warning = $('<td valign="top" style="width:1.3em;">');
+                            td_warning.attr('id', value["id-warning-img"]);
+                            img_warning = $('<img style="width:1.3em;"></img>');
+                            td_warning.append(img_warning);
+                            tr.append(td_warning);
+
+                            td_error = $('<td valign="top" style="color:rgb(255,0,0)"></td>');
+                            td_error.attr('id', value["id-error-msg"]);
+                            tr.append(td_error)
+
+                            $("#lamp-table").append(tr);
+
+                            // Format lamp checkbox to switch
+                            lc_switch("#" + value["id-switch"], {
+                                on_txt      : 'ON',
+                                off_txt     : 'OFF',
+                                on_color    : false,
+                                compact_mode: false
+                            });
+                        }
+
+                        // Check the status - and set the value - for all yet registere lamps
+                        $.get( "/lamp/status/ip/" + key).done(
+                            function( data ) {
+
+                                // Disable Even on the swith
+                                $("#" + value["id-switch"]).off('lcs-on lcs-off');
+
+                                if (data.status == 'on'){
+console.log("    LampId=" + lamp_id + ", ip=" + lamp_ip + " LAMP is ON");
+                                    lcs_on("#" + value["id-switch"]);
+                                    lcs_enable("#" + value["id-switch"]);
+
+                                    $("#" + value["id-warning-img"] + " img").css('visibility','hidden');
+                                    $("#" + value["id-error-msg"]).text("");
+                                }else if (data.status == 'off'){
+console.log("    LampId=" + lamp_id + ", ip=" + lamp_ip + " LAMP is OFF");
+                                    lcs_off("#" + value["id-switch"]);
+                                    lcs_enable("#" + value["id-switch"]);
+
+                                    $("#" + value["id-warning-img"] + " img").css('visibility','hidden');
+                                    $("#" + value["id-error-msg"]).text("");
+                                }else{
+console.log("    LampId=" + lamp_id + ", ip=" + lamp_ip + " LAMP is on Unknown status");
+                                    lcs_off("#" + value["id-switch"]);
+                                    lcs_disable("#" + value["id-switch"]);
+
+                                    $("#" + value["id-warning-img"] + " img").css('visibility','visible');
+                                    $("#" + value["id-warning-img"] + " img").attr('src', "warning-icon.png");
+                                    $("#" + value["id-error-msg"]).text("No control on lamp");
+                                }
+
+                                // Enables Event on the switch
+                                $("#" + value["id-switch"]).on('lcs-on', lampOnEvent);
+                                $("#" + value["id-switch"]).on('lcs-off', lampOffEvent);
+                            }
+                        );
+                    }
+                }
+            );
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         // ================================================
         //
         // check lamp status
         //
         // ================================================
         function checkLampStatus(){
-            $.get("/lamp/status").done(
+
+
+
+/*            $.get("/lamp/status").done(
                 function( data ) {
                     $("#lampSwitch").off('lcs-on lcs-off');
 
@@ -932,6 +1086,11 @@
                     $("#lampSwitch").on('lcs-on', lampOnEvent);
                     $("#lampSwitch").on('lcs-off', lampOffEvent);
             });
+*/
+
+            buildUpRecentLamps()
+
+
         }
 
         // ================================================
@@ -939,12 +1098,14 @@
         // Lamp ON/OFF Event
         //
         // ================================================
-        function lampOnEvent(){
-            $.post( "/lamp/switch", { "status": "on", "lengthInSec": "10" } );
+        function lampOnEvent(e){
+            ip = e.target.name;
+            $.post( "/lamp/switch", { "status": "on", "lengthInSec": "10", "ip": ip } );
         }
 
-        function lampOffEvent(){
-            $.post( "/lamp/switch", { "status": "off", "lengthInSec": "10" } );
+        function lampOffEvent(e){
+            ip = e.target.name;
+            $.post( "/lamp/switch", { "status": "off", "lengthInSec": "10", "ip": ip } );
         }
 
         // ================================================
@@ -999,6 +1160,10 @@
 
             $("#spinner").hide();
 
+
+            buildUpRecentLamps()
+
+
             //-----------------------
             // Start Date
             //-----------------------
@@ -1041,20 +1206,14 @@
 
             constructCamCaptureSection();
 
+
+
+
+
             //-----------------------
             // Lamp Switch
             //-----------------------
-
-            lc_switch("#lampSwitch", {
-
-                on_txt      : 'ON',
-                off_txt     : 'OFF',
-                on_color    : false,
-                compact_mode: false
-            });
-
-            lcs_disable("#lampSwitch");
-
+/*
             $.get( "/lamp/status").done(
                 function( data ) {
                     if (data.status == 'on'){
@@ -1069,7 +1228,7 @@
                     $("#lampSwitch").on('lcs-off', lampOffEvent);
                 }
             );
-
+*/
             //-----------------------
             // Pump Switch
             //-----------------------
@@ -1235,6 +1394,13 @@
             });
 
             $("#pump-pie-chart").hide();
+
+
+
+
+
+
+
         });
 
     </script>
@@ -1260,29 +1426,59 @@
         <!--         -->
         <div id="tabs-control">
 
-            <table id="controller" border="0" class="switchh">
-                <tr>
-                    <td valign="top" style="font-weight:bold; font-size:1.3em">Lamp:</td>
-                    <td >
-                        <form>
-                            <!-- Sliding Toggle Switch -->
-                            <input type="checkbox" name="lampSwitch" value="1" class="lcs_check" id="lampSwitch"/>
-                        </form>
-                    </td>
-                    <td/>
-                    <td/>
-                    <td/>
-                    <td/>
-                    <td/>
-                    <td id="lamp-warning-icon" valign="top">
-                        <img  style="width:1.3em;" />
-                    </td>
-                    <td id="lamp-error" valign="top" style="color:rgb(255,0,0)"></td>
-                </tr>
+            <table id="controller" border="1" class="switchh">
 
                 <tr>
+                    <td valign="top" style="font-weight:bold; font-size:1.3em">Lamps:</td>
+                </tr>
+                <tr>
+                    <td colspan="9">
+
+                        <table border="1" width="100%" id="lamp-table">
+<!--                            <tr>
+                                <td style="width:2.0em;"> </td>
+                                <td style="width:15.0em;">my lamp #1:</td>
+                                <td id="myip" style="width:4em;">
+                                    <form>
+                                        <input type="checkbox" name="lampSwitch" value="1" class="lcs_check" id="lampSwitch"/>
+                                    </form>
+                                </td>
+                                <td class="empty" style="width:1.3em;"> </td>
+                                <td id="lamp-warning-icon" valign="top" style="width:1.3em;">
+                                    <img  style="width:1.3em;" />
+                                </td>
+                                <td id="lamp-error" valign="top" style="color:rgb(255,0,0)"></td>
+
+                            </tr>
+-->
+                        </table>
+
+                    </td>
+                </tr>
+
+
+<!--                <tr>
+<!--                    <td valign="top" style="font-weight:bold; font-size:1.3em">Lamp:</td>
+<!--                    <td >
+<!--                        <form>
+<!--                            <!-- Sliding Toggle Switch -->
+<!--                            <input type="checkbox" name="lampSwitch" value="1" class="lcs_check" id="lampSwitch"/>
+<!--                        </form>
+<!--                    </td>
+<!--                    <td/>
+<!--                    <td/>
+<!--                    <td/>
+<!--                    <td/>
+<!--                    <td/>
+<!--                    <td id="lamp-warning-icon" valign="top">
+<!--                        <img  style="width:1.3em;" />
+<!--                    </td>
+<!--                    <td id="lamp-error" valign="top" style="color:rgb(255,0,0)"></td>
+<!--                </tr>
+-->
+                <tr>
                     <td valign="center" style="font-weight:bold; font-size:1.3em">Pump:</td>
-                    <td>
+                    <td >
                         <form>
                             <!-- Sliding Toggle Switch -->
                             <input type="checkbox" name="pumpSwitch" value="1" class="lcs_check" id="pumpSwitch"/>
@@ -1317,19 +1513,6 @@
                 </tr>
 
 
-                <tr/>
-                <tr/>
-                <tr>
-                    <td/>
-                    <td colspan="4">
-                        <a id="triggerReportButton" class="button">
-                            <span>Trigger report</span>
-                        </a>
-                    </td>
-                </tr>
-                <tr/>
-                <tr/>
-                <tr/>
 
 
 
@@ -1356,6 +1539,20 @@
                     <td> End date:</td>
                     <td><input type="text" id="endDatePicker" size="8"> </td>
                 </tr>
+
+                <tr>
+                    <td/>
+                    <td colspan="4">
+                        <a id="triggerReportButton" class="button">
+                            <span>Trigger report</span>
+                        </a>
+                    </td>
+                </tr>
+
+
+
+
+
             </table>
 
             <div id="chartTableDiv" class="flex-chart-container"></div>

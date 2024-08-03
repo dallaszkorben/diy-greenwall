@@ -16,6 +16,7 @@ from greenwall.exceptions.invalid_api_usage import InvalidAPIUsage
 from greenwall.restserver.endpoints.ep_lamp_switch import EPLampSwitch
 from greenwall.restserver.endpoints.ep_lamp_register import EPLampRegister
 from greenwall.restserver.endpoints.ep_lamp_status import EPLampStatus
+from greenwall.restserver.endpoints.ep_lamp_list import EPLampList
 
 from greenwall.restserver.endpoints.ep import EP
 
@@ -45,6 +46,7 @@ class LampView(FlaskView):
         self.epLampRegister = EPLampRegister(web_gadget)
         self.epLampSwitch = EPLampSwitch(web_gadget)
         self.epLampStatus = EPLampStatus(web_gadget)
+        self.epLampList = EPLampList(web_gadget)
 
     #
     # GET http://localhost:5000/lamp
@@ -104,12 +106,13 @@ class LampView(FlaskView):
     #
     # Switch All Lamp with payload
     #
-    # curl  --header "Content-Type: application/json" --request POST --data '{"status": "on", "lengthInSec": "10"}' http://localhost:5000/lamp/switch
+    # ###curl  --header "Content-Type: application/json" --request POST --data '{"status": "on", "lengthInSec": "10"}' http://localhost:5000/lamp/switch
+    # curl  --header "Content-Type: application/json" --request POST --data '{"status": "on", "ip": "192.168.50.132"}' http://localhost:5000/lamp/switch
     #
     # POST http://localhost:5000/lamp/switch
     #      body: {
     #        "status": "on", #on/off
-    #        "lengthInSec": "10",
+    #        "ip": "192.168.50.132"
     #      }
     #
     #@route('/switch', methods=['POST'])
@@ -133,15 +136,21 @@ class LampView(FlaskView):
     #
     # Switch All Lamp - with parameters
     #
-    # curl  --header "Content-Type: application/json" --request POST http://localhost:5000/lamp/switch/status/on/lengthInSec/10
+    # ###curl  --header "Content-Type: application/json" --request POST http://localhost:5000/lamp/switch/status/on/lengthInSec/10
+    # curl  --header "Content-Type: application/json" --request POST http://localhost:5000/lamp/switch/status/on/ip/192.168.50.132
     #
-    # POST http://localhost:5000/lamp/switch/status/<status>/lengthInSec/<lengthInSec>
+    # ###POST http://localhost:5000/lamp/switch/status/<status>/lengthInSec/<lengthInSec>
+    # POST http://localhost:5000/lamp/switch/status/<status>/ip/<ip>
     #
-    #@route('/switch/status/<status>'/lengthInSec/<lengthInSec>)
+    ####@route('/switch/status/<status>'/lengthInSec/<lengthInSec>)
+    #@route('/switch/status/<status>'/ip/<ip>)
     @route(EPLampSwitch.PATH_PAR_URL, methods=[EPLampSwitch.METHOD])
-    def setSwitchWithParameter(self, status, lengthInSec):
+###    def setSwitchWithParameter(self, status, lengthInSec):
+    def setSwitchWithParameter(self, status, ip):
 
-        out = self.epLampSwitch.executeByParameters(status=status, lengthInSec=lengthInSec)
+#        out = self.epLampSwitch.executeByParameters(status=status, lengthInSec=lengthInSec)
+        out = self.epLampSwitch.executeByParameters(status=status, ip=ip)
+
         return out
 
 
@@ -153,17 +162,34 @@ class LampView(FlaskView):
     #
     # Get status of the Lamp with parameters
     #
-    # curl  --header "Content-Type: application/json" --request GET http://localhost:5000/lamp/status
+    #### curl  --header "Content-Type: application/json" --request GET http://localhost:5000/lamp/status
+    # curl  --header "Content-Type: application/json" --request GET http://localhost:5000/lamp/status/ip/192.168.50.132
     #
-    # GET http://localhost:5000/lamp/status
+    #### GET http://localhost:5000/lamp/status
+    # GET http://localhost:5000/lamp/status/ip/<ip>
     #
-    #@route('/status', methods=['GET'])
+    #@route('/status/ip/<ip>', methods=['GET'])
     @route(EPLampStatus.PATH_PAR_URL, methods=[EPLampStatus.METHOD])
-    def getStatusWithParameter(self):
+    def getStatusWithParameter(self, ip):
 
-        out = self.epLampStatus.executeByParameters()
+        out = self.epLampStatus.executeByParameters(ip=ip)
         return out
 
+
+# ===
+
+    #
+    # Get lamp list
+    #
+    # curl  --header "Content-Type: application/json" --request GET http://localhost:5000/lamp/list
+    #
+    #
+    #@route('/list', methods=['GET'])
+    @route(EPLampList.PATH_PAR_URL, methods=[EPLampList.METHOD])
+    def getListWithParameter(self):
+
+        out = self.epLampList.executeByParameters()
+        return out
 
 
 

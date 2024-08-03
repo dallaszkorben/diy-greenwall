@@ -78,7 +78,7 @@ class RegisterPump:
                     pumpId = lineArray[1]
                     ip = lineArray[2]
 
-                    #if not pumpId in self.pumpDict:
+                    #if not pumpId in self.pumpDict yet:
                     self.pumpDict[pumpId] = {"ip": ip, "timeStamp": timeStamp}
 
                 except Exception as e:

@@ -15,7 +15,9 @@ class EPLampStatus(EP):
     URL = '/lamp/status'
 
     PATH_PAR_PAYLOAD = '/status'
-    PATH_PAR_URL = '/status'
+    PATH_PAR_URL = '/status/ip/<ip>'
+
+    ATTR_IP = 'ip'
 
     METHOD = 'GET'
 
@@ -35,32 +37,24 @@ class EPLampStatus(EP):
 
         return ret
 
-    def executeByParameters(self) -> dict:
+    def executeByParameters(self, ip) -> dict:
         payload = {}
+        payload[EPLampStatus.ATTR_IP] = ip
 
         return self.executeByPayload(payload)
 
     def executeByPayload(self, payload) -> dict:
 
         remoteAddress = request.remote_addr
+        ip = payload[EPLampStatus.ATTR_IP]
 
-        logging.debug( "WEB request ({0}): {1} {2} ()".format(
-                    remoteAddress, EPLampStatus.METHOD, EPLampStatus.URL
+        logging.debug( "WEB request ({0}): {1} {2} ('{3}': '{4}')".format(
+                    remoteAddress, EPLampStatus.METHOD, EPLampStatus.URL,
+                    EPLampStatus.ATTR_IP, ip
                     )
             )
 
-        status = self.web_gadget.lamp.getLampStatus()
-
-#        self.web_gadget.lamp.turnLampOn(lengthInSec)
-#
-#
-#        if status == "on":
-#            self.web_gadget.lamp.turnLampOn(lengthInSec)
-#        else:
-#            self.web_gadget.lamp.turnLampOff(lengthInSec)
-
-        # print out to LCD
-#        self.web_gadget.controlBox.refreshData(stationId)
+        status = self.web_gadget.lamp.getLampStatus(ip)
 
         return output_json( {'result': 'OK', 'status': status}, EP.CODE_OK)
 
