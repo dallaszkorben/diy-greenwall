@@ -83,7 +83,7 @@ void handleLampOff() {
   Serial.print(method);
   Serial.print("; Parameters: ");
   Serial.print(args);
-  Serial.println();  
+  Serial.println();
 }
 
 void handleLampStatus(){

@@ -2,7 +2,7 @@
 #define MAX_STATUS_SIZE 1024
 
 float MAX_PERC = 100.0;
-float MAX_DUTY = 1024;
+float MAX_DUTY = 255;
 float STEP_SEC = 0.02;
 
 double getPowByPerc(double perc){
@@ -137,24 +137,36 @@ void setLampStatusFile(bool active){
 
 
 void turnLampOn(int lengthInSec){
-  double steps = lengthInSec / STEP_SEC;
+/*  double steps = lengthInSec / STEP_SEC;
   double dutyStep = MAX_PERC / steps;
-
+  long dlay;
   double dutyCycle = 0;
+
   while(dutyCycle <= (MAX_PERC + dutyStep) ){
 
     int pwmValue = int(getPowByPerc(dutyCycle));
    
-    //Serial.print("LED duty: ");
-    //Serial.print(dutyCycle);
-    //Serial.print("% => ");
-    //Serial.println(pwmValue);
-    
     analogWrite(lamp_gpio, pwmValue);
+    dlay = long(STEP_SEC * 1000); 
 
-    delay(long(STEP_SEC * 1000));
+    Serial.print("LED duty: ");
+    Serial.print(dutyCycle);
+    Serial.print("% => pwm: ");
+    Serial.print(pwmValue);
+    Serial.print(" delay: ");
+    Serial.println(dlay);
+    
+    delay(dlay);
     dutyCycle += dutyStep;
   }
+*/
+
+//  int pwmValue = lengthInSec * 255.0 / 100.0;
+
+  int pwmValue = 255;
+  analogWrite(lamp_gpio, pwmValue);
+  Serial.print("pwm: ");
+  Serial.println(pwmValue);
 
   setLampStatusFile(true);
 
@@ -162,7 +174,7 @@ void turnLampOn(int lengthInSec){
 }
 
 void turnLampOff(int lengthInSec){
-  double steps = lengthInSec / STEP_SEC;
+/*  double steps = lengthInSec / STEP_SEC;
   double dutyStep = MAX_PERC / steps;
 
   double dutyCycle = MAX_PERC;
@@ -180,6 +192,12 @@ void turnLampOff(int lengthInSec){
     delay(long(STEP_SEC * 1000));
     dutyCycle -= dutyStep;
   }
+*/
+
+  int pwmValue = 0;
+  analogWrite(lamp_gpio, pwmValue);
+  Serial.print("pwm: ");
+  Serial.println(pwmValue);
 
   setLampStatusFile(false);
 

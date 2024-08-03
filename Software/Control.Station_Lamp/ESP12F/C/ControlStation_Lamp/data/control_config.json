@@ -8,11 +8,11 @@
     "webserver_path_info_is_alive": "info/isAlive"
   },
   "control-sta": {
-    "lamp-id": "lamp-sta",
+    "lamp-id": "lamp-sta-1",
     "lamp-gpio": 5,
     "led-status-gpio": 2,
     "led-status-inverse": true,
     "register-interval-sec": 600,
-    "regular-reset-seconds": 7200
+    "regular-reset-seconds": 86400
   }
 }

@@ -41,9 +41,10 @@ long resetTimestamp = 0;
 String timeOffsetString;
 int timeOffsetInt;
 
+// 120000  = 2 min
 // 3600000 = 1h
-//unsigned long intervalRestartMillis = 3600000;
-unsigned long intervalRestartMillis = 120000;
+// 86400000 = 24h
+unsigned long intervalRestartMillis = 86400000;
 
 // -------------------
 
@@ -169,7 +170,7 @@ void loop() {
         }
       }
 
-      // in every hour it resets
+/*      // in every hour it resets
       if( millis() >= intervalRestartMillis ){
         Serial.println();
         Serial.println("==========================");
@@ -179,7 +180,7 @@ void loop() {
         Serial.println();
         ESP.reset();
       }
-            
+*/            
     }else{
       //healthy = false;
     }
