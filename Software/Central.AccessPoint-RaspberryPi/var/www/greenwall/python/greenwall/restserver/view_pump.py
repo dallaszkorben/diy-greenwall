@@ -17,6 +17,9 @@ from greenwall.restserver.endpoints.ep_pump_register import EPPumpRegister
 from greenwall.restserver.endpoints.ep_pump_turn_on import EPPumpTurnOn
 from greenwall.restserver.endpoints.ep_pump_turn_off import EPPumpTurnOff
 from greenwall.restserver.endpoints.ep_pump_status import EPPumpStatus
+from greenwall.restserver.endpoints.ep_pump_list import EPPumpList
+
+
 
 from greenwall.restserver.endpoints.ep import EP
 
@@ -53,6 +56,7 @@ class PumpView(FlaskView):
         self.epPumpStatus = EPPumpStatus(web_gadget)
         self.epPumpTurnOn = EPPumpTurnOn(web_gadget)
         self.epPumpTurnOff = EPPumpTurnOff(web_gadget)
+        self.epPumpList = EPPumpList(web_gadget)
 
 
     #
@@ -139,37 +143,92 @@ class PumpView(FlaskView):
         return out
 
     #
-    # Turn ON All Pump - with parameters
+    # Turn ON Pump - with parameters
     #
-    # curl  --header "Content-Type: application/json" --request POST http://localhost:5000/pump/turnOn/lengthInSec/10
+    # curl  --header "Content-Type: application/json" --request POST http://localhost:5000/pump/turnOn/ip/192.168.50.132/lengthInSec/10
     #
-    # POST http://localhost:5000/pump/turnOn/lengthInSec/<lengthInSec>
+    # POST http://localhost:5000/pump/turnOn/ip/<ip>/lengthInSec/<lengthInSec>
     #
-    #@route('/turnOn/lengthInSec/<lengthInSec>)
+    #@route('/turnOn/ip/<ip>lengthInSec/<lengthInSec>)
     @route(EPPumpTurnOn.PATH_PAR_URL, methods=[EPPumpTurnOn.METHOD])
-    def setTurnOnWithParameter(self, lengthInSec):
+    def setTurnOnWithParameter(self, ip, lengthInSec):
 
-        out = self.epPumpTurnOn.executeByParameters(lengthInSec=lengthInSec)
+        out = self.epPumpTurnOn.executeByParameters(ip=ip, lengthInSec=lengthInSec)
         return out
 
+    #
+    # Turn ON Pump with payload
+    #
+    # curl  --header "Content-Type: application/json" --request POST --data '{"ip": "192.168.50.132", "lengthInSec": 10}' http://localhost:5000/pump/turnOn
+    #
+    # POST http://localhost:5000/pump/turnOn
+    #      body: {
+    #        "ip": "192.168.50.132",
+    #        "lengthInSec": 10
+    #      }
+    #
+    #@route('/turnOn', methods=['POST'])
+    @route(EPPumpTurnOn.PATH_PAR_PAYLOAD, methods=[EPPumpTurnOn.METHOD])
+    def setTurnOnWithPayload(self):
 
+        # WEB
+        if request.form:
+            json_data = request.form
+
+        # CURL
+        elif request.json:
+            json_data = request.json
+
+        else:
+            return "Not valid request", EP.CODE_BAD_REQUEST
+
+        out = self.epPumpTurnOn.executeByPayload(json_data)
+        return out
 
 # ===
 
     #
-    # Turn OFF All Pump - with parameters
+    # Turn OFF Pump - with parameters
     #
-    # curl  --header "Content-Type: application/json" --request POST http://localhost:5000/pump/turnOff
+    # curl  --header "Content-Type: application/json" --request POST http://localhost:5000/pump/turnOff/ip/192.168.50.132
     #
-    # POST http://localhost:5000/pump/turnOff
+    # POST http://localhost:5000/pump/turnOff/ip/<ip>
     #
     #@route('/turnOff')
     @route(EPPumpTurnOff.PATH_PAR_URL, methods=[EPPumpTurnOff.METHOD])
-    def setTurnOffWithParameter(self):
+    def setTurnOffWithParameter(self, ip):
 
-        out = self.epPumpTurnOff.executeByParameters()
+        out = self.epPumpTurnOff.executeByParameters(ip=ip)
         return out
 
+
+    #
+    # Turn OFF Pump with payload
+    #
+    # curl  --header "Content-Type: application/json" --request POST --data '{"ip": "192.168.50.132", "lengthInSec": 10}' http://localhost:5000/pump/turnOff
+    #
+    # POST http://localhost:5000/pump/turnOff
+    #      body: {
+    #        "ip": "192.168.50.132",
+    #      }
+    #
+    #@route('/turnOff', methods=['POST'])
+    @route(EPPumpTurnOff.PATH_PAR_PAYLOAD, methods=[EPPumpTurnOff.METHOD])
+    def setTurnOffWithPayload(self):
+
+        # WEB
+        if request.form:
+            json_data = request.form
+
+        # CURL
+        elif request.json:
+            json_data = request.json
+
+        else:
+            return "Not valid request", EP.CODE_BAD_REQUEST
+
+        out = self.epPumpTurnOff.executeByPayload(json_data)
+        return out
 
 
 
@@ -180,16 +239,37 @@ class PumpView(FlaskView):
     #
     # Get status of the Pump with parameters
     #
-    # curl  --header "Content-Type: application/json" --request GET http://localhost:5000/pump/status
+    # curl  --header "Content-Type: application/json" --request GET http://localhost:5000/pump/status/ip/192.168.50.132
     #
-    # GET http://localhost:5000/pump/status
+    # GET http://localhost:5000/pump/status/ip/<ip>
     #
-    #@route('/status', methods=['GET'])
+    #@route('/status/ip/<ip>', methods=['GET'])
     @route(EPPumpStatus.PATH_PAR_URL, methods=[EPPumpStatus.METHOD])
-    def getStatusWithParameter(self):
+    def getStatusWithParameter(self, ip):
 
-        out = self.epPumpStatus.executeByParameters()
+        out = self.epPumpStatus.executeByParameters(ip=ip)
         return out
+
+
+# ===
+
+    #
+    # Get pump list
+    #
+    # curl  --header "Content-Type: application/json" --request GET http://localhost:5000/pump/list
+    #
+    #
+    #@route('/list', methods=['GET'])
+    @route(EPPumpList.PATH_PAR_URL, methods=[EPPumpList.METHOD])
+    def getListWithParameter(self):
+
+        out = self.epPumpList.executeByParameters()
+        return out
+
+
+
+
+
 
 
 

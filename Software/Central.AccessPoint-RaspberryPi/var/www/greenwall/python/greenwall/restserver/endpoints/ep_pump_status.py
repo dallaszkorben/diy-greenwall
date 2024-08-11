@@ -15,7 +15,9 @@ class EPPumpStatus(EP):
     URL = '/pump/status'
 
     PATH_PAR_PAYLOAD = '/status'
-    PATH_PAR_URL = '/status'
+    PATH_PAR_URL = '/status/ip/<ip>'
+
+    ATTR_IP = 'ip'
 
     METHOD = 'GET'
 
@@ -35,20 +37,23 @@ class EPPumpStatus(EP):
 
         return ret
 
-    def executeByParameters(self) -> dict:
+    def executeByParameters(self, ip) -> dict:
         payload = {}
+        payload[EPPumpStatus.ATTR_IP] = ip
 
         return self.executeByPayload(payload)
 
     def executeByPayload(self, payload) -> dict:
 
         remoteAddress = request.remote_addr
+        ip = payload[EPPumpStatus.ATTR_IP]
 
-        logging.debug( "WEB request ({0}): {1} {2} ()".format(
-                    remoteAddress, EPPumpStatus.METHOD, EPPumpStatus.URL
+        logging.debug( "WEB request ({0}): {1} {2} ({3}': '{4}')".format(
+                    remoteAddress, EPPumpStatus.METHOD, EPPumpStatus.URL,
+                    EPPumpStatus.ATTR_IP, ip
                     )
             )
 
-        data = self.web_gadget.pump.getPumpStatus()
+        data = self.web_gadget.pump.getPumpStatus(ip)
 
         return output_json( {'result': 'OK', 'data': data}, EP.CODE_OK)

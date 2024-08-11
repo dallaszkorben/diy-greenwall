@@ -106,7 +106,6 @@ class LampView(FlaskView):
     #
     # Switch All Lamp with payload
     #
-    # ###curl  --header "Content-Type: application/json" --request POST --data '{"status": "on", "lengthInSec": "10"}' http://localhost:5000/lamp/switch
     # curl  --header "Content-Type: application/json" --request POST --data '{"status": "on", "ip": "192.168.50.132"}' http://localhost:5000/lamp/switch
     #
     # POST http://localhost:5000/lamp/switch
@@ -134,21 +133,16 @@ class LampView(FlaskView):
         return out
 
     #
-    # Switch All Lamp - with parameters
+    # Switch Lamp - with parameters
     #
-    # ###curl  --header "Content-Type: application/json" --request POST http://localhost:5000/lamp/switch/status/on/lengthInSec/10
     # curl  --header "Content-Type: application/json" --request POST http://localhost:5000/lamp/switch/status/on/ip/192.168.50.132
     #
-    # ###POST http://localhost:5000/lamp/switch/status/<status>/lengthInSec/<lengthInSec>
     # POST http://localhost:5000/lamp/switch/status/<status>/ip/<ip>
     #
-    ####@route('/switch/status/<status>'/lengthInSec/<lengthInSec>)
     #@route('/switch/status/<status>'/ip/<ip>)
     @route(EPLampSwitch.PATH_PAR_URL, methods=[EPLampSwitch.METHOD])
-###    def setSwitchWithParameter(self, status, lengthInSec):
     def setSwitchWithParameter(self, status, ip):
 
-#        out = self.epLampSwitch.executeByParameters(status=status, lengthInSec=lengthInSec)
         out = self.epLampSwitch.executeByParameters(status=status, ip=ip)
 
         return out
@@ -162,10 +156,8 @@ class LampView(FlaskView):
     #
     # Get status of the Lamp with parameters
     #
-    #### curl  --header "Content-Type: application/json" --request GET http://localhost:5000/lamp/status
     # curl  --header "Content-Type: application/json" --request GET http://localhost:5000/lamp/status/ip/192.168.50.132
     #
-    #### GET http://localhost:5000/lamp/status
     # GET http://localhost:5000/lamp/status/ip/<ip>
     #
     #@route('/status/ip/<ip>', methods=['GET'])

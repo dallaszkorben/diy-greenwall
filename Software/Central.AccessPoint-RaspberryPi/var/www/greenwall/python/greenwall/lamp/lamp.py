@@ -62,6 +62,7 @@ class Lamp:
             else:
                 logging.debug("    Not this lamp")
 
+
     def getLampStatus(self, ip):
 
         #addresses = []
@@ -95,10 +96,10 @@ class Lamp:
 
             if x.status_code == 200:
                 logging.debug("Lamp Status Response: {0}".format(x.text))
-                return response.get('status')
+                return  {"status": response.get('status')}
             else:
                 logging.error("Lamp Status Response: Failed. Status is n/a")
-                return 'n/a'
+                return {"status": "n/a"}
 
 
         # NewConnectionError
@@ -109,8 +110,7 @@ class Lamp:
                 logging.debug("No lamp registered.")
             else:
                 logging.error("Exception: {0}. Status is n/a".format(e))
-            return 'n/a'
-
+            return {"status": "n/a"}
 
 
     def getLampList(self):

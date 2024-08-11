@@ -42,7 +42,7 @@ class EPInfoIsAlive(EP):
         remoteAddress = request.remote_addr
 
         logging.debug( "WEB request ({0}): {1} {2}".format(
-                    remoteAddress, EPInfoReady.METHOD, EPInfoReady.URL
+                    remoteAddress, EPInfoIsAlive.METHOD, EPInfoIsAlive.URL
                 )
         )
 

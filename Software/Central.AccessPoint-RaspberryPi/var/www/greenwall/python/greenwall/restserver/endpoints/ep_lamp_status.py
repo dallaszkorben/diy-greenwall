@@ -54,7 +54,6 @@ class EPLampStatus(EP):
                     )
             )
 
-        status = self.web_gadget.lamp.getLampStatus(ip)
+        data = self.web_gadget.lamp.getLampStatus(ip)
 
-        return output_json( {'result': 'OK', 'status': status}, EP.CODE_OK)
-
+        return output_json( {'result': 'OK', 'data': data}, EP.CODE_OK)
