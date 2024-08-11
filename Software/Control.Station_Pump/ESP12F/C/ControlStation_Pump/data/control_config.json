@@ -1,0 +1,18 @@
+{
+  "central-ap": {
+    "essid": "Central-Station-006",
+    "password": "viragfal",
+    "webserver-ip": "192.168.50.3:5000",
+    "webserver-path-info-timestamp": "info/timeStamp",
+    "webserver-path-pump-register": "pump/register",
+    "webserver_path_info_is_alive": "info/isAlive"
+  },
+  "control-sta": {
+    "pump-id": "pump-sta-1",
+    "pump-gpio": 4,
+    "led-status-gpio": 2,
+    "led-status-inverse": true,
+    "register-interval-sec": 30,
+    "regular-reset-seconds": 3600
+  }
+}
