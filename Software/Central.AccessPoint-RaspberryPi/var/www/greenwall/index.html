@@ -184,6 +184,11 @@
 
         var pumpChart;
 
+        var intervalCheckLamp = 10000;
+        var intervalCheckPump = 10000;
+        var intervalCheckCam = 10000;
+        var intervalCheckChart = 600000;  
+
         $( function() {
             $( "#tabs" ).tabs();
         } );
@@ -1354,12 +1359,12 @@
             //-----------------------
             // Refresh Lamp Status
             //-----------------------
-            checkLampStatusRefreshIntervalId = setInterval(checkLampStatus, 5000);
+            checkLampStatusRefreshIntervalId = setInterval(checkLampStatus, intervalCheckLamp);
 
             //-----------------------
             // Refresh Pump Status
             //-----------------------
-            checkPumpStatusRefreshIntervalId = setInterval(checkPumpStatus, 5000);
+            checkPumpStatusRefreshIntervalId = setInterval(checkPumpStatus, intervalCheckPump);
 
 
             $( "#tabs" ).tabs({
@@ -1396,12 +1401,12 @@
                         //-----------------------
                         // Refresh Lamp Status
                         //-----------------------
-                        checkLampStatusRefreshIntervalId = setInterval(checkLampStatus, 5000);
+                        checkLampStatusRefreshIntervalId = setInterval(checkLampStatus, intervalCheckLamp);
 
                         //-----------------------
                         // Refresh Lamp Status
                         //-----------------------
-                        // checkPumpStatusRefreshIntervalId = setInterval(checkPumpStatus, 5000);
+                        // checkPumpStatusRefreshIntervalId = setInterval(checkPumpStatus, intervalCheckPump);
 
                     // Select Chart-Tab
                     }else if(ui.newTab.index() == 1){
@@ -1409,7 +1414,7 @@
                         //-----------------------
                         // Refresh Charts
                         //-----------------------
-                        chartRefreshIntervalId = setInterval(refreshCharts, 600000);
+                        chartRefreshIntervalId = setInterval(refreshCharts, intervalCheckChart);
 
                     // Select Cam-Tab
                     }else if( ui.newTab.index() == 2){
@@ -1417,7 +1422,7 @@
                         //-----------------------
                         // Refresh Cam Capture
                         //-----------------------
-                        camCaptureRefreshIntervalId = setInterval(refreshCamCapture, 10000);
+                        camCaptureRefreshIntervalId = setInterval(refreshCamCapture, intervalCheckCam);
                     }
                 }
             });
